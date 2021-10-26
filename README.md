@@ -1,6 +1,6 @@
 # Data Structures With Go
-## [Go Programlama Dili İle Veri Yapıları](https://github.com/mstgnz/Lessons/tree/main/Go/DataStructures)
+## [Examples of Data Structures with Go](https://github.com/mstgnz/Lessons/tree/main/Go/DataStructures)
 
-[Detayları Görmek için tıklayınız.](https://github.com/mstgnz/Lessons/tree/main/Go/DataStructures)
+[Click to see the details.](https://github.com/mstgnz/Lessons/tree/main/Go/DataStructures)
 
 
