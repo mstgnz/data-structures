@@ -8,6 +8,7 @@ type IDouble interface{
 	AddToBetween(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
+	List(reverse bool) []int
 	Print(reverse bool)
 }
 
@@ -77,21 +78,33 @@ func (node *double) Delete(data int) {
 	}
 }
 
-// Print data
-func (node *double) Print(reverse bool) {
+// List data - slice
+func (node *double) List(reverse bool) []int{
+	var list []int
 	iter := node
 	if reverse { // print bottom to top
 		for iter.Next != nil {
 			iter = iter.Next
 		}
 		for iter != nil {
-			fmt.Println(iter.X)
+			list = append(list, iter.X)
 			iter = iter.Prev
 		}
 	} else { // print top to bottom
 		for iter != nil {
-			fmt.Println(iter.X)
+			list = append(list, iter.X)
 			iter = iter.Next
 		}
 	}
+	return list
 }
+
+// Print data
+func (node *double) Print(reverse bool) {
+	fmt.Print("print : ")
+	for _, val := range node.List(reverse) {
+		fmt.Print(val," ")
+	}
+	fmt.Println()
+}
+

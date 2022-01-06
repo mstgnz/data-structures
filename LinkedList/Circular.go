@@ -8,6 +8,7 @@ type ICircular interface{
 	AddToBetween(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
+	List() []int
 	Print()
 }
 
@@ -99,14 +100,24 @@ func (node *circular) Delete(data int) {
 	}
 }
 
+// List data - slice
+func (node *circular) List() []int{
+	var list []int
+	iter := node
+	list = append(list, iter.X)
+	iter = iter.Next
+	for iter != node{
+		list = append(list, iter.X)
+		iter = iter.Next
+	}
+	return list
+}
+
 // Print data
 func (node *circular) Print() {
 	fmt.Print("print : ")
-	iter := node
-	fmt.Print(iter.X," ")
-	iter = iter.Next
-	for iter != node{
-		fmt.Print(iter.X," ")
-		iter = iter.Next
+	for _, val := range node.List() {
+		fmt.Print(val," ")
 	}
+	fmt.Println()
 }

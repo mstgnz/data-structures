@@ -5,6 +5,7 @@ import "fmt"
 type ILinkedListQueue interface{
 	Enqueue(data int)
 	Dequeue()
+	List() []int
 	Print()
 }
 
@@ -39,12 +40,22 @@ func (arr *linkedListQueue) Dequeue() {
 	}
 }
 
-// Print data
-func (arr *linkedListQueue) Print() {
+// List data - slice
+func (arr *linkedListQueue) List() []int{
+	var list []int
 	iter := arr
 	for iter != nil {
-		fmt.Printf("%v ", iter.X)
+		list = append(list, iter.X)
 		iter = iter.Next
+	}
+	return list
+}
+
+// Print data
+func (arr *linkedListQueue) Print() {
+	fmt.Print("print : ")
+	for _, val := range arr.List() {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }

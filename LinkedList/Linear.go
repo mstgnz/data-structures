@@ -8,6 +8,7 @@ type ILinear interface{
 	AddToBetween(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
+	List() []int
 	Print()
 }
 
@@ -83,13 +84,22 @@ func (node *linear) Delete(data int) {
 	}
 }
 
+// List data - slice
+func (node *linear) List() []int{
+	var list []int
+	iter := node
+	for iter != nil {
+		list = append(list, iter.X)
+		iter = iter.Next
+	}
+	return list
+}
+
 // Print data
 func (node *linear) Print() {
 	fmt.Print("print : ")
-	iter := node
-	for iter != nil {
-		fmt.Print(iter.X," ")
-		iter = iter.Next
+	for _, val := range node.List() {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }

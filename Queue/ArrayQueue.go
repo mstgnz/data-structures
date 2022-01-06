@@ -6,6 +6,7 @@ type IArrayQueue interface{
 	Enqueue(data int)
 	Dequeue()
 	ReSort()
+	List() []int
 	Print()
 }
 
@@ -73,11 +74,20 @@ func (arr *arrayQueue) ReSort() {
 	arr.FirstIndex = 0
 }
 
+// List data - slice
+func (arr *arrayQueue) List() []int{
+	var list []int
+	for i := arr.FirstIndex; i < arr.LastIndex; i++ {
+		list = append(list, arr.Arr[i])
+	}
+	return list
+}
+
 // Print data
 func (arr *arrayQueue) Print() {
-	//fmt.Printf("len=%d cap=%d %v %v %v\n", len(arr.Arr), cap(arr.Arr), arr.Arr, arr.FirstIndex, arr.LastIndex)
-	for i := arr.FirstIndex; i < arr.LastIndex; i++ {
-		fmt.Printf("%v ", arr.Arr[i])
+	fmt.Print("print : ")
+	for _, val := range arr.List() {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }

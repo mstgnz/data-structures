@@ -10,7 +10,7 @@ import (
 
 func main(){
 	// Linear Linked List, Each node keeps the reference of the next node object.
-	linearLinkedList()
+	// linearLinkedList()
 
 	// Circular Linked List holds the reference of the last node root object.
 	// circularLinkedList()
