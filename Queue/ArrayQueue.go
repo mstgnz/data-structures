@@ -5,9 +5,9 @@ import "fmt"
 type IArrayQueue interface{
 	Enqueue(data int)
 	Dequeue()
-	ReSort()
 	List() []int
 	Print()
+	reSort()
 }
 
 type arrayQueue struct {
@@ -36,7 +36,7 @@ func (arr *arrayQueue) Enqueue(data int) {
 			arr.Arr = newArr
 			arr.ArrSize *= 2
 		}else{
-			arr.ReSort()
+			arr.reSort()
 		}
 	}
 	arr.Arr[arr.LastIndex] = data
@@ -62,7 +62,7 @@ func (arr *arrayQueue) Dequeue() {
 }
 
 // ReSort data
-func (arr *arrayQueue) ReSort() {
+func (arr *arrayQueue) reSort() {
 	newArr := make([]int, arr.ArrSize)
 	sort := 0
 	for i := arr.FirstIndex; i < arr.LastIndex; i++ {

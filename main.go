@@ -136,6 +136,7 @@ func stackLinkedList(){
 // Array Queue
 func queueArray(){
 	myArrayStack := Queue.ArrayQueue()
+	myArrayStack.Dequeue()
 	myArrayStack.Enqueue(33)
 	myArrayStack.Enqueue(55)
 	myArrayStack.Enqueue(66)
