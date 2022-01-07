@@ -31,7 +31,7 @@ func main(){
 	// queueLinkedList()
 
 	// Binary Tree
-	// binaryTree()
+	binaryTree()
 }
 
 // Linear Linked List

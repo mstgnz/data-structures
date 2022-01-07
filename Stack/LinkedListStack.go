@@ -6,6 +6,7 @@ type ILinkedListStack interface{
 	Push(data int)
 	Pop()
 	Print()
+	List() []int
 }
 
 type linkedListStack struct {
@@ -43,12 +44,22 @@ func (arr *linkedListStack) Pop() {
 	}
 }
 
-// Print data
-func (arr *linkedListStack) Print() {
+// List - data slice
+func (arr *linkedListStack) List() []int{
+	var list []int
 	iter := arr
 	for iter != nil {
-		fmt.Printf("%v ", iter.X)
+		list = append(list, iter.X)
 		iter = iter.Next
+	}
+	return list
+}
+
+// Print data
+func (arr *linkedListStack) Print() {
+	fmt.Print("print : ")
+	for _, val := range arr.List() {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }

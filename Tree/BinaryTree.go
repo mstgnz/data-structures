@@ -10,6 +10,7 @@ type IBinaryTree interface{
 	Max()int
 	Min()int
 	Print(pType string)
+	List(pType string) []int
 }
 
 type binaryTree struct {
@@ -64,66 +65,76 @@ func (tree *binaryTree) Delete(data int) {
 	tree = recursiveDelete(data, tree)
 }
 
-// Print Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
-func (tree *binaryTree) Print(pType string) {
+// List Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
+func (tree *binaryTree) List(pType string) []int {
+	var list []int
 	switch pType {
 	case "NLR":
 	case "NRL":
-		prefixPrint(tree, pType)
+		prefixPrint(tree, pType, &list)
 	case "LRN":
 	case "RLN":
-		postfixPrint(tree, pType)
+		postfixPrint(tree, pType, &list)
 	default:
-		infixPrint(tree, pType)
+		infixPrint(tree, pType, &list)
+	}
+	return list
+}
+
+// Print Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
+func (tree *binaryTree) Print(pType string) {
+	fmt.Print("print : ")
+	for _, val := range tree.List(pType) {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }
 
 // Infix: LNR-RNL
-func infixPrint(tree *binaryTree, pType string){
+func infixPrint(tree *binaryTree, pType string, list *[]int){
 	if tree == nil{
 		return
 	}
 	if pType == "RNL"{
-		infixPrint(tree.Right, pType)
-		fmt.Printf("%v ", tree.X)
-		infixPrint(tree.Left, pType)
+		infixPrint(tree.Right, pType, list)
+		*list = append(*list, tree.X)
+		infixPrint(tree.Left, pType, list)
 	}else{
-		infixPrint(tree.Left, pType)
-		fmt.Printf("%v ", tree.X)
-		infixPrint(tree.Right, pType)
+		infixPrint(tree.Left, pType, list)
+		*list = append(*list, tree.X)
+		infixPrint(tree.Right, pType, list)
 	}
 }
 
 // Prefix: NLR-NRL
-func prefixPrint(tree *binaryTree, pType string){
+func prefixPrint(tree *binaryTree, pType string, list *[]int){
 	if tree == nil{
 		return
 	}
 	if pType == "NRL"{
-		fmt.Printf("%v ", tree.X)
-		infixPrint(tree.Right, pType)
-		infixPrint(tree.Left, pType)
+		*list = append(*list, tree.X)
+		infixPrint(tree.Right, pType, list)
+		infixPrint(tree.Left, pType, list)
 	}else{
-		fmt.Printf("%v ", tree.X)
-		infixPrint(tree.Left, pType)
-		infixPrint(tree.Right, pType)
+		*list = append(*list, tree.X)
+		infixPrint(tree.Left, pType, list)
+		infixPrint(tree.Right, pType, list)
 	}
 }
 
 // Postfix: LRN, RLN
-func postfixPrint(tree *binaryTree, pType string){
+func postfixPrint(tree *binaryTree, pType string, list *[]int){
 	if tree == nil{
 		return
 	}
 	if pType == "RLN"{
-		infixPrint(tree.Right, pType)
-		infixPrint(tree.Left, pType)
-		fmt.Printf("%v ", tree.X)
+		infixPrint(tree.Right, pType, list)
+		infixPrint(tree.Left, pType, list)
+		*list = append(*list, tree.X)
 	}else{
-		infixPrint(tree.Left, pType)
-		infixPrint(tree.Right, pType)
-		fmt.Printf("%v ", tree.X)
+		infixPrint(tree.Left, pType, list)
+		infixPrint(tree.Right, pType, list)
+		*list = append(*list, tree.X)
 	}
 }
 

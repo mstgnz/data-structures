@@ -6,6 +6,7 @@ type IArrayStack interface{
 	Push(data int)
 	Pop()
 	Print()
+	List() []int
 }
 
 type arrayStack struct {
@@ -53,11 +54,20 @@ func (arr *arrayStack) Pop() {
 	}
 }
 
+// List - data slice
+func (arr *arrayStack) List() []int{
+	var list []int
+	for i := 0; i < arr.Index; i++ {
+		list = append(list, arr.Arr[i])
+	}
+	return list
+}
+
 // Print data
 func (arr *arrayStack) Print() {
-	//fmt.Printf("len=%d cap=%d %v\n", len(arr.Arr), cap(arr.Arr), arr.Arr)
-	for i := 0; i < arr.Index; i++ {
-		fmt.Printf("%v ", arr.Arr[i])
+	fmt.Print("print : ")
+	for _, val := range arr.List() {
+		fmt.Print(val," ")
 	}
 	fmt.Println()
 }
