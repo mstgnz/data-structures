@@ -16,10 +16,6 @@ func Test_arrayQueue_Enqueue(t *testing.T) {
 
 }
 
-func Test_arrayQueue_Print(t *testing.T) {
-
-}
-
 func Test_arrayQueue_ReSort(t *testing.T) {
 
 }

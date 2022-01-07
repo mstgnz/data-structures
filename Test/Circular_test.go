@@ -9,7 +9,6 @@ import (
 var circular LinkedList.ICircular = LinkedList.Circular(1)
 
 func TestCircular(t *testing.T) {
-	circular = LinkedList.Circular(1)
 	expect := []int{1}
 	if got := circular.List(); !reflect.DeepEqual(got, expect) {
 		t.Errorf("Circular() = %v, want %v", got, expect)
@@ -17,10 +16,10 @@ func TestCircular(t *testing.T) {
 }
 
 func Test_circular_AddToBetween(t *testing.T) {
-	circular.AddToBetween(2,1)
+	circular.AddToAfter(2,1)
 	expect := []int{1,2}
 	if got := circular.List(); !reflect.DeepEqual(got, expect) {
-		t.Errorf("AddToBetween() = %v, want %v", got, expect)
+		t.Errorf("AddToAfter() = %v, want %v", got, expect)
 	}
 }
 

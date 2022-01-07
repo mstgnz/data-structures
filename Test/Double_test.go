@@ -9,7 +9,6 @@ import (
 var double LinkedList.IDouble = LinkedList.Double(1)
 
 func TestDouble(t *testing.T) {
-	double = LinkedList.Double(1)
 	expect := []int{1}
 	if got := double.List(true); !reflect.DeepEqual(got, expect) {
 		t.Errorf("Double() = %v, want %v", got, expect)
@@ -17,10 +16,10 @@ func TestDouble(t *testing.T) {
 }
 
 func Test_double_AddToBetween(t *testing.T) {
-	double.AddToBetween(2,1)
+	double.AddToAfter(2,1)
 	expect := []int{1,2}
 	if got := double.List(true); !reflect.DeepEqual(got, expect) {
-		t.Errorf("AddToBetween() = %v, want %v", got, expect)
+		t.Errorf("AddToAfter() = %v, want %v", got, expect)
 	}
 }
 

@@ -5,7 +5,7 @@ import "fmt"
 type IDouble interface{
 	AddToStart(data int)
 	AddToSequentially(data int)
-	AddToBetween(data, which int)
+	AddToAfter(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
 	List(reverse bool) []int
@@ -44,8 +44,8 @@ func (node *double) AddToSequentially(data int) {
 	}
 }
 
-// AddToBetween data
-func (node *double) AddToBetween(data int, which int) {
+// AddToAfter data
+func (node *double) AddToAfter(data int, which int) {
 	for node.Next != nil && node.X != which {
 		node = node.Next
 	}

@@ -28,10 +28,6 @@ func Test_binaryTree_Min(t *testing.T) {
 
 }
 
-func Test_binaryTree_Print(t *testing.T) {
-
-}
-
 func Test_binaryTree_Search(t *testing.T) {
 
 }

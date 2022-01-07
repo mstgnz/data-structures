@@ -5,7 +5,7 @@ import "fmt"
 type ILinear interface{
 	AddToStart(data int)
 	AddToSequentially(data int)
-	AddToBetween(data, which int)
+	AddToAfter(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
 	List() []int
@@ -38,8 +38,8 @@ func (node *linear) AddToSequentially(data int) {
 	node.Next.Next = temp.Next
 }
 
-// AddToBetween data
-func (node *linear) AddToBetween(data int, which int) {
+// AddToAfter data
+func (node *linear) AddToAfter(data int, which int) {
 	for node.X != which && node.Next != nil {
 		node = node.Next
 	}

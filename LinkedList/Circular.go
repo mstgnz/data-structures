@@ -5,7 +5,7 @@ import "fmt"
 type ICircular interface{
 	AddToStart(data int)
 	AddToSequentially(data int)
-	AddToBetween(data, which int)
+	AddToAfter(data, which int)
 	AddToEnd(data int)
 	Delete(data int)
 	List() []int
@@ -52,8 +52,8 @@ func (node *circular) AddToSequentially(data int) {
 	}
 }
 
-// AddToBetween data
-func (node *circular) AddToBetween(data int, which int) {
+// AddToAfter data
+func (node *circular) AddToAfter(data int, which int) {
 	for node.X != which && node != node.Next {
 		node = node.Next
 	}
