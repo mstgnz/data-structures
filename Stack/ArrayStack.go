@@ -19,13 +19,6 @@ func ArrayStack() IArrayStack{
 	return &arrayStack{[]int{0,0}, 2,0}
 }
 
-// Constructor initialize (manuel) -> but interface with auto constructor.
-/*func (arr *arrayStack) Constructor(){
-	arr.ArrSize = 2
-	arr.Index = 0
-	arr.Arr = []int{0,0}
-}*/
-
 // Push Add to data
 func (arr *arrayStack) Push(data int) {
 	if arr.Index >= arr.ArrSize{
