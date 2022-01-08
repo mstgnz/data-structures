@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"data-structures/LinkedList"
 	"data-structures/Queue"
 	"data-structures/Stack"
 	"data-structures/Tree"
-	"fmt"
 )
 
 func main(){
@@ -68,6 +69,7 @@ func circularLinkedList() {
 func doubleLinkedList() {
 	double := LinkedList.Double(1)
 	double.AddToStart(3)
+	double.Delete(1)
 	double.AddToEnd(9)
 	double.AddToEnd(12)
 	double.AddToEnd(15)

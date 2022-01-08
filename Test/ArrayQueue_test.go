@@ -1,14 +1,14 @@
 package Test
 
 import (
-	"data-structures/Queue"
 	"reflect"
 	"testing"
+
+	"data-structures/Queue"
 )
 
-var arrayQueue Queue.IArrayQueue = Queue.ArrayQueue()
-
 func TestArrayQueue(t *testing.T) {
+	arrayQueue := Queue.ArrayQueue()
 	var expect []int
 	if got := arrayQueue.List(); !reflect.DeepEqual(got, expect) {
 		t.Errorf("ArrayQueue() = %v, want %v", got, expect)
@@ -16,6 +16,7 @@ func TestArrayQueue(t *testing.T) {
 }
 
 func Test_arrayQueue_Dequeue(t *testing.T) {
+	arrayQueue := Queue.ArrayQueue()
 	var expect []int
 	arrayQueue.Enqueue(1)
 	arrayQueue.Dequeue()
@@ -25,6 +26,7 @@ func Test_arrayQueue_Dequeue(t *testing.T) {
 }
 
 func Test_arrayQueue_Enqueue(t *testing.T) {
+	arrayQueue := Queue.ArrayQueue()
 	expect := []int{2}
 	arrayQueue.Enqueue(1)
 	arrayQueue.Dequeue()

@@ -45,6 +45,10 @@ func (arr *arrayQueue) Enqueue(data int) {
 
 // Dequeue Remove to data
 func (arr *arrayQueue) Dequeue() {
+	// if deque is run first
+	if arr.FirstIndex == 0 && arr.LastIndex == 0 {
+		return
+	}
 	arr.Arr[arr.FirstIndex] = 0
 	arr.FirstIndex++
 	if arr.LastIndex - arr.FirstIndex <= arr.ArrSize / 4{

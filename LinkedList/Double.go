@@ -66,6 +66,11 @@ func (node *double) AddToEnd(data int) {
 
 // Delete data
 func (node *double) Delete(data int) {
+	// Set to zero if the value to be deleted is the first element
+	if node.X == data{
+		node.X = 0
+		return
+	}
 	// If the value to be deleted is a value in between or at the end, we move our iter object to the previous node object to be deleted.
 	for node.Next != nil && node.Next.X != data {
 		node = node.Next
@@ -73,8 +78,12 @@ func (node *double) Delete(data int) {
 	if node.Next == nil {
 		fmt.Println(data,"not found!")
 	} else {
-		node.Next = node.Next.Next
-		node.Next.Prev = node
+		if node.Next.Next != nil{
+			node.Next = node.Next.Next
+			node.Next.Prev = node
+		}else{
+			node.Next = nil
+		}
 	}
 }
 

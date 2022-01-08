@@ -2,18 +2,18 @@ package Test
 
 import (
 	"bytes"
-	"data-structures/Tree"
 	"log"
 	"os"
 	"reflect"
 	"testing"
-)
 
-var tree Tree.IBinaryTree = Tree.BinaryTree(1)
+	"data-structures/Tree"
+)
 
 // tree.List(pType string) -> pType -> Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
 
 func TestBinaryTree(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := []int{1}
 	if got := tree.List("NRL"); !reflect.DeepEqual(got, expect) {
 		t.Errorf("BinaryTree() = %v, want %v", got, expect)
@@ -21,6 +21,7 @@ func TestBinaryTree(t *testing.T) {
 }
 
 func Test_binaryTree_Delete(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := []int{1,3} // for NRL
 	tree.Insert(2)
 	tree.Insert(3)
@@ -31,6 +32,7 @@ func Test_binaryTree_Delete(t *testing.T) {
 }
 
 func Test_binaryTree_Exists(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := false
 	got := tree.Exists(13)
 	if !reflect.DeepEqual(got, expect) {
@@ -39,6 +41,7 @@ func Test_binaryTree_Exists(t *testing.T) {
 }
 
 func Test_binaryTree_Insert(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := []int{1,2,3} // for NRL
 	tree.Insert(2)
 	tree.Insert(3)
@@ -48,6 +51,7 @@ func Test_binaryTree_Insert(t *testing.T) {
 }
 
 func Test_binaryTree_Max(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := 3
 	tree.Insert(2)
 	tree.Insert(3)
@@ -57,6 +61,7 @@ func Test_binaryTree_Max(t *testing.T) {
 }
 
 func Test_binaryTree_Min(t *testing.T) {
+	tree := Tree.BinaryTree(1)
 	expect := 1
 	tree.Insert(2)
 	tree.Insert(3)
