@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"data-structures/LinkedList"
-	"data-structures/Queue"
-	"data-structures/Stack"
-	"data-structures/Tree"
+	"github.com/mstgnz/data-structures/LinkedList"
+	"github.com/mstgnz/data-structures/Queue"
+	"github.com/mstgnz/data-structures/Stack"
+	"github.com/mstgnz/data-structures/Tree"
 )
 
-func main(){
+func main() {
 	// Linear Linked List, Each node keeps the reference of the next node object.
 	// linearLinkedList()
 
@@ -86,7 +86,7 @@ func doubleLinkedList() {
 }
 
 // Array Stack
-func stackArray(){
+func stackArray() {
 	myArrayStack := Stack.ArrayStack()
 	//myArrayStack.Constructor()
 	myArrayStack.Push(33)
@@ -107,7 +107,7 @@ func stackArray(){
 }
 
 // LinkedList Stack
-func stackLinkedList(){
+func stackLinkedList() {
 	myArrayStack := Stack.LinkedListStack(22)
 	myArrayStack.Push(33)
 	myArrayStack.Push(55)
@@ -136,7 +136,7 @@ func stackLinkedList(){
 }
 
 // Array Queue
-func queueArray(){
+func queueArray() {
 	myArrayStack := Queue.ArrayQueue()
 	myArrayStack.Dequeue()
 	myArrayStack.Enqueue(33)
@@ -167,7 +167,7 @@ func queueArray(){
 }
 
 // LinkedList Queue
-func queueLinkedList(){
+func queueLinkedList() {
 	myArrayStack := Queue.LinkedListQueue(22)
 	myArrayStack.Enqueue(33)
 	myArrayStack.Enqueue(55)
@@ -196,7 +196,7 @@ func queueLinkedList(){
 }
 
 // Binary Tree
-func binaryTree(){
+func binaryTree() {
 	myTree := Tree.BinaryTree(56)
 	myTree.Insert(200)
 	myTree.Insert(26)

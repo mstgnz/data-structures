@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"data-structures/Queue"
+	"github.com/mstgnz/data-structures/Queue"
 )
 
 func TestLinkedListQueue(t *testing.T) {
@@ -17,7 +17,7 @@ func TestLinkedListQueue(t *testing.T) {
 
 func Test_linkedListQueue_Dequeue(t *testing.T) {
 	queueLinkedList := Queue.LinkedListQueue(1)
-	expect := []int{5,2}
+	expect := []int{5, 2}
 	queueLinkedList.Enqueue(5)
 	queueLinkedList.Dequeue()
 	queueLinkedList.Enqueue(2)
@@ -28,7 +28,7 @@ func Test_linkedListQueue_Dequeue(t *testing.T) {
 
 func Test_linkedListQueue_Enqueue(t *testing.T) {
 	queueLinkedList := Queue.LinkedListQueue(1)
-	expect := []int{3,2}
+	expect := []int{3, 2}
 	queueLinkedList.Enqueue(3)
 	queueLinkedList.Enqueue(2)
 	queueLinkedList.Dequeue()

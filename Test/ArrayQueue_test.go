@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"data-structures/Queue"
+	"github.com/mstgnz/data-structures/Queue"
 )
 
 func TestArrayQueue(t *testing.T) {

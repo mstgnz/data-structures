@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"data-structures/Tree"
+	"github.com/mstgnz/data-structures/Tree"
 )
 
 // tree.List(pType string) -> pType -> Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
@@ -22,7 +22,7 @@ func TestBinaryTree(t *testing.T) {
 
 func Test_binaryTree_Delete(t *testing.T) {
 	tree := Tree.BinaryTree(1)
-	expect := []int{1,3} // for NRL
+	expect := []int{1, 3} // for NRL
 	tree.Insert(2)
 	tree.Insert(3)
 	tree.Delete(2)
@@ -42,7 +42,7 @@ func Test_binaryTree_Exists(t *testing.T) {
 
 func Test_binaryTree_Insert(t *testing.T) {
 	tree := Tree.BinaryTree(1)
-	expect := []int{1,2,3} // for NRL
+	expect := []int{1, 2, 3} // for NRL
 	tree.Insert(2)
 	tree.Insert(3)
 	if got := tree.List("NRL"); !reflect.DeepEqual(got, expect) {

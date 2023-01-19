@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"data-structures/Stack"
+	"github.com/mstgnz/data-structures/Stack"
 )
 
 func TestArrayStack(t *testing.T) {
@@ -28,7 +28,7 @@ func Test_arrayStack_Pop(t *testing.T) {
 
 func Test_arrayStack_Push(t *testing.T) {
 	stackArray := Stack.ArrayStack()
-	expect := []int{5,9}
+	expect := []int{5, 9}
 	stackArray.Push(5)
 	stackArray.Push(3)
 	stackArray.Pop()
