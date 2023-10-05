@@ -1,5 +1,8 @@
 # Data Structures With Go
 
+This repository explores various data structures implemented in the Go programming language.
+
+
 ### Linked List
 
 ![Linear Linked List](img/LinearLinkedList.png)
@@ -61,8 +64,3 @@ type linkedListStack struct {
     Next *linkedListStack
 }
 ```
-
-### Source
-[![](https://www.sadievrenseker.com/logo1_copy.png)](https://bilgisayarkavramlari.com/category/veri-yapilari/)
-<a href="https://www.geeksforgeeks.org/data-structures/linked-list/"><img src="https://media-exp1.licdn.com/dms/image/C4D22AQHzOgJvJye7CQ/feedshare-shrink_2048_1536/0/1623937238005?e=1643241600&v=beta&t=tdL6PoXMlOlMih6JroVruTdRjtXjsM77FTZnahNnmfo" height="155" />
-</a>
