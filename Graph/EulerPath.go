@@ -1,42 +1,57 @@
 package Graph
 
+import "fmt"
+
 // EulerPath implements algorithms for finding Euler paths and circuits
 type EulerPath struct {
-	graph     *Graph
-	path      []int
-	edgeCount map[string]int // Count of used edges
+	graph      *Graph
+	path       []int
+	edgeCount  map[string]int
+	edgesUsed  int
+	totalEdges int
 }
 
 // NewEulerPath creates a new EulerPath instance
 func NewEulerPath(g *Graph) *EulerPath {
+	totalEdges := 0
+	for v := 0; v < g.GetVertices(); v++ {
+		totalEdges += len(g.adjList[v])
+	}
+	if !g.IsDirected() {
+		totalEdges /= 2 // Each edge counted twice in undirected graph
+	}
+
 	return &EulerPath{
-		graph:     g,
-		path:      make([]int, 0),
-		edgeCount: make(map[string]int),
+		graph:      g,
+		path:       make([]int, 0),
+		edgeCount:  make(map[string]int),
+		edgesUsed:  0,
+		totalEdges: totalEdges,
 	}
 }
 
 // makeEdgeKey creates a unique key for an edge
 func (ep *EulerPath) makeEdgeKey(from, to int) string {
-	if from < to {
-		return string(rune(from)) + "-" + string(rune(to))
+	if ep.graph.IsDirected() {
+		return fmt.Sprintf("%d->%d", from, to)
 	}
-	return string(rune(to)) + "-" + string(rune(from))
+	if from < to {
+		return fmt.Sprintf("%d-%d", from, to)
+	}
+	return fmt.Sprintf("%d-%d", to, from)
 }
 
 // getUnusedEdge returns an unused edge from vertex v
 func (ep *EulerPath) getUnusedEdge(v int) *Edge {
 	for _, edge := range ep.graph.adjList[v] {
-		key := ep.makeEdgeKey(edge.From, edge.To)
+		key := ep.makeEdgeKey(v, edge.To)
 		count := ep.edgeCount[key]
 
-		if !ep.graph.IsDirected() {
-			// In undirected graph each edge should be used once
+		if ep.graph.IsDirected() {
 			if count == 0 {
 				return &edge
 			}
 		} else {
-			// In directed graph each edge should be used once in each direction
 			if count == 0 {
 				return &edge
 			}
@@ -53,8 +68,9 @@ func (ep *EulerPath) dfs(v int) {
 			break
 		}
 
-		key := ep.makeEdgeKey(edge.From, edge.To)
+		key := ep.makeEdgeKey(v, edge.To)
 		ep.edgeCount[key]++
+		ep.edgesUsed++
 		ep.dfs(edge.To)
 	}
 	ep.path = append(ep.path, v)
@@ -66,13 +82,28 @@ func (ep *EulerPath) FindEulerPath() []int {
 		return nil
 	}
 
+	// Reset state
+	ep.path = make([]int, 0)
+	ep.edgeCount = make(map[string]int)
+	ep.edgesUsed = 0
+
 	// Find starting vertex
 	start := ep.findStartVertex()
 	ep.dfs(start)
 
-	// Reverse the path (DFS result in reverse order)
+	// Check if all edges were used
+	if ep.edgesUsed != ep.totalEdges {
+		return nil
+	}
+
+	// Reverse the path
 	for i, j := 0, len(ep.path)-1; i < j; i, j = i+1, j-1 {
 		ep.path[i], ep.path[j] = ep.path[j], ep.path[i]
+	}
+
+	// Verify circuit property if needed
+	if ep.HasEulerCircuit() && ep.path[0] != ep.path[len(ep.path)-1] {
+		return nil
 	}
 
 	return ep.path
@@ -83,7 +114,11 @@ func (ep *EulerPath) FindEulerCircuit() []int {
 	if !ep.HasEulerCircuit() {
 		return nil
 	}
-	return ep.FindEulerPath()
+	path := ep.FindEulerPath()
+	if path == nil || path[0] != path[len(path)-1] {
+		return nil
+	}
+	return path
 }
 
 // HasEulerPath checks if the graph has an Euler path
@@ -92,16 +127,7 @@ func (ep *EulerPath) HasEulerPath() bool {
 		return false
 	}
 
-	oddCount := 0
-	for v := 0; v < ep.graph.GetVertices(); v++ {
-		degree := len(ep.graph.adjList[v])
-		if degree%2 != 0 {
-			oddCount++
-		}
-	}
-
 	if ep.graph.IsDirected() {
-		// Check in-out degree for directed graph
 		inDegree := make([]int, ep.graph.GetVertices())
 		outDegree := make([]int, ep.graph.GetVertices())
 
@@ -112,19 +138,30 @@ func (ep *EulerPath) HasEulerPath() bool {
 			}
 		}
 
-		diffCount := 0
+		startCount := 0
+		endCount := 0
 		for v := 0; v < ep.graph.GetVertices(); v++ {
 			diff := outDegree[v] - inDegree[v]
 			if diff > 1 || diff < -1 {
 				return false
 			}
-			if diff != 0 {
-				diffCount++
+			if diff == 1 {
+				startCount++
+			}
+			if diff == -1 {
+				endCount++
 			}
 		}
-		return diffCount == 0 || diffCount == 2
+		return (startCount == 0 && endCount == 0) || (startCount == 1 && endCount == 1)
 	}
 
+	// For undirected graph
+	oddCount := 0
+	for v := 0; v < ep.graph.GetVertices(); v++ {
+		if len(ep.graph.adjList[v])%2 != 0 {
+			oddCount++
+		}
+	}
 	return oddCount == 0 || oddCount == 2
 }
 
@@ -204,22 +241,33 @@ func (ep *EulerPath) findStartVertex() int {
 			}
 		}
 
-		// Find node with out degree 1 more than in degree
+		// First try to find a vertex with out degree = in degree + 1
 		for v := 0; v < ep.graph.GetVertices(); v++ {
-			if len(ep.graph.adjList[v])-inDegree[v] == 1 {
+			if len(ep.graph.adjList[v]) > 0 && len(ep.graph.adjList[v]) == inDegree[v]+1 {
 				return v
 			}
 		}
-		// If not found, start from any node
-		return 0
-	}
 
-	// Find node with odd degree in undirected graph
-	for v := 0; v < ep.graph.GetVertices(); v++ {
-		if len(ep.graph.adjList[v])%2 != 0 {
-			return v
+		// If no such vertex exists, find first vertex with non-zero degree
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v]) > 0 {
+				return v
+			}
+		}
+	} else {
+		// For undirected graph, first try to find vertex with odd degree
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v])%2 != 0 {
+				return v
+			}
+		}
+
+		// If no odd degree vertex exists, find first vertex with non-zero degree
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v]) > 0 {
+				return v
+			}
 		}
 	}
-	// If not found, start from any node
 	return 0
 }
