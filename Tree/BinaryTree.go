@@ -1,6 +1,9 @@
 package tree
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type IBinaryTree interface {
 	Insert(data int)
@@ -17,19 +20,24 @@ type binaryTree struct {
 	X     int
 	Left  *binaryTree
 	Right *binaryTree
+	mutex sync.RWMutex
 }
 
 func BinaryTree(data int) IBinaryTree {
-	return &binaryTree{data, nil, nil}
+	return &binaryTree{X: data, Left: nil, Right: nil, mutex: sync.RWMutex{}}
 }
 
-// Insert Add to data
+// Insert adds data to the tree
 func (tree *binaryTree) Insert(data int) {
+	tree.mutex.Lock()
+	defer tree.mutex.Unlock()
 	recursiveInsert(data, tree)
 }
 
-// Search print
+// Search prints whether data exists in the tree
 func (tree *binaryTree) Search(data int) {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	if recursiveSearch(data, tree) {
 		fmt.Printf("%v: available in the tree\n", data)
 	} else {
@@ -37,13 +45,17 @@ func (tree *binaryTree) Search(data int) {
 	}
 }
 
-// Exists true or false
+// Exists returns true if data exists in the tree
 func (tree *binaryTree) Exists(data int) bool {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	return recursiveSearch(data, tree)
 }
 
-// Max find value
+// Max returns the maximum value in the tree
 func (tree *binaryTree) Max() int {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	iter := tree
 	for iter.Right != nil {
 		iter = iter.Right
@@ -51,8 +63,10 @@ func (tree *binaryTree) Max() int {
 	return iter.X
 }
 
-// Min find value
+// Min returns the minimum value in the tree
 func (tree *binaryTree) Min() int {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	iter := tree
 	for iter.Left != nil {
 		iter = iter.Left
@@ -60,13 +74,18 @@ func (tree *binaryTree) Min() int {
 	return iter.X
 }
 
-// Delete Remove to data
+// Delete removes data from the tree
 func (tree *binaryTree) Delete(data int) {
+	tree.mutex.Lock()
+	defer tree.mutex.Unlock()
 	recursiveDelete(data, tree)
 }
 
-// List Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
+// List returns a slice of values in the specified traversal order
+// Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
 func (tree *binaryTree) List(pType string) []int {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	var list []int
 	switch pType {
 	case "NLR":
@@ -81,8 +100,10 @@ func (tree *binaryTree) List(pType string) []int {
 	return list
 }
 
-// Print Infix: LNR-RNL, Prefix: NLR-NRL, Postfix: LRN, RLN
+// Print displays the tree values in the specified traversal order
 func (tree *binaryTree) Print(pType string) {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	fmt.Print("print : ")
 	for _, val := range tree.List(pType) {
 		fmt.Print(val, " ")

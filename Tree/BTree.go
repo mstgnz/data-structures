@@ -1,5 +1,7 @@
 package tree
 
+import "sync"
+
 // BTreeNode represents a node in B-tree
 type BTreeNode struct {
 	keys     []int
@@ -9,8 +11,9 @@ type BTreeNode struct {
 
 // BTree represents a B-tree
 type BTree struct {
-	root *BTreeNode
-	t    int // Minimum degree (defines the range for number of keys)
+	root  *BTreeNode
+	t     int // Minimum degree (defines the range for number of keys)
+	mutex sync.RWMutex
 }
 
 // NewBTree creates a new B-tree with minimum degree t
@@ -27,6 +30,8 @@ func NewBTree(t int) *BTree {
 
 // Search searches for a key in the B-tree
 func (tree *BTree) Search(k int) bool {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	return tree.searchNode(tree.root, k)
 }
 
@@ -49,6 +54,8 @@ func (tree *BTree) searchNode(x *BTreeNode, k int) bool {
 
 // Insert inserts a key into the B-tree
 func (tree *BTree) Insert(k int) {
+	tree.mutex.Lock()
+	defer tree.mutex.Unlock()
 	root := tree.root
 	if len(root.keys) == 2*tree.t-1 {
 		// Create new root
@@ -140,6 +147,8 @@ func (tree *BTree) splitChild(x *BTreeNode, i int) {
 
 // Delete removes a key from the B-tree
 func (tree *BTree) Delete(k int) {
+	tree.mutex.Lock()
+	defer tree.mutex.Unlock()
 	tree.deleteNode(tree.root, k)
 	if len(tree.root.keys) == 0 && !tree.root.leaf {
 		tree.root = tree.root.children[0]
@@ -278,6 +287,8 @@ func (tree *BTree) mergeChildren(x *BTreeNode, idx int) {
 
 // GetInOrder returns all keys in the B-tree in sorted order
 func (tree *BTree) GetInOrder() []int {
+	tree.mutex.RLock()
+	defer tree.mutex.RUnlock()
 	var result []int
 	tree.inOrderTraversal(tree.root, &result)
 	return result

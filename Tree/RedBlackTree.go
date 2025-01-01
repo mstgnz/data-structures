@@ -1,5 +1,7 @@
 package tree
 
+import "sync"
+
 // Color represents the color of a node in Red-Black tree
 type Color bool
 
@@ -17,18 +19,26 @@ type RBNode struct {
 
 // RedBlackTree represents a Red-Black tree
 type RedBlackTree struct {
-	Root *RBNode
-	NIL  *RBNode // Sentinel node
+	Root  *RBNode
+	NIL   *RBNode // Sentinel node
+	mutex sync.RWMutex
 }
 
 // NewRedBlackTree creates a new Red-Black tree
 func NewRedBlackTree() *RedBlackTree {
 	nil_node := &RBNode{Color: BLACK}
-	return &RedBlackTree{NIL: nil_node, Root: nil_node}
+	return &RedBlackTree{
+		NIL:   nil_node,
+		Root:  nil_node,
+		mutex: sync.RWMutex{},
+	}
 }
 
 // Insert adds a new key to the tree
 func (t *RedBlackTree) Insert(key int) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	node := &RBNode{
 		Key:    key,
 		Color:  RED,
@@ -146,6 +156,8 @@ func (t *RedBlackTree) rightRotate(x *RBNode) {
 
 // Search looks for a key in the tree
 func (t *RedBlackTree) Search(key int) bool {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	return t.searchNode(t.Root, key) != t.NIL
 }
 
@@ -161,6 +173,8 @@ func (t *RedBlackTree) searchNode(node *RBNode, key int) *RBNode {
 
 // InOrderTraversal performs an inorder traversal of the tree
 func (t *RedBlackTree) InOrderTraversal(result *[]int) {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	t.inOrderTraversal(t.Root, result)
 }
 

@@ -27,7 +27,7 @@ func TestAVLTree(t *testing.T) {
 
 	// InOrder traversal testi
 	var result []int
-	avl.InOrderTraversal(avl.Root, &result)
+	avl.InOrderTraversal(&result)
 	expected := []int{10, 20, 25, 30, 40, 50}
 
 	if len(result) != len(expected) {

@@ -1,6 +1,8 @@
 package tree
 
-// Node AVL ağacı için düğüm yapısı
+import "sync"
+
+// AVLNode represents a node in AVL tree
 type AVLNode struct {
 	Key    int
 	Height int
@@ -8,17 +10,18 @@ type AVLNode struct {
 	Right  *AVLNode
 }
 
-// AVLTree AVL ağacı yapısı
+// AVLTree represents an AVL tree
 type AVLTree struct {
-	Root *AVLNode
+	Root  *AVLNode
+	mutex sync.RWMutex
 }
 
-// NewAVLTree yeni bir AVL ağacı oluşturur
+// NewAVLTree creates a new AVL tree
 func NewAVLTree() *AVLTree {
-	return &AVLTree{nil}
+	return &AVLTree{nil, sync.RWMutex{}}
 }
 
-// Height düğümün yüksekliğini döndürür
+// Height returns the height of the node
 func (n *AVLNode) height() int {
 	if n == nil {
 		return 0
@@ -26,7 +29,7 @@ func (n *AVLNode) height() int {
 	return n.Height
 }
 
-// getBalance düğümün denge faktörünü hesaplar
+// getBalance calculates the balance factor of the node
 func (n *AVLNode) getBalance() int {
 	if n == nil {
 		return 0
@@ -34,7 +37,7 @@ func (n *AVLNode) getBalance() int {
 	return n.Left.height() - n.Right.height()
 }
 
-// maxInt iki sayıdan büyük olanı döndürür
+// maxInt returns the maximum of two integers
 func maxInt(a, b int) int {
 	if a > b {
 		return a
@@ -42,12 +45,12 @@ func maxInt(a, b int) int {
 	return b
 }
 
-// updateHeight düğümün yüksekliğini günceller
+// updateHeight updates the height of the node
 func (n *AVLNode) updateHeight() {
 	n.Height = maxInt(n.Left.height(), n.Right.height()) + 1
 }
 
-// rightRotate sağa döndürme işlemi
+// rightRotate performs right rotation
 func rightRotate(y *AVLNode) *AVLNode {
 	x := y.Left
 	T2 := x.Right
@@ -61,7 +64,7 @@ func rightRotate(y *AVLNode) *AVLNode {
 	return x
 }
 
-// leftRotate sola döndürme işlemi
+// leftRotate performs left rotation
 func leftRotate(x *AVLNode) *AVLNode {
 	y := x.Right
 	T2 := y.Left
@@ -75,13 +78,15 @@ func leftRotate(x *AVLNode) *AVLNode {
 	return y
 }
 
-// Insert ağaca yeni bir düğüm ekler
+// Insert adds a new node to the tree
 func (t *AVLTree) Insert(key int) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	t.Root = t.insert(t.Root, key)
 }
 
 func (t *AVLTree) insert(node *AVLNode, key int) *AVLNode {
-	// Normal BST ekleme işlemi
+	// Normal BST insertion
 	if node == nil {
 		return &AVLNode{Key: key, Height: 1}
 	}
@@ -91,32 +96,32 @@ func (t *AVLTree) insert(node *AVLNode, key int) *AVLNode {
 	} else if key > node.Key {
 		node.Right = t.insert(node.Right, key)
 	} else {
-		return node // Aynı anahtarlar kabul edilmez
+		return node // Duplicate keys not allowed
 	}
 
-	// Yüksekliği güncelle
+	// Update height
 	node.updateHeight()
 
-	// Denge faktörünü kontrol et
+	// Check balance factor
 	balance := node.getBalance()
 
-	// Sol Sol Durumu
+	// Left Left Case
 	if balance > 1 && key < node.Left.Key {
 		return rightRotate(node)
 	}
 
-	// Sağ Sağ Durumu
+	// Right Right Case
 	if balance < -1 && key > node.Right.Key {
 		return leftRotate(node)
 	}
 
-	// Sol Sağ Durumu
+	// Left Right Case
 	if balance > 1 && key > node.Left.Key {
 		node.Left = leftRotate(node.Left)
 		return rightRotate(node)
 	}
 
-	// Sağ Sol Durumu
+	// Right Left Case
 	if balance < -1 && key < node.Right.Key {
 		node.Right = rightRotate(node.Right)
 		return leftRotate(node)
@@ -125,8 +130,10 @@ func (t *AVLTree) insert(node *AVLNode, key int) *AVLNode {
 	return node
 }
 
-// Search ağaçta bir değer arar
+// Search looks for a value in the tree
 func (t *AVLTree) Search(key int) bool {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	return t.search(t.Root, key)
 }
 
@@ -146,11 +153,17 @@ func (t *AVLTree) search(node *AVLNode, key int) bool {
 	return t.search(node.Right, key)
 }
 
-// InOrderTraversal ağacı inorder gezer
-func (t *AVLTree) InOrderTraversal(node *AVLNode, result *[]int) {
+// InOrderTraversal performs inorder traversal of the tree
+func (t *AVLTree) InOrderTraversal(result *[]int) {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
+	t.inOrderTraversal(t.Root, result)
+}
+
+func (t *AVLTree) inOrderTraversal(node *AVLNode, result *[]int) {
 	if node != nil {
-		t.InOrderTraversal(node.Left, result)
+		t.inOrderTraversal(node.Left, result)
 		*result = append(*result, node.Key)
-		t.InOrderTraversal(node.Right, result)
+		t.inOrderTraversal(node.Right, result)
 	}
 }

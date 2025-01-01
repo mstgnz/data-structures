@@ -1,5 +1,7 @@
 package tree
 
+import "sync"
+
 // TrieNode represents a node in Trie
 type TrieNode struct {
 	children    map[rune]*TrieNode
@@ -8,7 +10,8 @@ type TrieNode struct {
 
 // Trie represents a Trie (prefix tree)
 type Trie struct {
-	root *TrieNode
+	root  *TrieNode
+	mutex sync.RWMutex
 }
 
 // NewTrie creates a new Trie
@@ -23,6 +26,9 @@ func NewTrie() *Trie {
 
 // Insert adds a word to the trie
 func (t *Trie) Insert(word string) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	node := t.root
 	for _, ch := range word {
 		if _, exists := node.children[ch]; !exists {
@@ -38,12 +44,16 @@ func (t *Trie) Insert(word string) {
 
 // Search returns true if the word is in the trie
 func (t *Trie) Search(word string) bool {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	node := t.searchNode(word)
 	return node != nil && node.isEndOfWord
 }
 
 // StartsWith returns true if there is any word in the trie that starts with the given prefix
 func (t *Trie) StartsWith(prefix string) bool {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	return t.searchNode(prefix) != nil
 }
 
@@ -62,6 +72,8 @@ func (t *Trie) searchNode(word string) *TrieNode {
 
 // Delete removes a word from the trie
 func (t *Trie) Delete(word string) bool {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	return t.deleteHelper(t.root, word, 0)
 }
 
@@ -97,6 +109,8 @@ func (t *Trie) deleteHelper(node *TrieNode, word string, depth int) bool {
 
 // GetAllWords returns all words stored in the trie
 func (t *Trie) GetAllWords() []string {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	var result []string
 	t.getAllWordsHelper(t.root, "", &result)
 	return result
@@ -114,6 +128,8 @@ func (t *Trie) getAllWordsHelper(node *TrieNode, prefix string, result *[]string
 
 // GetWordsWithPrefix returns all words that start with the given prefix
 func (t *Trie) GetWordsWithPrefix(prefix string) []string {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 	node := t.searchNode(prefix)
 	if node == nil {
 		return nil
