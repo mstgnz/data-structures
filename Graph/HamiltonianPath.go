@@ -23,7 +23,7 @@ func (hp *HamiltonianPath) FindHamiltonianPath() []int {
 	hp.path = make([]int, 0)
 	hp.visited = make([]bool, n)
 
-	// Her düğümden başlayarak dene
+	// Try starting from each node
 	for start := 0; start < n; start++ {
 		hp.path = []int{start}
 		hp.visited = make([]bool, n)
@@ -43,7 +43,7 @@ func (hp *HamiltonianPath) FindHamiltonianCircuit() []int {
 	hp.path = make([]int, 0)
 	hp.visited = make([]bool, n)
 
-	// 0'dan başla
+	// Start from 0
 	hp.path = []int{0}
 	hp.visited[0] = true
 
@@ -56,12 +56,12 @@ func (hp *HamiltonianPath) FindHamiltonianCircuit() []int {
 
 // hamiltonianPathUtil performs backtracking to find Hamiltonian path
 func (hp *HamiltonianPath) hamiltonianPathUtil(pos int) bool {
-	// Tüm düğümler ziyaret edildi mi?
+	// All nodes visited?
 	if pos == hp.graph.GetVertices() {
 		return true
 	}
 
-	// Son eklenen düğümün komşularını kontrol et
+	// Check neighbors of the last added node
 	lastVertex := hp.path[len(hp.path)-1]
 	for _, edge := range hp.graph.adjList[lastVertex] {
 		if !hp.visited[edge.To] {
@@ -83,9 +83,9 @@ func (hp *HamiltonianPath) hamiltonianPathUtil(pos int) bool {
 
 // hamiltonianCircuitUtil performs backtracking to find Hamiltonian circuit
 func (hp *HamiltonianPath) hamiltonianCircuitUtil(pos int) bool {
-	// Tüm düğümler ziyaret edildi mi?
+	// All nodes visited?
 	if pos == hp.graph.GetVertices() {
-		// Son düğümden başlangıç düğümüne kenar var mı kontrol et
+		// Check if there's an edge from the last node to the start node
 		lastVertex := hp.path[len(hp.path)-1]
 		hasEdgeToStart := false
 		for _, edge := range hp.graph.adjList[lastVertex] {
@@ -101,7 +101,7 @@ func (hp *HamiltonianPath) hamiltonianCircuitUtil(pos int) bool {
 		return false
 	}
 
-	// Son eklenen düğümün komşularını kontrol et
+	// Check neighbors of the last added node
 	lastVertex := hp.path[len(hp.path)-1]
 	for _, edge := range hp.graph.adjList[lastVertex] {
 		if !hp.visited[edge.To] {
@@ -144,7 +144,7 @@ func (hp *HamiltonianPath) IsHamiltonianPath(path []int) bool {
 		return false
 	}
 
-	// Her düğümün bir kez kullanıldığını kontrol et
+	// Check if each node is used once
 	visited := make([]bool, hp.graph.GetVertices())
 	for _, v := range path {
 		if visited[v] {
@@ -153,7 +153,7 @@ func (hp *HamiltonianPath) IsHamiltonianPath(path []int) bool {
 		visited[v] = true
 	}
 
-	// Ardışık düğümler arasında kenar olduğunu kontrol et
+	// Check if there's an edge between consecutive nodes
 	for i := 0; i < len(path)-1; i++ {
 		hasEdge := false
 		for _, edge := range hp.graph.adjList[path[i]] {
@@ -180,6 +180,6 @@ func (hp *HamiltonianPath) IsHamiltonianCircuit(circuit []int) bool {
 		return false
 	}
 
-	// Çevrim olmadan yol kontrolü yap
+	// Check if the path is a valid Hamiltonian path without the last node
 	return hp.IsHamiltonianPath(circuit[:len(circuit)-1])
 }

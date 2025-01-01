@@ -10,22 +10,22 @@ func TestAdjMatrix(t *testing.T) {
 	t.Run("Basic Operations", func(t *testing.T) {
 		g := NewAdjMatrix(4, false)
 
-		// Kenar ekleme testi
+		// Edge addition test
 		g.AddEdge(0, 1, 5)
 		g.AddEdge(1, 2, 3)
 		g.AddEdge(2, 3, 1)
 
-		// Ağırlık kontrolü
+		// Weight check
 		if weight := g.GetWeight(0, 1); weight != 5 {
 			t.Errorf("Expected weight 5, got %d", weight)
 		}
 
-		// Yönsüz graf kontrolü
+		// Undirected graph check
 		if weight := g.GetWeight(1, 0); weight != 5 {
 			t.Errorf("Expected weight 5 for reverse edge, got %d", weight)
 		}
 
-		// Komşuluk kontrolü
+		// Neighbors check
 		neighbors := g.GetNeighbors(1)
 		expectedNeighbors := []int{0, 2}
 		if !reflect.DeepEqual(neighbors, expectedNeighbors) {
@@ -43,8 +43,8 @@ func TestAdjMatrix(t *testing.T) {
 
 		dist := g.FloydWarshall()
 
-		// 0'dan 3'e en kısa yol kontrolü
-		// 0->1->2->3 yolu (toplam: 9) 0->3 yolundan (10) daha kısa olmalı
+		// Shortest path check from 0 to 3
+		// 0->1->2->3 path (total: 9) should be shorter than 0->3 path (10)
 		if dist[0][3] != 9 {
 			t.Errorf("Expected shortest path length 9, got %d", dist[0][3])
 		}
@@ -56,12 +56,12 @@ func TestAdjMatrix(t *testing.T) {
 		g.AddEdge(0, 1, 2)
 		g.AddEdge(1, 2, 3)
 
-		// Yönlü graf kontrolü
+		// Directed graph check
 		if !g.IsDirected() {
 			t.Error("Expected directed graph")
 		}
 
-		// Tek yönlü kenar kontrolü
+		// Single edge check
 		if weight := g.GetWeight(1, 0); weight != math.MaxInt32 {
 			t.Errorf("Expected no reverse edge (MaxInt32), got %d", weight)
 		}

@@ -5,8 +5,8 @@ import "math"
 // FloydWarshall implements the Floyd-Warshall algorithm for all-pairs shortest paths
 type FloydWarshall struct {
 	graph    *Graph
-	dist     [][]float64 // Mesafe matrisi
-	next     [][]int     // Yol matrisini tutmak için
+	dist     [][]float64 // Distance matrix
+	next     [][]int     // Path matrix
 	infinity float64
 }
 
@@ -26,7 +26,7 @@ func (fw *FloydWarshall) initialize() {
 	fw.dist = make([][]float64, n)
 	fw.next = make([][]int, n)
 
-	// Matrisleri başlat
+	// Initialize matrices
 	for i := 0; i < n; i++ {
 		fw.dist[i] = make([]float64, n)
 		fw.next[i] = make([]int, n)
@@ -40,7 +40,7 @@ func (fw *FloydWarshall) initialize() {
 		}
 	}
 
-	// Kenar ağırlıklarını ekle
+	// Add edge weights
 	for v := 0; v < n; v++ {
 		for _, edge := range fw.graph.adjList[v] {
 			fw.dist[v][edge.To] = float64(edge.Weight)
@@ -53,7 +53,7 @@ func (fw *FloydWarshall) initialize() {
 func (fw *FloydWarshall) ComputeShortestPaths() {
 	n := fw.graph.GetVertices()
 
-	// Floyd-Warshall algoritması
+	// Floyd-Warshall algorithm
 	for k := 0; k < n; k++ {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {

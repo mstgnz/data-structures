@@ -7,7 +7,7 @@ import (
 )
 
 func TestArticulationPoints(t *testing.T) {
-	// Test 1: Basit yönsüz graf
+	// Test 1: Simple undirected graph
 	g := NewGraph(5, false)
 	g.AddEdge(1, 0, 1)
 	g.AddEdge(0, 2, 1)
@@ -19,19 +19,19 @@ func TestArticulationPoints(t *testing.T) {
 	points := ap.FindArticulationPoints()
 	sort.Ints(points)
 
-	// Beklenen eklem noktaları: [0, 3]
+	// Expected articulation points: [0, 3]
 	expectedPoints := []int{0, 3}
 	if !reflect.DeepEqual(points, expectedPoints) {
 		t.Errorf("Expected articulation points %v, got %v", expectedPoints, points)
 	}
 
-	// Köprüleri kontrol et
+	// Check bridges
 	bridges := ap.FindBridges()
 	if len(bridges) != 2 {
 		t.Errorf("Expected 2 bridges, got %d", len(bridges))
 	}
 
-	// Test 2: Yönlü graf (çalışmamalı)
+	// Test 2: Directed graph (should not work)
 	g2 := NewGraph(3, true)
 	ap2 := NewArticulationPoints(g2)
 
@@ -39,7 +39,7 @@ func TestArticulationPoints(t *testing.T) {
 		t.Error("Expected nil ArticulationPoints for directed graph")
 	}
 
-	// Test 3: Çevrimsel graf
+	// Test 3: Cyclic graph
 	g3 := NewGraph(3, false)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(1, 2, 1)
@@ -57,7 +57,7 @@ func TestArticulationPoints(t *testing.T) {
 		t.Errorf("Expected no bridges in cycle, got %d", len(bridges3))
 	}
 
-	// Test 4: Tek kenar
+	// Test 4: Single edge
 	g4 := NewGraph(2, false)
 	g4.AddEdge(0, 1, 1)
 
@@ -71,7 +71,7 @@ func TestArticulationPoints(t *testing.T) {
 		t.Error("Edge should be a bridge in single edge graph")
 	}
 
-	// Test 5: Karmaşık graf
+	// Test 5: Complex graph
 	g5 := NewGraph(7, false)
 	g5.AddEdge(0, 1, 1)
 	g5.AddEdge(1, 2, 1)
@@ -96,7 +96,7 @@ func TestArticulationPoints(t *testing.T) {
 		t.Errorf("Expected %d bridges, got %d", expectedBridgeCount, ap5.GetBridgeCount())
 	}
 
-	// Test 6: Bağlantısız graf
+	// Test 6: Disconnected graph
 	g6 := NewGraph(4, false)
 	g6.AddEdge(0, 1, 1)
 	g6.AddEdge(2, 3, 1)

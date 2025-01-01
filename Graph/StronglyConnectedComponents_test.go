@@ -7,7 +7,7 @@ import (
 )
 
 func TestStronglyConnectedComponents(t *testing.T) {
-	// Test 1: Basit yönlü graf
+	// Test 1: Simple directed graph
 	g := NewGraph(5, true)
 	g.AddEdge(1, 0, 1)
 	g.AddEdge(0, 2, 1)
@@ -18,7 +18,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 	scc := NewSCC(g)
 	components := scc.FindComponents()
 
-	// Beklenen bileşenler: [[0,1,2], [3], [4]]
+	// Expected components: [[0,1,2], [3], [4]]
 	expectedComponents := [][]int{
 		{0, 1, 2},
 		{3},
@@ -29,7 +29,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		t.Errorf("Expected %d components, got %d", len(expectedComponents), len(components))
 	}
 
-	// Her bileşeni sırala ve karşılaştır
+	// Sort each component and compare
 	for i := range components {
 		sort.Ints(components[i])
 	}
@@ -37,7 +37,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		sort.Ints(expectedComponents[i])
 	}
 
-	// Bileşenleri boyutlarına göre sırala
+	// Sort components by size
 	sort.Slice(components, func(i, j int) bool {
 		return len(components[i]) > len(components[j])
 	})
@@ -49,7 +49,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		t.Errorf("Expected components %v, got %v", expectedComponents, components)
 	}
 
-	// Test 2: Tek bileşenli çevrimsel graf
+	// Test 2: Single component cyclic graph
 	g2 := NewGraph(3, true)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, 1)
@@ -67,7 +67,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		t.Errorf("Expected component size %d, got %d", expectedSize, len(components2[0]))
 	}
 
-	// Test 3: Yönsüz graf
+	// Test 3: Undirected graph
 	g3 := NewGraph(3, false)
 	scc3 := NewSCC(g3)
 
@@ -75,7 +75,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		t.Error("Expected nil SCC for undirected graph")
 	}
 
-	// Test 4: Bağlantısız graf
+	// Test 4: Disconnected graph
 	g4 := NewGraph(6, true)
 	g4.AddEdge(0, 1, 1)
 	g4.AddEdge(1, 0, 1)
@@ -91,7 +91,7 @@ func TestStronglyConnectedComponents(t *testing.T) {
 		t.Errorf("Expected 3 components, got %d", len(components4))
 	}
 
-	// Her bileşenin boyutu 2 olmalı
+	// Each component should have size 2
 	for i, comp := range components4 {
 		if len(comp) != 2 {
 			t.Errorf("Component %d: expected size 2, got %d", i, len(comp))

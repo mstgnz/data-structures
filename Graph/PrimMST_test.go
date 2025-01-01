@@ -5,7 +5,7 @@ import (
 )
 
 func TestPrimMST(t *testing.T) {
-	// Test 1: Basit bağlantılı yönsüz graf
+	// Test 1: Simple connected undirected graph
 	g := NewGraph(5, false)
 	g.AddEdge(0, 1, 2)
 	g.AddEdge(0, 3, 6)
@@ -28,14 +28,14 @@ func TestPrimMST(t *testing.T) {
 		t.Errorf("Expected MST cost %f, got %f", expectedCost, actualCost)
 	}
 
-	// MST'deki kenar sayısını kontrol et
+	// Check number of edges in MST
 	edges := prim.GetMSTEdges()
-	expectedEdges := 4 // n-1 kenar olmalı
+	expectedEdges := 4 // n-1 edges
 	if len(edges) != expectedEdges {
 		t.Errorf("Expected %d edges in MST, got %d", expectedEdges, len(edges))
 	}
 
-	// Test 2: Yönlü graf (çalışmamalı)
+	// Test 2: Directed graph (should not work)
 	g2 := NewGraph(3, true)
 	prim2 := NewPrimMST(g2)
 
@@ -43,7 +43,7 @@ func TestPrimMST(t *testing.T) {
 		t.Error("Expected nil PrimMST for directed graph")
 	}
 
-	// Test 3: Bağlantısız graf
+	// Test 3: Disconnected graph
 	g3 := NewGraph(4, false)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(2, 3, 1)
@@ -54,7 +54,7 @@ func TestPrimMST(t *testing.T) {
 		t.Error("Expected to fail finding MST in disconnected graph")
 	}
 
-	// Test 4: Tek düğümlü graf
+	// Test 4: Single vertex graph
 	g4 := NewGraph(1, false)
 	prim4 := NewPrimMST(g4)
 
@@ -66,10 +66,10 @@ func TestPrimMST(t *testing.T) {
 		t.Error("Expected zero cost MST for single-vertex graph")
 	}
 
-	// Test 5: Çoklu kenarlar ve döngüler
+	// Test 5: Multiple edges and cycles
 	g5 := NewGraph(3, false)
 	g5.AddEdge(0, 1, 2)
-	g5.AddEdge(0, 1, 3) // Aynı düğümler arasında farklı ağırlık
+	g5.AddEdge(0, 1, 3) // Same nodes with different weights
 	g5.AddEdge(1, 2, 4)
 	g5.AddEdge(0, 2, 7)
 
@@ -83,7 +83,7 @@ func TestPrimMST(t *testing.T) {
 		t.Errorf("Expected MST cost %f, got %f", expectedCost5, actualCost5)
 	}
 
-	// Parent ilişkilerini kontrol et
+	// Check parent relationships
 	if !prim5.IsInMST(1) {
 		t.Error("Vertex 1 should be in MST")
 	}

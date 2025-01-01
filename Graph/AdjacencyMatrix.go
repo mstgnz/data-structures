@@ -11,13 +11,13 @@ type AdjMatrix struct {
 
 // NewAdjMatrix creates a new graph with adjacency matrix representation
 func NewAdjMatrix(vertices int, directed bool) *AdjMatrix {
-	// Matrisi oluştur ve başlangıç değerlerini ata
+	// Create matrix and initialize values
 	matrix := make([][]int, vertices)
 	for i := range matrix {
 		matrix[i] = make([]int, vertices)
 		for j := range matrix[i] {
 			if i != j {
-				matrix[i][j] = math.MaxInt32 // Sonsuz değer
+				matrix[i][j] = math.MaxInt32 // Infinite value
 			}
 		}
 	}
@@ -50,7 +50,7 @@ func (g *AdjMatrix) FloydWarshall() [][]int {
 		copy(dist[i], g.matrix[i])
 	}
 
-	// Floyd-Warshall algoritması
+	// Floyd-Warshall algorithm
 	for k := 0; k < g.vertices; k++ {
 		for i := 0; i < g.vertices; i++ {
 			for j := 0; j < g.vertices; j++ {

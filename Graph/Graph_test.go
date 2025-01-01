@@ -6,32 +6,32 @@ import (
 )
 
 func TestGraph(t *testing.T) {
-	// Yönsüz graf testi
+	// Undirected graph test
 	t.Run("Undirected Graph Basic Operations", func(t *testing.T) {
 		g := NewGraph(5, false)
 
-		// Kenar ekleme testi
+		// Edge addition test
 		g.AddEdge(0, 1, 1)
 		g.AddEdge(0, 2, 2)
 		g.AddEdge(1, 2, 3)
 		g.AddEdge(2, 3, 4)
 		g.AddEdge(3, 4, 5)
 
-		// Komşuluk kontrolü
+		// Neighbors check
 		neighbors := g.GetNeighbors(0)
 		expectedNeighbors := []int{1, 2}
 		if !reflect.DeepEqual(neighbors, expectedNeighbors) {
 			t.Errorf("Expected neighbors %v, got %v", expectedNeighbors, neighbors)
 		}
 
-		// BFS testi
+		// BFS test
 		bfsResult := g.BFS(0)
 		expectedBFS := []int{0, 1, 2, 3, 4}
 		if !reflect.DeepEqual(bfsResult, expectedBFS) {
 			t.Errorf("Expected BFS %v, got %v", expectedBFS, bfsResult)
 		}
 
-		// DFS testi
+		// DFS test
 		dfsResult := g.DFS(0)
 		expectedDFS := []int{0, 1, 2, 3, 4}
 		if !reflect.DeepEqual(dfsResult, expectedDFS) {
@@ -39,7 +39,7 @@ func TestGraph(t *testing.T) {
 		}
 	})
 
-	// Dijkstra testi
+	// Dijkstra test
 	t.Run("Dijkstra's Algorithm", func(t *testing.T) {
 		g := NewGraph(5, true)
 		g.AddEdge(0, 1, 4)
@@ -63,7 +63,7 @@ func TestGraph(t *testing.T) {
 		}
 	})
 
-	// Kruskal testi
+	// Kruskal test
 	t.Run("Kruskal's Algorithm", func(t *testing.T) {
 		g := NewGraph(4, false)
 		g.AddEdge(0, 1, 10)
@@ -84,7 +84,7 @@ func TestGraph(t *testing.T) {
 		}
 	})
 
-	// Prim testi
+	// Prim test
 	t.Run("Prim's Algorithm", func(t *testing.T) {
 		g := NewGraph(4, false)
 		g.AddEdge(0, 1, 10)
@@ -105,7 +105,7 @@ func TestGraph(t *testing.T) {
 		}
 	})
 
-	// Yönlü graf testi
+	// Directed graph test
 	t.Run("Directed Graph", func(t *testing.T) {
 		g := NewGraph(4, true)
 
@@ -124,7 +124,7 @@ func TestGraph(t *testing.T) {
 			t.Errorf("Expected neighbors %v, got %v", expectedNeighbors, neighbors)
 		}
 
-		// MST algoritmaları yönlü grafta çalışmamalı
+		// MST algorithms should not work on directed graphs
 		if mst := g.Kruskal(); mst != nil {
 			t.Error("Kruskal should return nil for directed graphs")
 		}

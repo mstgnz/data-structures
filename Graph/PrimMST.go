@@ -8,18 +8,18 @@ import (
 // PrimMST implements Prim's algorithm for finding Minimum Spanning Tree
 type PrimMST struct {
 	graph    *Graph
-	key      []float64 // Anahtar değerleri (minimum ağırlıklar)
-	parent   []int     // MST'deki ebeveyn düğümler
-	inMST    []bool    // MST'ye dahil olan düğümler
-	mstEdges []Edge    // MST'deki kenarlar
-	mstCost  float64   // MST'nin toplam maliyeti
+	key      []float64 // Key values (minimum weights)
+	parent   []int     // Parent nodes in MST
+	inMST    []bool    // Nodes included in MST
+	mstEdges []Edge    // Edges in MST
+	mstCost  float64   // Total cost of MST
 	infinity float64
 }
 
 // NewPrimMST creates a new Prim's MST instance
 func NewPrimMST(g *Graph) *PrimMST {
 	if g.IsDirected() {
-		return nil // Prim algoritması yönsüz graflar için çalışır
+		return nil // Prim algorithm works for undirected graphs
 	}
 	return &PrimMST{
 		graph:    g,
@@ -62,23 +62,23 @@ func (p *PrimMST) FindMST() bool {
 	p.mstEdges = make([]Edge, 0)
 	p.mstCost = 0
 
-	// Tüm anahtarları sonsuz olarak başlat
+	// Initialize all keys to infinity
 	for i := 0; i < n; i++ {
 		p.key[i] = p.infinity
 		p.parent[i] = -1
 	}
 
-	// İlk düğümü başlangıç olarak seç
+	// Select the first node as the starting point
 	p.key[0] = 0
 
-	// Min-heap oluştur
+	// Create a min-heap
 	h := &minHeap{}
 	heap.Init(h)
 	heap.Push(h, &minHeapNode{0, 0})
 
-	// MST'yi oluştur
+	// Build the MST
 	for h.Len() > 0 {
-		// En küçük anahtarlı düğümü al
+		// Get the node with the smallest key
 		u := heap.Pop(h).(*minHeapNode).vertex
 		if p.inMST[u] {
 			continue
@@ -86,7 +86,7 @@ func (p *PrimMST) FindMST() bool {
 
 		p.inMST[u] = true
 
-		// Eğer bu ilk düğüm değilse, MST'ye kenar ekle
+		// If this is not the first node, add the edge to the MST
 		if u != 0 {
 			p.mstEdges = append(p.mstEdges, Edge{
 				From:   p.parent[u],
@@ -96,7 +96,7 @@ func (p *PrimMST) FindMST() bool {
 			p.mstCost += p.key[u]
 		}
 
-		// Komşu düğümleri güncelle
+		// Update adjacent nodes
 		for _, edge := range p.graph.adjList[u] {
 			v := edge.To
 			weight := float64(edge.Weight)
@@ -109,10 +109,10 @@ func (p *PrimMST) FindMST() bool {
 		}
 	}
 
-	// Tüm düğümlerin MST'ye dahil olup olmadığını kontrol et
+	// Check if all nodes are included in the MST
 	for i := 0; i < n; i++ {
 		if !p.inMST[i] {
-			return false // Graf bağlantılı değil
+			return false // Graph is not connected
 		}
 	}
 

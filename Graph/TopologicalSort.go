@@ -4,15 +4,15 @@ package Graph
 type TopologicalSort struct {
 	graph    *Graph
 	visited  map[int]bool
-	tempMark map[int]bool // Geçici işaretleme için (çevrim tespiti)
-	order    []int        // Topolojik sıralama sonucu
-	hasCycle bool         // Çevrim var mı?
+	tempMark map[int]bool // Temporary marking for cycle detection
+	order    []int        // Topological sort result
+	hasCycle bool         // Has cycle?
 }
 
 // NewTopologicalSort creates a new topological sort instance
 func NewTopologicalSort(g *Graph) *TopologicalSort {
 	if !g.IsDirected() {
-		return nil // Topolojik sıralama sadece yönlü graflarda çalışır
+		return nil // Topological sort works only for directed graphs
 	}
 	return &TopologicalSort{
 		graph:    g,
@@ -26,7 +26,7 @@ func NewTopologicalSort(g *Graph) *TopologicalSort {
 // Sort performs topological sorting and returns the sorted vertices
 // Returns nil if the graph has a cycle
 func (ts *TopologicalSort) Sort() []int {
-	// Her düğüm için DFS çağır
+	// Call DFS for each node
 	for v := 0; v < ts.graph.GetVertices(); v++ {
 		if !ts.visited[v] {
 			ts.visit(v)
@@ -37,7 +37,7 @@ func (ts *TopologicalSort) Sort() []int {
 		return nil
 	}
 
-	// Sonucu ters çevir (DFS postorder sıralamasını ters çevirmek gerekiyor)
+	// Reverse the result (we need to reverse the DFS postorder)
 	for i, j := 0, len(ts.order)-1; i < j; i, j = i+1, j-1 {
 		ts.order[i], ts.order[j] = ts.order[j], ts.order[i]
 	}
@@ -57,7 +57,7 @@ func (ts *TopologicalSort) visit(v int) {
 
 	ts.tempMark[v] = true
 
-	// Komşuları ziyaret et
+	// Visit neighbors
 	for _, edge := range ts.graph.adjList[v] {
 		ts.visit(edge.To)
 	}

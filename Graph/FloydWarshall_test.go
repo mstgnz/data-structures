@@ -7,7 +7,7 @@ import (
 )
 
 func TestFloydWarshall(t *testing.T) {
-	// Test 1: Basit yönlü ağırlıklı graf
+	// Test 1: Simple weighted directed graph
 	g := NewGraph(4, true)
 	g.AddEdge(0, 1, 5)
 	g.AddEdge(0, 3, 10)
@@ -17,7 +17,7 @@ func TestFloydWarshall(t *testing.T) {
 	fw := NewFloydWarshall(g)
 	fw.ComputeShortestPaths()
 
-	// Test mesafeleri
+	// Test distances
 	testCases := []struct {
 		from     int
 		to       int
@@ -38,14 +38,14 @@ func TestFloydWarshall(t *testing.T) {
 		}
 	}
 
-	// Test yolları
+	// Test paths
 	path := fw.GetPath(0, 3)
 	expectedPath := []int{0, 1, 2, 3}
 	if !reflect.DeepEqual(path, expectedPath) {
 		t.Errorf("Path from 0 to 3: expected %v, got %v", expectedPath, path)
 	}
 
-	// Test 2: Negatif kenar ağırlıklı graf (çevrimsiz)
+	// Test 2: Negative weighted graph (no cycle)
 	g2 := NewGraph(4, true)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, -3)
@@ -60,15 +60,15 @@ func TestFloydWarshall(t *testing.T) {
 		t.Error("Expected no negative cycle")
 	}
 
-	// Test mesafeleri
+	// Test distances
 	dist02 := fw2.GetDistance(0, 2)
-	expectedDist02 := -2.0 // 0->1->2 yolu
+	expectedDist02 := -2.0 // 0->1->2 path
 	if dist02 != expectedDist02 {
 		t.Errorf("Distance from 0 to 2: expected %f, got %f",
 			expectedDist02, dist02)
 	}
 
-	// Test 3: Negatif çevrimli graf
+	// Test 3: Negative cycle graph
 	g3 := NewGraph(3, true)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(1, 2, -1)
@@ -81,7 +81,7 @@ func TestFloydWarshall(t *testing.T) {
 		t.Error("Expected to detect negative cycle")
 	}
 
-	// Test 4: Bağlantısız graf
+	// Test 4: Disconnected graph
 	g4 := NewGraph(4, true)
 	g4.AddEdge(0, 1, 1)
 	g4.AddEdge(2, 3, 1)
@@ -89,7 +89,7 @@ func TestFloydWarshall(t *testing.T) {
 	fw4 := NewFloydWarshall(g4)
 	fw4.ComputeShortestPaths()
 
-	// 0'dan 3'e yol olmamalı
+	// There should be no path from 0 to 3
 	dist03 := fw4.GetDistance(0, 3)
 	if dist03 != math.Inf(1) {
 		t.Errorf("Expected infinite distance from 0 to 3, got %f", dist03)

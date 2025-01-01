@@ -14,7 +14,7 @@ type TarjanSCC struct {
 // NewTarjanSCC creates a new Tarjan's SCC instance
 func NewTarjanSCC(g *Graph) *TarjanSCC {
 	if !g.IsDirected() {
-		return nil // Tarjan algoritması yönlü graflar için çalışır
+		return nil // Tarjan algorithm works for directed graphs
 	}
 	return &TarjanSCC{
 		graph:      g,
@@ -29,7 +29,7 @@ func NewTarjanSCC(g *Graph) *TarjanSCC {
 
 // FindComponents finds all strongly connected components
 func (t *TarjanSCC) FindComponents() [][]int {
-	// Her düğüm için DFS çağır
+	// Call DFS for each node
 	for v := 0; v < t.graph.GetVertices(); v++ {
 		if _, exists := t.indices[v]; !exists {
 			t.strongConnect(v)
@@ -40,34 +40,34 @@ func (t *TarjanSCC) FindComponents() [][]int {
 
 // strongConnect performs the recursive part of Tarjan's algorithm
 func (t *TarjanSCC) strongConnect(v int) {
-	// v'yi başlat
+	// Initialize v
 	t.indices[v] = t.index
 	t.lowLink[v] = t.index
 	t.index++
 	t.stack = append(t.stack, v)
 	t.inStack[v] = true
 
-	// v'nin komşularını ziyaret et
+	// Visit neighbors of v
 	for _, edge := range t.graph.adjList[v] {
 		w := edge.To
 		if _, exists := t.indices[w]; !exists {
-			// w henüz ziyaret edilmemiş
+			// w has not been visited yet
 			t.strongConnect(w)
-			// v'nin lowLink değerini güncelle
+			// Update v's lowLink value
 			if t.lowLink[w] < t.lowLink[v] {
 				t.lowLink[v] = t.lowLink[w]
 			}
 		} else if t.inStack[w] {
-			// w stack'te
+			// w is in the stack
 			if t.indices[w] < t.lowLink[v] {
 				t.lowLink[v] = t.indices[w]
 			}
 		}
 	}
 
-	// v bir SCC'nin kökü mü kontrol et
+	// Check if v is the root of an SCC
 	if t.lowLink[v] == t.indices[v] {
-		// Yeni bir SCC oluştur
+		// Create a new SCC
 		component := make([]int, 0)
 		for {
 			w := t.stack[len(t.stack)-1]

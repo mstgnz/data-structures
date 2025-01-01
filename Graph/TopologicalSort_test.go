@@ -5,7 +5,7 @@ import (
 )
 
 func TestTopologicalSort(t *testing.T) {
-	// Test 1: Basit yönlü asiklik graf (DAG)
+	// Test 1: Simple acyclic directed graph (DAG)
 	g := NewGraph(6, true)
 	g.AddEdge(5, 2, 1)
 	g.AddEdge(5, 0, 1)
@@ -17,12 +17,12 @@ func TestTopologicalSort(t *testing.T) {
 	ts := NewTopologicalSort(g)
 	order := ts.Sort()
 
-	// Beklenen sıralama: [5 4 2 3 1 0] veya [4 5 2 3 1 0]
+	// Expected order: [5 4 2 3 1 0] or [4 5 2 3 1 0]
 	if len(order) != 6 {
 		t.Errorf("Expected order length 6, got %d", len(order))
 	}
 
-	// Bağımlılıkları kontrol et
+	// Check dependencies
 	dependencies := map[int][]int{
 		5: {2, 0},
 		4: {0, 1},
@@ -53,7 +53,7 @@ func TestTopologicalSort(t *testing.T) {
 		}
 	}
 
-	// Test 2: Çevrim içeren graf
+	// Test 2: Graph with a cycle
 	g2 := NewGraph(3, true)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, 1)
@@ -70,7 +70,7 @@ func TestTopologicalSort(t *testing.T) {
 		t.Error("Expected HasCycle() to return true for cyclic graph")
 	}
 
-	// Test 3: Yönsüz graf
+	// Test 3: Undirected graph
 	g3 := NewGraph(3, false)
 	ts3 := NewTopologicalSort(g3)
 

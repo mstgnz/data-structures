@@ -92,7 +92,7 @@ func (g *Graph) Dijkstra(source int) map[int]int {
 	}
 	distances[source] = 0
 
-	// Priority queue için yardımcı yapılar
+	// Helper structures for priority queue
 	pq := &PriorityQueue{}
 	heap.Init(pq)
 	heap.Push(pq, &Item{vertex: source, priority: 0})
@@ -101,12 +101,12 @@ func (g *Graph) Dijkstra(source int) map[int]int {
 		current := heap.Pop(pq).(*Item)
 		vertex := current.vertex
 
-		// Eğer daha kısa bir yol bulunmuşsa, bu düğümü atla
+		// If a shorter path is found, skip this node
 		if current.priority > distances[vertex] {
 			continue
 		}
 
-		// Komşuları kontrol et
+		// Check neighbors
 		for _, edge := range g.adjList[vertex] {
 			distance := distances[vertex] + edge.Weight
 			if distance < distances[edge.To] {
@@ -122,22 +122,22 @@ func (g *Graph) Dijkstra(source int) map[int]int {
 // Kruskal finds Minimum Spanning Tree using Kruskal's algorithm
 func (g *Graph) Kruskal() []Edge {
 	if g.directed {
-		return nil // Kruskal sadece yönsüz graflar için çalışır
+		return nil // Kruskal works only on undirected graphs
 	}
 
-	// Tüm kenarları topla ve ağırlığa göre sırala
+	// Collect all edges and sort them by weight
 	edges := g.getAllEdges()
 	result := make([]Edge, 0)
 
-	// Union-Find veri yapısını başlat
+	// Initialize Union-Find data structure
 	uf := NewUnionFind(g.vertices)
 
-	// Kenarları ağırlığa göre sırala
+	// Sort edges by weight
 	sort.Slice(edges, func(i, j int) bool {
 		return edges[i].Weight < edges[j].Weight
 	})
 
-	// En küçük ağırlıklı kenarları seç
+	// Select edges with the smallest weights
 	edgeCount := 0
 	for _, edge := range edges {
 		if !uf.Connected(edge.From, edge.To) {
@@ -156,17 +156,17 @@ func (g *Graph) Kruskal() []Edge {
 // Prim finds Minimum Spanning Tree using Prim's algorithm
 func (g *Graph) Prim(start int) []Edge {
 	if g.directed {
-		return nil // Prim sadece yönsüz graflar için çalışır
+		return nil // Prim works only on undirected graphs
 	}
 
 	visited := make(map[int]bool)
 	result := make([]Edge, 0)
 
-	// Priority queue başlat
+	// Initialize priority queue
 	pq := &PriorityQueue{}
 	heap.Init(pq)
 
-	// Başlangıç düğümünden başla
+	// Start from the starting node
 	visited[start] = true
 	for _, edge := range g.adjList[start] {
 		heap.Push(pq, &Item{vertex: edge.To, priority: edge.Weight, from: start})
@@ -178,11 +178,11 @@ func (g *Graph) Prim(start int) []Edge {
 			continue
 		}
 
-		// Kenarı MST'ye ekle
+		// Add edge to MST
 		visited[item.vertex] = true
 		result = append(result, Edge{From: item.from, To: item.vertex, Weight: item.priority})
 
-		// Yeni düğümün komşularını queue'ya ekle
+		// Add neighbors of the new node to the queue
 		for _, edge := range g.adjList[item.vertex] {
 			if !visited[edge.To] {
 				heap.Push(pq, &Item{vertex: edge.To, priority: edge.Weight, from: item.vertex})
@@ -219,7 +219,7 @@ func (g *Graph) getAllEdges() []Edge {
 
 	for from, adjEdges := range g.adjList {
 		for _, edge := range adjEdges {
-			// Yönsüz graf için kenarları sadece bir kez ekle
+			// Add edges only once for undirected graphs
 			key := fmt.Sprintf("%d-%d", min(from, edge.To), max(from, edge.To))
 			if !seen[key] {
 				edges = append(edges, Edge{From: from, To: edge.To, Weight: edge.Weight})
@@ -228,7 +228,7 @@ func (g *Graph) getAllEdges() []Edge {
 		}
 	}
 
-	// Kenarları ağırlığa göre sırala
+	// Sort edges by weight
 	sort.Slice(edges, func(i, j int) bool {
 		return edges[i].Weight < edges[j].Weight
 	})

@@ -4,18 +4,18 @@ package Graph
 type ArticulationPoints struct {
 	graph   *Graph
 	time    int
-	disc    []int  // Keşif zamanları
-	low     []int  // En düşük keşif zamanları
-	parent  []int  // DFS ağacındaki ebeveynler
-	ap      []bool // Eklem noktaları
-	bridges []Edge // Köprüler
+	disc    []int  // Discovery times
+	low     []int  // Lowest discovery times
+	parent  []int  // Parent nodes in DFS tree
+	ap      []bool // Articulation points
+	bridges []Edge // Bridges
 	visited []bool
 }
 
 // NewArticulationPoints creates a new ArticulationPoints instance
 func NewArticulationPoints(g *Graph) *ArticulationPoints {
 	if g.IsDirected() {
-		return nil // Eklem noktaları yönsüz graflar için anlamlıdır
+		return nil // Articulation points are meaningful for undirected graphs
 	}
 	n := g.GetVertices()
 	return &ArticulationPoints{
@@ -34,7 +34,7 @@ func NewArticulationPoints(g *Graph) *ArticulationPoints {
 func (ap *ArticulationPoints) FindArticulationPoints() []int {
 	n := ap.graph.GetVertices()
 
-	// Dizileri başlat
+	// Initialize arrays
 	for i := 0; i < n; i++ {
 		ap.disc[i] = -1
 		ap.low[i] = -1
@@ -43,14 +43,14 @@ func (ap *ArticulationPoints) FindArticulationPoints() []int {
 		ap.ap[i] = false
 	}
 
-	// Her bağlı bileşen için DFS çağır
+	// Call DFS for each connected component
 	for i := 0; i < n; i++ {
 		if !ap.visited[i] {
 			ap.dfs(i)
 		}
 	}
 
-	// Eklem noktalarını topla
+	// Collect articulation points
 	points := make([]int, 0)
 	for i := 0; i < n; i++ {
 		if ap.ap[i] {
@@ -69,7 +69,7 @@ func (ap *ArticulationPoints) dfs(u int) {
 	ap.low[u] = ap.time
 	ap.time++
 
-	// Komşuları ziyaret et
+	// Visit neighbors
 	for _, edge := range ap.graph.adjList[u] {
 		v := edge.To
 
@@ -78,22 +78,22 @@ func (ap *ArticulationPoints) dfs(u int) {
 			ap.parent[v] = u
 			ap.dfs(v)
 
-			// u'nun low değerini güncelle
+			// Update u's low value
 			if ap.low[v] < ap.low[u] {
 				ap.low[u] = ap.low[v]
 			}
 
-			// Kök düğüm için özel durum
+			// Special case for root node
 			if ap.parent[u] == -1 && children > 1 {
 				ap.ap[u] = true
 			}
 
-			// Kök olmayan düğüm için
+			// Special case for non-root node
 			if ap.parent[u] != -1 && ap.low[v] >= ap.disc[u] {
 				ap.ap[u] = true
 			}
 
-			// Köprü kontrolü
+			// Bridge check
 			if ap.low[v] > ap.disc[u] {
 				ap.bridges = append(ap.bridges, Edge{
 					From: u,
@@ -101,7 +101,7 @@ func (ap *ArticulationPoints) dfs(u int) {
 				})
 			}
 		} else if v != ap.parent[u] {
-			// Geri kenar durumu
+			// Back edge case
 			if ap.disc[v] < ap.low[u] {
 				ap.low[u] = ap.disc[v]
 			}
@@ -112,7 +112,7 @@ func (ap *ArticulationPoints) dfs(u int) {
 // FindBridges finds all bridges in the graph
 func (ap *ArticulationPoints) FindBridges() []Edge {
 	if len(ap.bridges) == 0 {
-		ap.FindArticulationPoints() // Köprüleri de bulacak
+		ap.FindArticulationPoints() // Will also find bridges
 	}
 	return ap.bridges
 }

@@ -4,7 +4,7 @@ package Graph
 type EulerPath struct {
 	graph     *Graph
 	path      []int
-	edgeCount map[string]int // Kullanılan kenar sayısı
+	edgeCount map[string]int // Count of used edges
 }
 
 // NewEulerPath creates a new EulerPath instance
@@ -31,12 +31,12 @@ func (ep *EulerPath) getUnusedEdge(v int) *Edge {
 		count := ep.edgeCount[key]
 
 		if !ep.graph.IsDirected() {
-			// Yönsüz grafta her kenar bir kez kullanılmalı
+			// In undirected graph each edge should be used once
 			if count == 0 {
 				return &edge
 			}
 		} else {
-			// Yönlü grafta her kenar yönüne göre bir kez kullanılmalı
+			// In directed graph each edge should be used once in each direction
 			if count == 0 {
 				return &edge
 			}
@@ -66,11 +66,11 @@ func (ep *EulerPath) FindEulerPath() []int {
 		return nil
 	}
 
-	// Başlangıç düğümünü bul
+	// Find starting vertex
 	start := ep.findStartVertex()
 	ep.dfs(start)
 
-	// Yolu ters çevir (DFS sonucu ters sırada)
+	// Reverse the path (DFS result in reverse order)
 	for i, j := 0, len(ep.path)-1; i < j; i, j = i+1, j-1 {
 		ep.path[i], ep.path[j] = ep.path[j], ep.path[i]
 	}
@@ -101,7 +101,7 @@ func (ep *EulerPath) HasEulerPath() bool {
 	}
 
 	if ep.graph.IsDirected() {
-		// Yönlü graf için giriş-çıkış derecesi kontrolü
+		// Check in-out degree for directed graph
 		inDegree := make([]int, ep.graph.GetVertices())
 		outDegree := make([]int, ep.graph.GetVertices())
 
@@ -135,7 +135,7 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 	}
 
 	if ep.graph.IsDirected() {
-		// Yönlü graf için giriş-çıkış derecesi kontrolü
+		// Check in-out degree for directed graph
 		inDegree := make([]int, ep.graph.GetVertices())
 		for v := 0; v < ep.graph.GetVertices(); v++ {
 			for _, edge := range ep.graph.adjList[v] {
@@ -151,7 +151,7 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 		return true
 	}
 
-	// Yönsüz graf için tüm düğümlerin çift dereceli olması gerekir
+	// In undirected graph all nodes should have even degree
 	for v := 0; v < ep.graph.GetVertices(); v++ {
 		if len(ep.graph.adjList[v])%2 != 0 {
 			return false
@@ -164,7 +164,7 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 func (ep *EulerPath) isConnected() bool {
 	visited := make([]bool, ep.graph.GetVertices())
 
-	// İlk düğümden DFS başlat
+	// Start DFS from first node
 	start := 0
 	for v := 0; v < ep.graph.GetVertices(); v++ {
 		if len(ep.graph.adjList[v]) > 0 {
@@ -175,7 +175,7 @@ func (ep *EulerPath) isConnected() bool {
 
 	ep.dfsUtil(start, visited)
 
-	// Tüm düğümlerin ziyaret edilip edilmediğini kontrol et
+	// Check if all nodes are visited
 	for v := 0; v < ep.graph.GetVertices(); v++ {
 		if len(ep.graph.adjList[v]) > 0 && !visited[v] {
 			return false
@@ -204,22 +204,22 @@ func (ep *EulerPath) findStartVertex() int {
 			}
 		}
 
-		// Çıkış derecesi giriş derecesinden 1 fazla olan düğümü bul
+		// Find node with out degree 1 more than in degree
 		for v := 0; v < ep.graph.GetVertices(); v++ {
 			if len(ep.graph.adjList[v])-inDegree[v] == 1 {
 				return v
 			}
 		}
-		// Bulunamazsa herhangi bir düğümden başla
+		// If not found, start from any node
 		return 0
 	}
 
-	// Yönsüz graf için tek dereceli düğümü bul
+	// Find node with odd degree in undirected graph
 	for v := 0; v < ep.graph.GetVertices(); v++ {
 		if len(ep.graph.adjList[v])%2 != 0 {
 			return v
 		}
 	}
-	// Bulunamazsa herhangi bir düğümden başla
+	// If not found, start from any node
 	return 0
 }

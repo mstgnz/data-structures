@@ -5,7 +5,7 @@ import (
 )
 
 func TestHamiltonianPath(t *testing.T) {
-	// Test 1: Hamilton çevrimi olan tam graf
+	// Test 1: Hamiltonian circuit in complete graph
 	g := NewGraph(4, false)
 	g.AddEdge(0, 1, 1)
 	g.AddEdge(0, 2, 1)
@@ -33,7 +33,7 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Error("Found circuit is not valid")
 	}
 
-	// Test 2: Hamilton yolu olan ama çevrimi olmayan graf
+	// Test 2: Hamiltonian path but no circuit
 	g2 := NewGraph(4, false)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, 1)
@@ -62,7 +62,7 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Error("Found path is not valid")
 	}
 
-	// Test 3: Hamilton yolu olmayan graf
+	// Test 3: No Hamiltonian path
 	g3 := NewGraph(4, false)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(0, 2, 1)
@@ -79,7 +79,7 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Error("Expected nil path for graph with no Hamiltonian path")
 	}
 
-	// Test 4: Yönlü Hamilton çevrimi
+	// Test 4: Hamiltonian circuit in directed graph
 	g4 := NewGraph(3, true)
 	g4.AddEdge(0, 1, 1)
 	g4.AddEdge(1, 2, 1)
@@ -100,7 +100,7 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Errorf("Expected circuit length 4, got %d", len(circuit4))
 	}
 
-	// Test 5: Bağlantısız graf
+	// Test 5: Disconnected graph
 	g5 := NewGraph(4, false)
 	g5.AddEdge(0, 1, 1)
 	g5.AddEdge(2, 3, 1)
@@ -111,7 +111,7 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Error("Expected no Hamiltonian path in disconnected graph")
 	}
 
-	// Test 6: Tek düğümlü graf
+	// Test 6: Single vertex graph
 	g6 := NewGraph(1, false)
 	hp6 := NewHamiltonianPath(g6)
 
@@ -124,19 +124,19 @@ func TestHamiltonianPath(t *testing.T) {
 		t.Errorf("Expected path length 1 for single vertex, got %d", len(path6))
 	}
 
-	// Test 7: Geçersiz yol kontrolü
+	// Test 7: Invalid path check
 	g7 := NewGraph(3, false)
 	g7.AddEdge(0, 1, 1)
 	g7.AddEdge(1, 2, 1)
 
 	hp7 := NewHamiltonianPath(g7)
 
-	invalidPath := []int{0, 2, 1} // 0'dan 2'ye kenar yok
+	invalidPath := []int{0, 2, 1} // 0'dan 2'ye edge yok
 	if hp7.IsHamiltonianPath(invalidPath) {
 		t.Error("Expected invalid path to be rejected")
 	}
 
-	invalidCircuit := []int{0, 1, 2, 0} // 2'den 0'a kenar yok
+	invalidCircuit := []int{0, 1, 2, 0} // 2'den 0'a edge yok
 	if hp7.IsHamiltonianCircuit(invalidCircuit) {
 		t.Error("Expected invalid circuit to be rejected")
 	}

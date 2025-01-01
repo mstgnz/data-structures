@@ -5,7 +5,7 @@ import (
 )
 
 func TestEulerPath(t *testing.T) {
-	// Test 1: Euler çevrimi olan yönsüz graf
+	// Test 1: Euler circuit in undirected graph
 	g := NewGraph(4, false)
 	g.AddEdge(0, 1, 1)
 	g.AddEdge(1, 2, 1)
@@ -23,7 +23,7 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Expected to find Euler circuit")
 	}
 
-	if len(circuit) != 5 { // n+1 düğüm (başlangıç düğümü tekrar)
+	if len(circuit) != 5 { // n+1 nodes (starting node repeated)
 		t.Errorf("Expected circuit length 5, got %d", len(circuit))
 	}
 
@@ -31,7 +31,7 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Circuit should start and end at the same vertex")
 	}
 
-	// Test 2: Euler yolu olan ama çevrimi olmayan yönsüz graf
+	// Test 2: Euler path but no circuit in undirected graph
 	g2 := NewGraph(5, false)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, 1)
@@ -53,11 +53,11 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Expected to find Euler path")
 	}
 
-	if len(path) != 5 { // n düğüm
+	if len(path) != 5 { // n nodes
 		t.Errorf("Expected path length 5, got %d", len(path))
 	}
 
-	// Test 3: Euler yolu olmayan graf
+	// Test 3: No Euler path graph
 	g3 := NewGraph(5, false)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(0, 2, 1)
@@ -75,7 +75,7 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Expected nil path for graph with no Euler path")
 	}
 
-	// Test 4: Euler çevrimi olan yönlü graf
+	// Test 4: Euler circuit in directed graph
 	g4 := NewGraph(3, true)
 	g4.AddEdge(0, 1, 1)
 	g4.AddEdge(1, 2, 1)
@@ -92,11 +92,11 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Expected to find Euler circuit in directed graph")
 	}
 
-	if len(circuit4) != 4 { // n+1 düğüm
+	if len(circuit4) != 4 { // n+1 nodes
 		t.Errorf("Expected circuit length 4, got %d", len(circuit4))
 	}
 
-	// Test 5: Bağlantısız graf
+	// Test 5: Disconnected graph
 	g5 := NewGraph(4, false)
 	g5.AddEdge(0, 1, 1)
 	g5.AddEdge(2, 3, 1)
@@ -107,7 +107,7 @@ func TestEulerPath(t *testing.T) {
 		t.Error("Expected no Euler path in disconnected graph")
 	}
 
-	// Test 6: Tek düğümlü graf
+	// Test 6: Single vertex graph
 	g6 := NewGraph(1, false)
 	ep6 := NewEulerPath(g6)
 
@@ -120,7 +120,7 @@ func TestEulerPath(t *testing.T) {
 		t.Errorf("Expected circuit length 1 for single vertex, got %d", len(circuit6))
 	}
 
-	// Test 7: Yönlü Euler yolu
+	// Test 7: Euler path in directed graph
 	g7 := NewGraph(4, true)
 	g7.AddEdge(0, 1, 1)
 	g7.AddEdge(1, 2, 1)

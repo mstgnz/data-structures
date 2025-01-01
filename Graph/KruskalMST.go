@@ -5,16 +5,16 @@ import "sort"
 // KruskalMST implements Kruskal's algorithm for finding Minimum Spanning Tree
 type KruskalMST struct {
 	graph    *Graph
-	parent   []int   // Union-Find için ebeveyn dizisi
-	rank     []int   // Union-Find için rank dizisi
-	mstEdges []Edge  // MST'deki kenarlar
-	mstCost  float64 // MST'nin toplam maliyeti
+	parent   []int   // Parent array for Union-Find
+	rank     []int   // Rank array for Union-Find
+	mstEdges []Edge  // Edges in MST
+	mstCost  float64 // Total cost of MST
 }
 
 // NewKruskalMST creates a new Kruskal's MST instance
 func NewKruskalMST(g *Graph) *KruskalMST {
 	if g.IsDirected() {
-		return nil // Kruskal algoritması yönsüz graflar için çalışır
+		return nil // Kruskal algorithm works for undirected graphs
 	}
 	return &KruskalMST{
 		graph:   g,
@@ -29,7 +29,7 @@ func (k *KruskalMST) initialize() {
 	k.rank = make([]int, n)
 	k.mstEdges = make([]Edge, 0)
 
-	// Her düğümü kendi kümesinde başlat
+	// Initialize each node in its own set
 	for i := 0; i < n; i++ {
 		k.parent[i] = i
 		k.rank[i] = 0
@@ -39,7 +39,7 @@ func (k *KruskalMST) initialize() {
 // find returns the representative of the set containing x
 func (k *KruskalMST) find(x int) int {
 	if k.parent[x] != x {
-		k.parent[x] = k.find(k.parent[x]) // Yol sıkıştırma
+		k.parent[x] = k.find(k.parent[x]) // Path compression
 	}
 	return k.parent[x]
 }
@@ -50,7 +50,7 @@ func (k *KruskalMST) union(x, y int) {
 	rootY := k.find(y)
 
 	if rootX != rootY {
-		// Rank'a göre birleştirme
+		// Union by rank
 		if k.rank[rootX] < k.rank[rootY] {
 			k.parent[rootX] = rootY
 		} else if k.rank[rootX] > k.rank[rootY] {
@@ -66,24 +66,24 @@ func (k *KruskalMST) union(x, y int) {
 func (k *KruskalMST) FindMST() bool {
 	k.initialize()
 
-	// Tüm kenarları topla ve ağırlığa göre sırala
+	// Collect all edges and sort by weight
 	edges := make([]Edge, 0)
 	for v := 0; v < k.graph.GetVertices(); v++ {
 		for _, edge := range k.graph.adjList[v] {
-			// Yönsüz grafta her kenarı bir kez ekle
+			// Add each edge once in undirected graph
 			if edge.From < edge.To {
 				edges = append(edges, edge)
 			}
 		}
 	}
 
-	// Kenarları ağırlığa göre sırala
+	// Sort edges by weight
 	sort.Slice(edges, func(i, j int) bool {
 		return edges[i].Weight < edges[j].Weight
 	})
 
 	edgeCount := 0
-	// Kenarları MST'ye ekle
+	// Add edges to MST
 	for _, edge := range edges {
 		if k.find(edge.From) != k.find(edge.To) {
 			k.union(edge.From, edge.To)
@@ -93,7 +93,7 @@ func (k *KruskalMST) FindMST() bool {
 		}
 	}
 
-	// MST tam olarak oluştu mu kontrol et
+	// Check if MST is fully formed
 	return edgeCount == k.graph.GetVertices()-1
 }
 

@@ -28,13 +28,13 @@ func (bf *BellmanFord) initialize() {
 	bf.dist = make([]float64, n)
 	bf.prev = make([]int, n)
 
-	// Tüm mesafeleri sonsuz olarak başlat
+	// Initialize all distances to infinity
 	for i := 0; i < n; i++ {
 		bf.dist[i] = bf.infinity
 		bf.prev[i] = -1
 	}
 
-	// Kaynak düğümün mesafesini 0 olarak ayarla
+	// Set distance of source node to 0
 	bf.dist[bf.source] = 0
 }
 
@@ -43,9 +43,9 @@ func (bf *BellmanFord) initialize() {
 func (bf *BellmanFord) ComputeShortestPaths() bool {
 	n := bf.graph.GetVertices()
 
-	// Her düğüm için n-1 kez tekrarla
+	// Repeat for each node n-1 times
 	for i := 0; i < n-1; i++ {
-		// Her kenar için
+		// For each edge
 		for v := 0; v < n; v++ {
 			for _, edge := range bf.graph.adjList[v] {
 				bf.relax(v, edge)
@@ -53,12 +53,12 @@ func (bf *BellmanFord) ComputeShortestPaths() bool {
 		}
 	}
 
-	// Negatif çevrim kontrolü
+	// Check for negative cycle
 	for v := 0; v < n; v++ {
 		for _, edge := range bf.graph.adjList[v] {
 			if bf.dist[v] != bf.infinity &&
 				bf.dist[v]+float64(edge.Weight) < bf.dist[edge.To] {
-				return false // Negatif çevrim bulundu
+				return false // Negative cycle found
 			}
 		}
 	}

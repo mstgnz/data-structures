@@ -11,7 +11,7 @@ type StronglyConnectedComponents struct {
 // NewSCC creates a new SCC instance
 func NewSCC(g *Graph) *StronglyConnectedComponents {
 	if !g.IsDirected() {
-		return nil // SCC sadece yönlü graflarda anlamlıdır
+		return nil // SCC is only meaningful for directed graphs
 	}
 	return &StronglyConnectedComponents{
 		graph:      g,
@@ -23,17 +23,17 @@ func NewSCC(g *Graph) *StronglyConnectedComponents {
 
 // FindComponents finds all strongly connected components
 func (scc *StronglyConnectedComponents) FindComponents() [][]int {
-	// 1. İlk DFS ile bitiş zamanlarını hesapla
+	// 1. First DFS to calculate finish times
 	scc.firstDFS()
 
-	// 2. Grafın transpozunu al
+	// 2. Get the transpose of the graph
 	transpose := scc.getTranspose()
 
-	// 3. İkinci DFS ile bileşenleri bul
-	scc.visited = make(map[int]bool) // Ziyaret haritasını sıfırla
+	// 3. Second DFS to find components
+	scc.visited = make(map[int]bool) // Reset visited map
 	scc.components = make([][]int, 0)
 
-	// Bitiş zamanlarına göre ters sırada DFS çağır
+	// Call DFS in reverse order of finish times
 	for i := len(scc.finishTime) - 1; i >= 0; i-- {
 		v := scc.finishTime[i]
 		if !scc.visited[v] {
@@ -58,14 +58,14 @@ func (scc *StronglyConnectedComponents) firstDFS() {
 func (scc *StronglyConnectedComponents) firstDFSUtil(v int) {
 	scc.visited[v] = true
 
-	// Komşuları ziyaret et
+	// Visit neighbors
 	for _, edge := range scc.graph.adjList[v] {
 		if !scc.visited[edge.To] {
 			scc.firstDFSUtil(edge.To)
 		}
 	}
 
-	// Bitiş zamanını kaydet
+	// Save finish time
 	scc.finishTime = append(scc.finishTime, v)
 }
 
@@ -73,7 +73,7 @@ func (scc *StronglyConnectedComponents) firstDFSUtil(v int) {
 func (scc *StronglyConnectedComponents) getTranspose() *Graph {
 	transpose := NewGraph(scc.graph.GetVertices(), true)
 
-	// Her kenarı ters çevir
+	// Reverse each edge
 	for v := 0; v < scc.graph.GetVertices(); v++ {
 		for _, edge := range scc.graph.adjList[v] {
 			transpose.AddEdge(edge.To, v, edge.Weight)
@@ -88,7 +88,7 @@ func (scc *StronglyConnectedComponents) secondDFS(g *Graph, v int, component *[]
 	scc.visited[v] = true
 	*component = append(*component, v)
 
-	// Komşuları ziyaret et
+	// Visit neighbors
 	for _, edge := range g.adjList[v] {
 		if !scc.visited[edge.To] {
 			scc.secondDFS(g, edge.To, component)

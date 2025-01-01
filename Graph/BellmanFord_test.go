@@ -7,7 +7,7 @@ import (
 )
 
 func TestBellmanFord(t *testing.T) {
-	// Test 1: Basit yönlü ağırlıklı graf
+	// Test 1: Simple weighted directed graph
 	g := NewGraph(5, true)
 	g.AddEdge(0, 1, 6)
 	g.AddEdge(0, 3, 7)
@@ -27,7 +27,7 @@ func TestBellmanFord(t *testing.T) {
 		t.Error("Expected no negative cycle")
 	}
 
-	// Test mesafeleri
+	// Test distances
 	expectedDist := []float64{0, 2, 4, 7, -2}
 	actualDist := bf.GetAllDistances()
 
@@ -38,7 +38,7 @@ func TestBellmanFord(t *testing.T) {
 		}
 	}
 
-	// Test yolları
+	// Test paths
 	testPaths := []struct {
 		to       int
 		expected []int
@@ -57,7 +57,7 @@ func TestBellmanFord(t *testing.T) {
 		}
 	}
 
-	// Test 2: Negatif çevrimli graf
+	// Test 2: Negative cycle graph
 	g2 := NewGraph(4, true)
 	g2.AddEdge(0, 1, 1)
 	g2.AddEdge(1, 2, -1)
@@ -70,7 +70,7 @@ func TestBellmanFord(t *testing.T) {
 		t.Error("Expected to detect negative cycle")
 	}
 
-	// Test 3: Bağlantısız graf
+	// Test 3: Disconnected graph
 	g3 := NewGraph(4, true)
 	g3.AddEdge(0, 1, 1)
 	g3.AddEdge(2, 3, 1)
@@ -78,7 +78,7 @@ func TestBellmanFord(t *testing.T) {
 	bf3 := NewBellmanFord(g3, 0)
 	bf3.ComputeShortestPaths()
 
-	// 0'dan 3'e yol olmamalı
+	// Vertex 3 should not be reachable from source 0
 	if bf3.IsReachable(3) {
 		t.Error("Vertex 3 should not be reachable from source 0")
 	}
@@ -93,7 +93,7 @@ func TestBellmanFord(t *testing.T) {
 		t.Errorf("Expected nil path to vertex 3, got %v", path03)
 	}
 
-	// Test 4: Sıfır ağırlıklı kenarlar
+	// Test 4: Zero weighted edges
 	g4 := NewGraph(3, true)
 	g4.AddEdge(0, 1, 0)
 	g4.AddEdge(1, 2, 0)
