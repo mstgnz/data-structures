@@ -5,16 +5,6 @@ import (
 	"testing"
 )
 
-// Helper function to check if array is sorted
-func isSorted(arr []int) bool {
-	for i := 1; i < len(arr); i++ {
-		if arr[i] < arr[i-1] {
-			return false
-		}
-	}
-	return true
-}
-
 // Test cases for all sorting algorithms
 var testCases = []struct {
 	name     string
