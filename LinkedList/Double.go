@@ -2,6 +2,7 @@ package linkedlist
 
 import (
 	"fmt"
+	"sync"
 )
 
 type IDouble interface {
@@ -15,46 +16,57 @@ type IDouble interface {
 }
 
 type double struct {
-	X    int
-	Next *double
-	Prev *double
+	X     int
+	Next  *double
+	Prev  *double
+	mutex sync.RWMutex
 }
 
 func Double(data int) IDouble {
-	return &double{X: data}
+	return &double{X: data, Next: nil, Prev: nil, mutex: sync.RWMutex{}}
 }
 
-// AddToStart data
+// AddToStart adds data at the beginning of the list
 func (node *double) AddToStart(data int) {
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
 	temp := *node
 	node.X = data
-	node.Next = &temp
-	node.Next.Prev = node
+	node.Next = &double{X: temp.X, Next: temp.Next, Prev: node, mutex: sync.RWMutex{}}
 	if node.Next.Next != nil {
 		node.Next.Next.Prev = node.Next
 	}
 }
 
-// AddToSequentially data
+// AddToSequentially adds data in sorted order
 func (node *double) AddToSequentially(data int) {
-	for node.Next != nil && node.Next.X < data {
-		node = node.Next
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
+	iter := node
+	for iter.Next != nil && iter.Next.X < data {
+		iter = iter.Next
 	}
-	node.Next = &double{X: data, Next: node.Next, Prev: node}
-	if node.Next.Next != nil {
-		node.Next.Next.Prev = node.Next
+	newNode := &double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
+	iter.Next = newNode
+	if newNode.Next != nil {
+		newNode.Next.Prev = newNode
 	}
 }
 
-// AddToAfter data
+// AddToAfter adds data after the specified value
 func (node *double) AddToAfter(data int, which int) {
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
 	iter := node
 	found := false
 
 	// Check the first node
 	if iter.X == which {
 		found = true
-		newNode := &double{X: data, Next: iter.Next, Prev: iter}
+		newNode := &double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
 		if iter.Next != nil {
 			iter.Next.Prev = newNode
 		}
@@ -67,7 +79,7 @@ func (node *double) AddToAfter(data int, which int) {
 		iter = iter.Next
 		if iter.X == which {
 			found = true
-			newNode := &double{X: data, Next: iter.Next, Prev: iter}
+			newNode := &double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
 			if iter.Next != nil {
 				iter.Next.Prev = newNode
 			}
@@ -81,17 +93,23 @@ func (node *double) AddToAfter(data int, which int) {
 	}
 }
 
-// AddToEnd data
+// AddToEnd adds data at the end of the list
 func (node *double) AddToEnd(data int) {
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
 	iter := node
 	for iter.Next != nil {
 		iter = iter.Next
 	}
-	iter.Next = &double{X: data, Next: nil, Prev: iter}
+	iter.Next = &double{X: data, Next: nil, Prev: iter, mutex: sync.RWMutex{}}
 }
 
-// Delete data
+// Delete removes data from the list
 func (node *double) Delete(data int) error {
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
 	// If the value to be deleted is the first element
 	if node.X == data {
 		if node.Next != nil {
@@ -123,8 +141,11 @@ func (node *double) Delete(data int) error {
 	return nil
 }
 
-// List data - slice
+// List returns a slice of list data
 func (node *double) List(reverse bool) []int {
+	node.mutex.RLock()
+	defer node.mutex.RUnlock()
+
 	var list []int
 	iter := node
 	if reverse { // print bottom to top
@@ -144,8 +165,10 @@ func (node *double) List(reverse bool) []int {
 	return list
 }
 
-// Print data
+// Print displays list data
 func (node *double) Print(reverse bool) {
+	node.mutex.RLock()
+	defer node.mutex.RUnlock()
 	fmt.Print("print : ")
 	for _, val := range node.List(reverse) {
 		fmt.Print(val, " ")
