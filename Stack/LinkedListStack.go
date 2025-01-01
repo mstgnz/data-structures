@@ -2,54 +2,63 @@ package Stack
 
 import "fmt"
 
-type ILinkedListStack interface{
+type ILinkedListStack interface {
 	Push(data int)
 	Pop()
+	IsEmpty() bool
 	Print()
 	List() []int
 }
 
 type linkedListStack struct {
-	X int
+	X    int
 	Next *linkedListStack
 }
 
-func LinkedListStack(data int) ILinkedListStack{
+func LinkedListStack(data int) ILinkedListStack {
 	return &linkedListStack{data, nil}
 }
 
-// Push Add to data
+// Push Add to data at the beginning (LIFO)
 func (arr *linkedListStack) Push(data int) {
-	iter := arr
-	if iter.X == -1{
-		iter.X = data
-	}else{
-		for iter.Next != nil {
-			iter = iter.Next
-		}
-		iter.Next = &linkedListStack{X: data, Next: nil}
+	if arr.X == -1 {
+		arr.X = data
+		return
 	}
+	newNode := &linkedListStack{X: data, Next: nil}
+	newNode.Next = arr.Next
+	arr.Next = newNode
+	temp := arr.X
+	arr.X = data
+	newNode.X = temp
 }
 
-// Pop Remove to data
+// Pop Remove to data from the beginning
 func (arr *linkedListStack) Pop() {
-	iter := arr
-	if iter.Next != nil{
-		for iter.Next.Next != nil {
-			iter = iter.Next
-		}
-		iter.Next = nil
-	}else{
-		arr.X = -1
+	if arr.IsEmpty() {
+		return
 	}
+	if arr.Next == nil {
+		arr.X = -1
+		return
+	}
+	arr.X = arr.Next.X
+	arr.Next = arr.Next.Next
+}
+
+// IsEmpty returns true if stack is empty
+func (arr *linkedListStack) IsEmpty() bool {
+	return arr.X == -1 && arr.Next == nil
 }
 
 // List - data slice
-func (arr *linkedListStack) List() []int{
+func (arr *linkedListStack) List() []int {
 	var list []int
 	iter := arr
 	for iter != nil {
-		list = append(list, iter.X)
+		if iter.X != -1 {
+			list = append(list, iter.X)
+		}
 		iter = iter.Next
 	}
 	return list
@@ -59,7 +68,7 @@ func (arr *linkedListStack) List() []int{
 func (arr *linkedListStack) Print() {
 	fmt.Print("print : ")
 	for _, val := range arr.List() {
-		fmt.Print(val," ")
+		fmt.Print(val, " ")
 	}
 	fmt.Println()
 }
