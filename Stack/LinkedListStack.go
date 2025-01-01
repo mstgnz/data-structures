@@ -1,6 +1,9 @@
 package stack
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type ILinkedListStack interface {
 	Push(data int)
@@ -11,16 +14,20 @@ type ILinkedListStack interface {
 }
 
 type linkedListStack struct {
-	X    int
-	Next *linkedListStack
+	X     int
+	Next  *linkedListStack
+	mutex sync.RWMutex
 }
 
 func LinkedListStack(data int) ILinkedListStack {
-	return &linkedListStack{data, nil}
+	return &linkedListStack{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
-// Push Add to data at the beginning (LIFO)
+// Push adds data at the beginning (LIFO)
 func (arr *linkedListStack) Push(data int) {
+	arr.mutex.Lock()
+	defer arr.mutex.Unlock()
+
 	if arr.X == -1 {
 		arr.X = data
 		return
@@ -33,9 +40,12 @@ func (arr *linkedListStack) Push(data int) {
 	newNode.X = temp
 }
 
-// Pop Remove to data from the beginning
+// Pop removes data from the beginning
 func (arr *linkedListStack) Pop() {
-	if arr.IsEmpty() {
+	arr.mutex.Lock()
+	defer arr.mutex.Unlock()
+
+	if arr.X == -1 && arr.Next == nil {
 		return
 	}
 	if arr.Next == nil {
@@ -48,11 +58,15 @@ func (arr *linkedListStack) Pop() {
 
 // IsEmpty returns true if stack is empty
 func (arr *linkedListStack) IsEmpty() bool {
+	arr.mutex.RLock()
+	defer arr.mutex.RUnlock()
 	return arr.X == -1 && arr.Next == nil
 }
 
-// List - data slice
+// List returns a slice of stack data
 func (arr *linkedListStack) List() []int {
+	arr.mutex.RLock()
+	defer arr.mutex.RUnlock()
 	var list []int
 	iter := arr
 	for iter != nil {
@@ -64,8 +78,10 @@ func (arr *linkedListStack) List() []int {
 	return list
 }
 
-// Print data
+// Print displays stack data
 func (arr *linkedListStack) Print() {
+	arr.mutex.RLock()
+	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")
 	for _, val := range arr.List() {
 		fmt.Print(val, " ")
