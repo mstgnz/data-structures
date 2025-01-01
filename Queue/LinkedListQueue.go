@@ -2,7 +2,7 @@ package Queue
 
 import "fmt"
 
-type ILinkedListQueue interface{
+type ILinkedListQueue interface {
 	Enqueue(data int)
 	Dequeue()
 	List() []int
@@ -10,20 +10,20 @@ type ILinkedListQueue interface{
 }
 
 type linkedListQueue struct {
-	X int
+	X    int
 	Next *linkedListQueue
 }
 
-func LinkedListQueue(data int) ILinkedListQueue{
+func LinkedListQueue(data int) ILinkedListQueue {
 	return &linkedListQueue{data, nil}
 }
 
 // Enqueue Add to data
 func (arr *linkedListQueue) Enqueue(data int) {
 	iter := arr
-	if iter.X == -1{
+	if iter.X == -1 {
 		iter.X = data
-	}else{
+	} else {
 		for iter.Next != nil {
 			iter = iter.Next
 		}
@@ -33,15 +33,15 @@ func (arr *linkedListQueue) Enqueue(data int) {
 
 // Dequeue Remove to data
 func (arr *linkedListQueue) Dequeue() {
-	if arr.Next != nil{
+	if arr.Next != nil {
 		*arr = *arr.Next
-	}else{
+	} else {
 		arr.X = -1
 	}
 }
 
 // List data - slice
-func (arr *linkedListQueue) List() []int{
+func (arr *linkedListQueue) List() []int {
 	var list []int
 	iter := arr
 	for iter != nil {
@@ -55,7 +55,7 @@ func (arr *linkedListQueue) List() []int{
 func (arr *linkedListQueue) Print() {
 	fmt.Print("print : ")
 	for _, val := range arr.List() {
-		fmt.Print(val," ")
+		fmt.Print(val, " ")
 	}
 	fmt.Println()
 }
