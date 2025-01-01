@@ -1,95 +1,80 @@
 # Changelog
 
-This project adheres to [Semantic Versioning](https://semver.org/) principles.
+All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2024-01-14
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] - 2025-01-02
 
 ### Added
-
-#### Data Structures
-- Stack implementation
-  - Array-based implementation
-  - Linked List-based implementation
-  - Push, Pop, Peek operations
-  - Size and emptiness checks
-
-- Queue implementation
-  - Array-based implementation
-  - Linked List-based implementation
-  - Enqueue, Dequeue operations
-  - Front, Rear access
-
-- LinkedList implementation
-  - Singly Linked List
-  - Doubly Linked List
-  - Circular Linked List
-  - Insert, delete, search operations
-
-- Tree implementations
-  - Binary Tree
-  - Binary Search Tree
-  - AVL Tree
-  - Red-Black Tree
-  - B-Tree
-  - Trie (Prefix Tree)
-  - Segment Tree
-
-#### Graph Algorithms
-- Graph data structure
-  - Directed and undirected graph support
-  - Weighted edge support
-  - Adjacency List implementation
-
-- Basic Graph Algorithms
-  - Depth First Search (DFS)
-  - Breadth First Search (BFS)
+- Basic data structure implementations:
+  - Linked List (Singly, Doubly, Circular)
+  - Stack
+  - Queue
+  - Tree
+  - Heap
+  - Hash Table
+- Graph data structures and algorithms:
+  - Adjacency Matrix
+  - Adjacency List
+  - DFS and BFS algorithms
   - Topological Sort
-  - Strongly Connected Components (Tarjan)
-  - Articulation Points and Bridges
-
-- Shortest Path Algorithms
-  - Dijkstra's Algorithm
-  - Bellman-Ford Algorithm
-  - Floyd-Warshall Algorithm
-
-- Minimum Spanning Tree
-  - Prim's Algorithm
-  - Kruskal's Algorithm
-
-- Special Path Algorithms
-  - Euler Path/Circuit
-  - Hamiltonian Path/Circuit
-
-#### Tests and Examples
-- Unit tests for each data structure
-- Unit tests for each algorithm
-- Example usage and demo programs
-- Performance tests and benchmarks
-
-#### Documentation
-- README.md
-- CONTRIBUTING.md
-- CODE_OF_CONDUCT.md
-- LICENSE
-- API documentation
-- Example usage documentation
+- Sorting algorithms:
+  - Bubble Sort
+  - Selection Sort
+  - Insertion Sort
+  - Quick Sort
+  - Merge Sort
+  - Heap Sort
+- Searching algorithms:
+  - Linear Search
+  - Binary Search
+  - Interpolation Search
+- Comprehensive test coverage
+- Example usage and documentation
+- Go 1.23 support
 
 ### Changed
-- Initial release
+- Performance optimizations
+- Generic type support
+- Thread-safe implementations
 
 ### Fixed
-- Initial release
+- Memory leak issues
+- Concurrency bugs
+- Edge case handling
 
-### Removed
-- Initial release
+### Security
+- Mutex implementation for thread-safe operations
+- Secure memory management
 
-## [0.1.0] - 2024-01-01
+## [0.2.0] - 2024-01-05
 
 ### Added
-- Project initialization
-- Basic project structure
-- Go module support
-- License file
+- Graph algorithm implementations
+- Heap data structure
+- Hash Table implementation
+- New test cases
 
-[1.0.0]: https://github.com/mstgnz/data-structures/releases/tag/v1.0.0
+### Changed
+- Performance improvements
+- Code organization
+- Documentation updates
+
+## [0.1.0] - 2024-01-04
+
+### Added
+- Initial basic data structures:
+  - Linked List
+  - Stack
+  - Queue
+  - Binary Tree
+- Basic test coverage
+- README documentation
+- License file
+- Contributing guidelines
+
+[1.0.0]: https://github.com/mstgnz/data-structures/compare/v0.2.0...v1.0.0
+[0.2.0]: https://github.com/mstgnz/data-structures/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mstgnz/data-structures/releases/tag/v0.1.0 
