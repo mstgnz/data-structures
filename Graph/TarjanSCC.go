@@ -1,5 +1,7 @@
 package graph
 
+import "sync"
+
 // TarjanSCC implements Tarjan's algorithm for finding Strongly Connected Components
 type TarjanSCC struct {
 	graph      *Graph
@@ -9,6 +11,7 @@ type TarjanSCC struct {
 	indices    map[int]int
 	lowLink    map[int]int
 	components [][]int
+	mutex      sync.RWMutex
 }
 
 // NewTarjanSCC creates a new Tarjan's SCC instance
@@ -24,11 +27,15 @@ func NewTarjanSCC(g *Graph) *TarjanSCC {
 		indices:    make(map[int]int),
 		lowLink:    make(map[int]int),
 		components: make([][]int, 0),
+		mutex:      sync.RWMutex{},
 	}
 }
 
 // FindComponents finds all strongly connected components
 func (t *TarjanSCC) FindComponents() [][]int {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	// Call DFS for each node
 	for v := 0; v < t.graph.GetVertices(); v++ {
 		if _, exists := t.indices[v]; !exists {
@@ -84,6 +91,9 @@ func (t *TarjanSCC) strongConnect(v int) {
 
 // GetComponents returns all found components
 func (t *TarjanSCC) GetComponents() [][]int {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	if len(t.components) == 0 {
 		return t.FindComponents()
 	}
@@ -92,6 +102,9 @@ func (t *TarjanSCC) GetComponents() [][]int {
 
 // GetComponentCount returns the number of strongly connected components
 func (t *TarjanSCC) GetComponentCount() int {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	if len(t.components) == 0 {
 		t.FindComponents()
 	}
@@ -100,6 +113,9 @@ func (t *TarjanSCC) GetComponentCount() int {
 
 // IsStronglyConnected checks if the graph is strongly connected
 func (t *TarjanSCC) IsStronglyConnected() bool {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	if len(t.components) == 0 {
 		t.FindComponents()
 	}
@@ -108,6 +124,9 @@ func (t *TarjanSCC) IsStronglyConnected() bool {
 
 // GetLargestComponent returns the largest strongly connected component
 func (t *TarjanSCC) GetLargestComponent() []int {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+
 	if len(t.components) == 0 {
 		t.FindComponents()
 	}

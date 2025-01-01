@@ -1,12 +1,16 @@
 package graph
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 // AdjMatrix represents a graph using adjacency matrix
 type AdjMatrix struct {
 	vertices int
 	directed bool
 	matrix   [][]int
+	mutex    sync.RWMutex
 }
 
 // NewAdjMatrix creates a new graph with adjacency matrix representation
@@ -26,11 +30,15 @@ func NewAdjMatrix(vertices int, directed bool) *AdjMatrix {
 		vertices: vertices,
 		directed: directed,
 		matrix:   matrix,
+		mutex:    sync.RWMutex{},
 	}
 }
 
 // AddEdge adds an edge between vertices v1 and v2 with given weight
 func (g *AdjMatrix) AddEdge(v1, v2, weight int) {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
 	g.matrix[v1][v2] = weight
 	if !g.directed {
 		g.matrix[v2][v1] = weight
@@ -39,11 +47,17 @@ func (g *AdjMatrix) AddEdge(v1, v2, weight int) {
 
 // GetWeight returns the weight of the edge between v1 and v2
 func (g *AdjMatrix) GetWeight(v1, v2 int) int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	return g.matrix[v1][v2]
 }
 
 // FloydWarshall finds shortest paths between all pairs of vertices
 func (g *AdjMatrix) FloydWarshall() [][]int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	dist := make([][]int, g.vertices)
 	for i := range dist {
 		dist[i] = make([]int, g.vertices)
@@ -69,6 +83,9 @@ func (g *AdjMatrix) FloydWarshall() [][]int {
 
 // GetNeighbors returns all neighbors of a vertex
 func (g *AdjMatrix) GetNeighbors(vertex int) []int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	neighbors := make([]int, 0)
 	for i := 0; i < g.vertices; i++ {
 		if g.matrix[vertex][i] != math.MaxInt32 && vertex != i {
@@ -80,10 +97,16 @@ func (g *AdjMatrix) GetNeighbors(vertex int) []int {
 
 // GetVertices returns the number of vertices
 func (g *AdjMatrix) GetVertices() int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	return g.vertices
 }
 
 // IsDirected returns whether the graph is directed
 func (g *AdjMatrix) IsDirected() bool {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	return g.directed
 }

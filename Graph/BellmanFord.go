@@ -1,6 +1,9 @@
 package graph
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 // BellmanFord implements the Bellman-Ford algorithm for single-source shortest paths
 type BellmanFord struct {
@@ -11,6 +14,7 @@ type BellmanFord struct {
 	infinity         float64
 	hasNegativeCycle bool
 	reachable        []bool
+	mutex            sync.RWMutex
 }
 
 // NewBellmanFord creates a new Bellman-Ford instance
@@ -20,6 +24,7 @@ func NewBellmanFord(g *Graph, source int) *BellmanFord {
 		source:           source,
 		infinity:         math.Inf(1),
 		hasNegativeCycle: false,
+		mutex:            sync.RWMutex{},
 	}
 	bf.initialize()
 	return bf
@@ -27,6 +32,9 @@ func NewBellmanFord(g *Graph, source int) *BellmanFord {
 
 // initialize prepares the distance and predecessor arrays
 func (bf *BellmanFord) initialize() {
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
 	n := bf.graph.GetVertices()
 	bf.dist = make([]float64, n)
 	bf.prev = make([]int, n)
@@ -47,6 +55,9 @@ func (bf *BellmanFord) initialize() {
 // ComputeShortestPaths computes single-source shortest paths
 // Returns true if no negative cycle is reachable from the source
 func (bf *BellmanFord) ComputeShortestPaths() bool {
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
 	n := bf.graph.GetVertices()
 	edges := bf.getAllEdges()
 
@@ -116,6 +127,9 @@ func (bf *BellmanFord) getAllEdges() []Edge {
 
 // GetDistance returns the shortest distance to a vertex
 func (bf *BellmanFord) GetDistance(to int) float64 {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
+
 	if bf.hasNegativeCycle {
 		return math.Inf(-1)
 	}
@@ -127,6 +141,9 @@ func (bf *BellmanFord) GetDistance(to int) float64 {
 
 // GetPath returns the shortest path to a vertex
 func (bf *BellmanFord) GetPath(to int) []int {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
+
 	if bf.hasNegativeCycle || !bf.reachable[to] {
 		return nil
 	}
@@ -155,15 +172,21 @@ func (bf *BellmanFord) GetPath(to int) []int {
 
 // GetAllDistances returns all computed distances
 func (bf *BellmanFord) GetAllDistances() []float64 {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
 	return bf.dist
 }
 
 // GetPredecessors returns the predecessor array
 func (bf *BellmanFord) GetPredecessors() []int {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
 	return bf.prev
 }
 
 // IsReachable checks if a vertex is reachable from the source
 func (bf *BellmanFord) IsReachable(to int) bool {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
 	return bf.reachable[to]
 }

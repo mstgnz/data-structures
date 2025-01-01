@@ -1,11 +1,14 @@
 package graph
 
+import "sync"
+
 // StronglyConnectedComponents implements Kosaraju's algorithm for finding SCCs
 type StronglyConnectedComponents struct {
 	graph      *Graph
 	visited    map[int]bool
 	finishTime []int
 	components [][]int
+	mutex      sync.RWMutex
 }
 
 // NewSCC creates a new SCC instance
@@ -18,11 +21,15 @@ func NewSCC(g *Graph) *StronglyConnectedComponents {
 		visited:    make(map[int]bool),
 		finishTime: make([]int, 0),
 		components: make([][]int, 0),
+		mutex:      sync.RWMutex{},
 	}
 }
 
 // FindComponents finds all strongly connected components
 func (scc *StronglyConnectedComponents) FindComponents() [][]int {
+	scc.mutex.Lock()
+	defer scc.mutex.Unlock()
+
 	// 1. First DFS to calculate finish times
 	scc.firstDFS()
 
@@ -98,6 +105,9 @@ func (scc *StronglyConnectedComponents) secondDFS(g *Graph, v int, component *[]
 
 // GetComponents returns all found components
 func (scc *StronglyConnectedComponents) GetComponents() [][]int {
+	scc.mutex.Lock()
+	defer scc.mutex.Unlock()
+
 	if len(scc.components) == 0 {
 		return scc.FindComponents()
 	}
@@ -106,6 +116,9 @@ func (scc *StronglyConnectedComponents) GetComponents() [][]int {
 
 // GetComponentCount returns the number of strongly connected components
 func (scc *StronglyConnectedComponents) GetComponentCount() int {
+	scc.mutex.Lock()
+	defer scc.mutex.Unlock()
+
 	if len(scc.components) == 0 {
 		scc.FindComponents()
 	}

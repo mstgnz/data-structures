@@ -1,10 +1,13 @@
 package graph
 
+import "sync"
+
 // HamiltonianPath implements algorithms for finding Hamiltonian paths and circuits
 type HamiltonianPath struct {
 	graph   *Graph
 	path    []int
 	visited []bool
+	mutex   sync.RWMutex
 }
 
 // NewHamiltonianPath creates a new HamiltonianPath instance
@@ -14,11 +17,15 @@ func NewHamiltonianPath(g *Graph) *HamiltonianPath {
 		graph:   g,
 		path:    make([]int, 0),
 		visited: make([]bool, n),
+		mutex:   sync.RWMutex{},
 	}
 }
 
 // FindHamiltonianPath finds a Hamiltonian path in the graph if it exists
 func (hp *HamiltonianPath) FindHamiltonianPath() []int {
+	hp.mutex.Lock()
+	defer hp.mutex.Unlock()
+
 	n := hp.graph.GetVertices()
 	hp.path = make([]int, 0)
 	hp.visited = make([]bool, n)
@@ -39,6 +46,9 @@ func (hp *HamiltonianPath) FindHamiltonianPath() []int {
 
 // FindHamiltonianCircuit finds a Hamiltonian circuit in the graph if it exists
 func (hp *HamiltonianPath) FindHamiltonianCircuit() []int {
+	hp.mutex.Lock()
+	defer hp.mutex.Unlock()
+
 	n := hp.graph.GetVertices()
 	hp.path = make([]int, 0)
 	hp.visited = make([]bool, n)
@@ -123,23 +133,34 @@ func (hp *HamiltonianPath) hamiltonianCircuitUtil(pos int) bool {
 
 // HasHamiltonianPath checks if the graph has a Hamiltonian path
 func (hp *HamiltonianPath) HasHamiltonianPath() bool {
+	hp.mutex.Lock()
+	defer hp.mutex.Unlock()
+
 	path := hp.FindHamiltonianPath()
 	return path != nil
 }
 
 // HasHamiltonianCircuit checks if the graph has a Hamiltonian circuit
 func (hp *HamiltonianPath) HasHamiltonianCircuit() bool {
+	hp.mutex.Lock()
+	defer hp.mutex.Unlock()
+
 	circuit := hp.FindHamiltonianCircuit()
 	return circuit != nil
 }
 
 // GetPath returns the last found path
 func (hp *HamiltonianPath) GetPath() []int {
+	hp.mutex.RLock()
+	defer hp.mutex.RUnlock()
 	return hp.path
 }
 
 // IsHamiltonianPath checks if a given path is a valid Hamiltonian path
 func (hp *HamiltonianPath) IsHamiltonianPath(path []int) bool {
+	hp.mutex.RLock()
+	defer hp.mutex.RUnlock()
+
 	if len(path) != hp.graph.GetVertices() {
 		return false
 	}
@@ -172,6 +193,9 @@ func (hp *HamiltonianPath) IsHamiltonianPath(path []int) bool {
 
 // IsHamiltonianCircuit checks if a given circuit is a valid Hamiltonian circuit
 func (hp *HamiltonianPath) IsHamiltonianCircuit(circuit []int) bool {
+	hp.mutex.RLock()
+	defer hp.mutex.RUnlock()
+
 	if len(circuit) != hp.graph.GetVertices()+1 {
 		return false
 	}

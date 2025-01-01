@@ -1,6 +1,9 @@
 package graph
 
-import "sort"
+import (
+	"sort"
+	"sync"
+)
 
 // KruskalMST implements Kruskal's algorithm for finding Minimum Spanning Tree
 type KruskalMST struct {
@@ -9,6 +12,7 @@ type KruskalMST struct {
 	rank     []int   // Rank array for Union-Find
 	mstEdges []Edge  // Edges in MST
 	mstCost  float64 // Total cost of MST
+	mutex    sync.RWMutex
 }
 
 // NewKruskalMST creates a new Kruskal's MST instance
@@ -19,6 +23,7 @@ func NewKruskalMST(g *Graph) *KruskalMST {
 	return &KruskalMST{
 		graph:   g,
 		mstCost: 0,
+		mutex:   sync.RWMutex{},
 	}
 }
 
@@ -64,6 +69,9 @@ func (k *KruskalMST) union(x, y int) {
 
 // FindMST finds the Minimum Spanning Tree
 func (k *KruskalMST) FindMST() bool {
+	k.mutex.Lock()
+	defer k.mutex.Unlock()
+
 	k.initialize()
 
 	// Collect all edges and sort by weight
@@ -99,21 +107,29 @@ func (k *KruskalMST) FindMST() bool {
 
 // GetMSTEdges returns the edges in the MST
 func (k *KruskalMST) GetMSTEdges() []Edge {
+	k.mutex.RLock()
+	defer k.mutex.RUnlock()
 	return k.mstEdges
 }
 
 // GetMSTCost returns the total cost of the MST
 func (k *KruskalMST) GetMSTCost() float64 {
+	k.mutex.RLock()
+	defer k.mutex.RUnlock()
 	return k.mstCost
 }
 
 // IsConnected checks if two vertices are connected in the MST
 func (k *KruskalMST) IsConnected(x, y int) bool {
+	k.mutex.RLock()
+	defer k.mutex.RUnlock()
 	return k.find(x) == k.find(y)
 }
 
 // GetNumComponents returns the number of connected components
 func (k *KruskalMST) GetNumComponents() int {
+	k.mutex.RLock()
+	defer k.mutex.RUnlock()
 	components := make(map[int]bool)
 	for v := 0; v < k.graph.GetVertices(); v++ {
 		components[k.find(v)] = true

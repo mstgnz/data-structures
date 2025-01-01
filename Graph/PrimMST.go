@@ -3,6 +3,7 @@ package graph
 import (
 	"container/heap"
 	"math"
+	"sync"
 )
 
 // PrimMST implements Prim's algorithm for finding Minimum Spanning Tree
@@ -14,6 +15,7 @@ type PrimMST struct {
 	mstEdges []Edge    // Edges in MST
 	mstCost  float64   // Total cost of MST
 	infinity float64
+	mutex    sync.RWMutex
 }
 
 // NewPrimMST creates a new Prim's MST instance
@@ -25,6 +27,7 @@ func NewPrimMST(g *Graph) *PrimMST {
 		graph:    g,
 		infinity: math.Inf(1),
 		mstCost:  0,
+		mutex:    sync.RWMutex{},
 	}
 }
 
@@ -55,6 +58,9 @@ func (h *minHeap) Pop() interface{} {
 
 // FindMST finds the Minimum Spanning Tree
 func (p *PrimMST) FindMST() bool {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	n := p.graph.GetVertices()
 	p.key = make([]float64, n)
 	p.parent = make([]int, n)
@@ -121,20 +127,28 @@ func (p *PrimMST) FindMST() bool {
 
 // GetMSTEdges returns the edges in the MST
 func (p *PrimMST) GetMSTEdges() []Edge {
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
 	return p.mstEdges
 }
 
 // GetMSTCost returns the total cost of the MST
 func (p *PrimMST) GetMSTCost() float64 {
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
 	return p.mstCost
 }
 
 // GetParent returns the parent of a vertex in the MST
 func (p *PrimMST) GetParent(v int) int {
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
 	return p.parent[v]
 }
 
 // IsInMST checks if a vertex is in the MST
 func (p *PrimMST) IsInMST(v int) bool {
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
 	return p.inMST[v]
 }

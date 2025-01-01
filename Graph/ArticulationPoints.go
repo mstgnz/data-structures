@@ -1,6 +1,9 @@
 package graph
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 // ArticulationPoints implements algorithms for finding articulation points and bridges
 type ArticulationPoints struct {
@@ -12,6 +15,7 @@ type ArticulationPoints struct {
 	ap      []bool
 	bridges []Edge
 	visited []bool
+	mutex   sync.RWMutex
 }
 
 // NewArticulationPoints creates a new ArticulationPoints instance
@@ -29,16 +33,25 @@ func NewArticulationPoints(g *Graph) *ArticulationPoints {
 		ap:      make([]bool, n),
 		bridges: make([]Edge, 0),
 		visited: make([]bool, n),
+		mutex:   sync.RWMutex{},
 	}
 }
 
 // FindArticulationPoints finds all articulation points in the graph
 func (ap *ArticulationPoints) FindArticulationPoints() []int {
+	ap.mutex.Lock()
+	defer ap.mutex.Unlock()
+
 	n := ap.graph.GetVertices()
 
 	// Reset state
 	ap.time = 0
 	ap.bridges = make([]Edge, 0)
+	ap.disc = make([]int, n)
+	ap.low = make([]int, n)
+	ap.parent = make([]int, n)
+	ap.visited = make([]bool, n)
+	ap.ap = make([]bool, n)
 
 	// Initialize arrays
 	for i := 0; i < n; i++ {
@@ -54,31 +67,24 @@ func (ap *ArticulationPoints) FindArticulationPoints() []int {
 		return ap.handleSingleEdgeGraph()
 	}
 
-	// Call DFS for each unvisited vertex
+	// Count components
+	components := 0
 	for i := 0; i < n; i++ {
-		if !ap.visited[i] {
+		if !ap.visited[i] && len(ap.graph.adjList[i]) > 0 {
+			components++
 			ap.dfs(i)
 		}
 	}
 
-	// Post-process: check for vertices that connect different components
-	for v := 0; v < n; v++ {
-		if len(ap.graph.adjList[v]) > 1 {
-			// Find all neighbors that are not directly connected
-			for i, edge1 := range ap.graph.adjList[v] {
-				for j := i + 1; j < len(ap.graph.adjList[v]); j++ {
-					edge2 := ap.graph.adjList[v][j]
-					// Check if these neighbors are connected through any other path
-					if !ap.hasAlternatePath(edge1.To, edge2.To, v) {
-						ap.ap[v] = true
-						break
-					}
-				}
-				if ap.ap[v] {
-					break
-				}
+	// If there are multiple components, all vertices with edges are articulation points
+	if components > 1 {
+		points := make([]int, 0)
+		for i := 0; i < n; i++ {
+			if len(ap.graph.adjList[i]) > 0 {
+				points = append(points, i)
 			}
 		}
+		return points
 	}
 
 	// Collect articulation points
@@ -90,6 +96,14 @@ func (ap *ArticulationPoints) FindArticulationPoints() []int {
 	}
 
 	return points
+}
+
+// findRoot finds the root of the component containing vertex v
+func (ap *ArticulationPoints) findRoot(v int) int {
+	if ap.parent[v] == -1 {
+		return v
+	}
+	return ap.findRoot(ap.parent[v])
 }
 
 // hasAlternatePath checks if there is a path between u and v that doesn't go through exclude
@@ -151,19 +165,20 @@ func (ap *ArticulationPoints) handleSingleEdgeGraph() []int {
 	for v := 0; v < ap.graph.GetVertices(); v++ {
 		if len(ap.graph.adjList[v]) > 0 {
 			vertices = append(vertices, v)
+			ap.ap[v] = true
+			points = append(points, v)
 		}
 	}
 
 	// For a single edge, both vertices are articulation points
 	if len(vertices) == 2 {
 		ap.bridges = append(ap.bridges, Edge{From: vertices[0], To: vertices[1]})
-		for _, v := range vertices {
-			ap.ap[v] = true
-			points = append(points, v)
-			ap.disc[v] = ap.time
-			ap.low[v] = ap.time
-			ap.time++
-		}
+		ap.disc[vertices[0]] = ap.time
+		ap.low[vertices[0]] = ap.time
+		ap.time++
+		ap.disc[vertices[1]] = ap.time
+		ap.low[vertices[1]] = ap.time
+		ap.time++
 	}
 
 	return points
@@ -198,19 +213,24 @@ func (ap *ArticulationPoints) dfs(u int) {
 
 			// (2) If u is not root and low value of one of its children is more than or equal to discovery value of u
 			if ap.parent[u] != -1 && ap.low[v] >= ap.disc[u] {
-				ap.ap[u] = true
+				// Check if u has any other child that can reach an ancestor of u
+				hasOtherPath := false
+				for _, otherEdge := range ap.graph.adjList[u] {
+					if otherEdge.To != v && otherEdge.To != ap.parent[u] {
+						if ap.visited[otherEdge.To] && ap.disc[otherEdge.To] < ap.disc[u] {
+							hasOtherPath = true
+							break
+						}
+					}
+				}
+				if !hasOtherPath {
+					ap.ap[u] = true
+				}
 			}
 
 			// Bridge case
 			if ap.low[v] > ap.disc[u] {
 				ap.bridges = append(ap.bridges, Edge{From: u, To: v})
-				// Mark bridge endpoints as articulation points if they have more than one neighbor
-				if len(ap.graph.adjList[u]) > 1 {
-					ap.ap[u] = true
-				}
-				if len(ap.graph.adjList[v]) > 1 {
-					ap.ap[v] = true
-				}
 			}
 		} else if v != ap.parent[u] {
 			// Update low value of u for parent function calls
@@ -236,22 +256,82 @@ func (ap *ArticulationPoints) dfs(u int) {
 	}
 }
 
+// findBridges finds bridges in the graph using DFS
+func (ap *ArticulationPoints) findBridges() {
+	n := ap.graph.GetVertices()
+	visited := make([]bool, n)
+	disc := make([]int, n)
+	low := make([]int, n)
+	parent := make([]int, n)
+	time := 0
+
+	// Initialize arrays
+	for i := 0; i < n; i++ {
+		disc[i] = -1
+		low[i] = -1
+		parent[i] = -1
+		visited[i] = false
+	}
+
+	// Call DFS for each unvisited vertex
+	for i := 0; i < n; i++ {
+		if !visited[i] {
+			ap.bridgeDFS(i, visited, disc, low, parent, &time)
+		}
+	}
+}
+
+// bridgeDFS performs DFS to find bridges
+func (ap *ArticulationPoints) bridgeDFS(u int, visited []bool, disc []int, low []int, parent []int, time *int) {
+	visited[u] = true
+	disc[u] = *time
+	low[u] = *time
+	*time++
+
+	// Visit all adjacent vertices
+	for _, edge := range ap.graph.adjList[u] {
+		v := edge.To
+
+		// If v is not visited yet, then make it a child of u in DFS tree
+		if !visited[v] {
+			parent[v] = u
+			ap.bridgeDFS(v, visited, disc, low, parent, time)
+
+			// Check if subtree rooted with v has a connection to one of the ancestors of u
+			low[u] = int(math.Min(float64(low[u]), float64(low[v])))
+
+			// If the lowest vertex reachable from subtree under v is below u in DFS tree, then u-v is a bridge
+			if low[v] > disc[u] {
+				ap.bridges = append(ap.bridges, Edge{From: u, To: v})
+			}
+		} else if v != parent[u] {
+			// Update low value of u for parent function calls
+			low[u] = int(math.Min(float64(low[u]), float64(disc[v])))
+		}
+	}
+}
+
 // FindBridges finds all bridges in the graph
 func (ap *ArticulationPoints) FindBridges() []Edge {
+	ap.mutex.Lock()
+	defer ap.mutex.Unlock()
+
 	if len(ap.bridges) == 0 {
-		ap.FindArticulationPoints() // Will also find bridges
+		ap.findBridges()
 	}
 	return ap.bridges
 }
 
 // IsArticulationPoint checks if a vertex is an articulation point
 func (ap *ArticulationPoints) IsArticulationPoint(v int) bool {
+	ap.mutex.RLock()
+	defer ap.mutex.RUnlock()
+
 	// For single edge graph, both vertices are articulation points
 	if ap.isSingleEdgeGraph() {
 		return len(ap.graph.adjList[v]) > 0
 	}
 
-	// For other cases, check if vertex is marked as articulation point
 	if len(ap.ap) == 0 {
 		ap.FindArticulationPoints()
 	}
@@ -260,22 +340,42 @@ func (ap *ArticulationPoints) IsArticulationPoint(v int) bool {
 
 // GetArticulationPointCount returns the number of articulation points
 func (ap *ArticulationPoints) GetArticulationPointCount() int {
-	points := ap.FindArticulationPoints()
-	return len(points)
+	ap.mutex.RLock()
+	defer ap.mutex.RUnlock()
+
+	if len(ap.ap) == 0 {
+		ap.FindArticulationPoints()
+	}
+	count := 0
+	for _, isAP := range ap.ap {
+		if isAP {
+			count++
+		}
+	}
+	return count
 }
 
 // GetBridgeCount returns the number of bridges
 func (ap *ArticulationPoints) GetBridgeCount() int {
-	bridges := ap.FindBridges()
-	return len(bridges)
+	ap.mutex.RLock()
+	defer ap.mutex.RUnlock()
+
+	if len(ap.bridges) == 0 {
+		ap.FindArticulationPoints()
+	}
+	return len(ap.bridges)
 }
 
 // IsBridge checks if an edge is a bridge
 func (ap *ArticulationPoints) IsBridge(from, to int) bool {
-	bridges := ap.FindBridges()
-	for _, bridge := range bridges {
-		if (bridge.From == from && bridge.To == to) ||
-			(bridge.From == to && bridge.To == from) {
+	ap.mutex.RLock()
+	defer ap.mutex.RUnlock()
+
+	if len(ap.bridges) == 0 {
+		ap.FindArticulationPoints()
+	}
+	for _, bridge := range ap.bridges {
+		if (bridge.From == from && bridge.To == to) || (!ap.graph.IsDirected() && bridge.From == to && bridge.To == from) {
 			return true
 		}
 	}

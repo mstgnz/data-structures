@@ -1,5 +1,7 @@
 package graph
 
+import "sync"
+
 // TopologicalSort performs topological sorting on a directed graph
 type TopologicalSort struct {
 	graph    *Graph
@@ -7,6 +9,7 @@ type TopologicalSort struct {
 	tempMark map[int]bool // Temporary marking for cycle detection
 	order    []int        // Topological sort result
 	hasCycle bool         // Has cycle?
+	mutex    sync.RWMutex
 }
 
 // NewTopologicalSort creates a new topological sort instance
@@ -20,12 +23,16 @@ func NewTopologicalSort(g *Graph) *TopologicalSort {
 		tempMark: make(map[int]bool),
 		order:    make([]int, 0),
 		hasCycle: false,
+		mutex:    sync.RWMutex{},
 	}
 }
 
 // Sort performs topological sorting and returns the sorted vertices
 // Returns nil if the graph has a cycle
 func (ts *TopologicalSort) Sort() []int {
+	ts.mutex.Lock()
+	defer ts.mutex.Unlock()
+
 	// Call DFS for each node
 	for v := 0; v < ts.graph.GetVertices(); v++ {
 		if !ts.visited[v] {
@@ -69,6 +76,9 @@ func (ts *TopologicalSort) visit(v int) {
 
 // HasCycle returns true if the graph contains a cycle
 func (ts *TopologicalSort) HasCycle() bool {
+	ts.mutex.Lock()
+	defer ts.mutex.Unlock()
+
 	if ts.order == nil {
 		ts.Sort()
 	}
@@ -78,6 +88,9 @@ func (ts *TopologicalSort) HasCycle() bool {
 // GetDependencyOrder returns the dependency order of vertices
 // For example, if v depends on u, then u will appear before v in the result
 func (ts *TopologicalSort) GetDependencyOrder() []int {
+	ts.mutex.Lock()
+	defer ts.mutex.Unlock()
+
 	if ts.order == nil {
 		return ts.Sort()
 	}

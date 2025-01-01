@@ -1,6 +1,9 @@
 package graph
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 // EulerPath implements algorithms for finding Euler paths and circuits
 type EulerPath struct {
@@ -9,6 +12,7 @@ type EulerPath struct {
 	edgeCount  map[string]int
 	edgesUsed  int
 	totalEdges int
+	mutex      sync.RWMutex
 }
 
 // NewEulerPath creates a new EulerPath instance
@@ -27,6 +31,7 @@ func NewEulerPath(g *Graph) *EulerPath {
 		edgeCount:  make(map[string]int),
 		edgesUsed:  0,
 		totalEdges: totalEdges,
+		mutex:      sync.RWMutex{},
 	}
 }
 
@@ -78,6 +83,9 @@ func (ep *EulerPath) dfs(v int) {
 
 // FindEulerPath finds an Euler path in the graph if it exists
 func (ep *EulerPath) FindEulerPath() []int {
+	ep.mutex.Lock()
+	defer ep.mutex.Unlock()
+
 	if !ep.HasEulerPath() {
 		return nil
 	}
@@ -111,6 +119,9 @@ func (ep *EulerPath) FindEulerPath() []int {
 
 // FindEulerCircuit finds an Euler circuit in the graph if it exists
 func (ep *EulerPath) FindEulerCircuit() []int {
+	ep.mutex.Lock()
+	defer ep.mutex.Unlock()
+
 	if !ep.HasEulerCircuit() {
 		return nil
 	}
@@ -123,6 +134,9 @@ func (ep *EulerPath) FindEulerCircuit() []int {
 
 // HasEulerPath checks if the graph has an Euler path
 func (ep *EulerPath) HasEulerPath() bool {
+	ep.mutex.RLock()
+	defer ep.mutex.RUnlock()
+
 	if !ep.isConnected() {
 		return false
 	}
@@ -167,6 +181,9 @@ func (ep *EulerPath) HasEulerPath() bool {
 
 // HasEulerCircuit checks if the graph has an Euler circuit
 func (ep *EulerPath) HasEulerCircuit() bool {
+	ep.mutex.RLock()
+	defer ep.mutex.RUnlock()
+
 	if !ep.isConnected() {
 		return false
 	}
@@ -247,27 +264,21 @@ func (ep *EulerPath) findStartVertex() int {
 				return v
 			}
 		}
+	}
 
-		// If no such vertex exists, find first vertex with non-zero degree
-		for v := 0; v < ep.graph.GetVertices(); v++ {
-			if len(ep.graph.adjList[v]) > 0 {
-				return v
-			}
-		}
-	} else {
-		// For undirected graph, first try to find vertex with odd degree
-		for v := 0; v < ep.graph.GetVertices(); v++ {
-			if len(ep.graph.adjList[v])%2 != 0 {
-				return v
-			}
-		}
-
-		// If no odd degree vertex exists, find first vertex with non-zero degree
-		for v := 0; v < ep.graph.GetVertices(); v++ {
-			if len(ep.graph.adjList[v]) > 0 {
-				return v
-			}
+	// For undirected graph or if no suitable vertex found in directed graph
+	for v := 0; v < ep.graph.GetVertices(); v++ {
+		if len(ep.graph.adjList[v])%2 != 0 {
+			return v
 		}
 	}
+
+	// If no odd degree vertex found, return first vertex with edges
+	for v := 0; v < ep.graph.GetVertices(); v++ {
+		if len(ep.graph.adjList[v]) > 0 {
+			return v
+		}
+	}
+
 	return 0
 }

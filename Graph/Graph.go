@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"sync"
 )
 
 // Edge represents a weighted edge in the graph
@@ -19,6 +20,7 @@ type Graph struct {
 	vertices int
 	directed bool
 	adjList  map[int][]Edge
+	mutex    sync.RWMutex
 }
 
 // NewGraph creates a new graph with n vertices
@@ -27,11 +29,15 @@ func NewGraph(vertices int, directed bool) *Graph {
 		vertices: vertices,
 		directed: directed,
 		adjList:  make(map[int][]Edge),
+		mutex:    sync.RWMutex{},
 	}
 }
 
 // AddEdge adds an edge between vertices v1 and v2 with given weight
 func (g *Graph) AddEdge(v1, v2, weight int) {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
 	// Komşuluk listesine kenarı ekle
 	g.adjList[v1] = append(g.adjList[v1], Edge{To: v2, Weight: weight})
 
@@ -43,6 +49,9 @@ func (g *Graph) AddEdge(v1, v2, weight int) {
 
 // BFS performs Breadth First Search starting from vertex v
 func (g *Graph) BFS(start int) []int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	visited := make(map[int]bool)
 	queue := []int{start}
 	result := []int{}
@@ -67,6 +76,9 @@ func (g *Graph) BFS(start int) []int {
 
 // DFS performs Depth First Search starting from vertex v
 func (g *Graph) DFS(start int) []int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	visited := make(map[int]bool)
 	result := []int{}
 	g.dfsUtil(start, visited, &result)
@@ -86,6 +98,9 @@ func (g *Graph) dfsUtil(vertex int, visited map[int]bool, result *[]int) {
 
 // Dijkstra finds shortest paths from source vertex to all other vertices
 func (g *Graph) Dijkstra(source int) map[int]int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	distances := make(map[int]int)
 	for i := 0; i < g.vertices; i++ {
 		distances[i] = math.MaxInt32
@@ -121,6 +136,9 @@ func (g *Graph) Dijkstra(source int) map[int]int {
 
 // Kruskal finds Minimum Spanning Tree using Kruskal's algorithm
 func (g *Graph) Kruskal() []Edge {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	if g.directed {
 		return nil // Kruskal works only on undirected graphs
 	}
@@ -155,6 +173,9 @@ func (g *Graph) Kruskal() []Edge {
 
 // Prim finds Minimum Spanning Tree using Prim's algorithm
 func (g *Graph) Prim(start int) []Edge {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	if g.directed {
 		return nil // Prim works only on undirected graphs
 	}
@@ -195,6 +216,9 @@ func (g *Graph) Prim(start int) []Edge {
 
 // GetNeighbors returns all neighbors of a vertex
 func (g *Graph) GetNeighbors(vertex int) []int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	neighbors := make([]int, 0)
 	for _, edge := range g.adjList[vertex] {
 		neighbors = append(neighbors, edge.To)
@@ -204,11 +228,15 @@ func (g *Graph) GetNeighbors(vertex int) []int {
 
 // GetVertices returns the number of vertices
 func (g *Graph) GetVertices() int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
 	return g.vertices
 }
 
 // IsDirected returns whether the graph is directed
 func (g *Graph) IsDirected() bool {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
 	return g.directed
 }
 

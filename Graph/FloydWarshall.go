@@ -1,6 +1,9 @@
 package graph
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 // FloydWarshall implements the Floyd-Warshall algorithm for all-pairs shortest paths
 type FloydWarshall struct {
@@ -8,6 +11,7 @@ type FloydWarshall struct {
 	dist     [][]float64 // Distance matrix
 	next     [][]int     // Path matrix
 	infinity float64
+	mutex    sync.RWMutex
 }
 
 // NewFloydWarshall creates a new Floyd-Warshall instance
@@ -15,6 +19,7 @@ func NewFloydWarshall(g *Graph) *FloydWarshall {
 	fw := &FloydWarshall{
 		graph:    g,
 		infinity: math.Inf(1),
+		mutex:    sync.RWMutex{},
 	}
 	fw.initialize()
 	return fw
@@ -22,6 +27,9 @@ func NewFloydWarshall(g *Graph) *FloydWarshall {
 
 // initialize prepares the distance and next matrices
 func (fw *FloydWarshall) initialize() {
+	fw.mutex.Lock()
+	defer fw.mutex.Unlock()
+
 	n := fw.graph.GetVertices()
 	fw.dist = make([][]float64, n)
 	fw.next = make([][]int, n)
@@ -51,6 +59,9 @@ func (fw *FloydWarshall) initialize() {
 
 // ComputeShortestPaths computes all-pairs shortest paths
 func (fw *FloydWarshall) ComputeShortestPaths() {
+	fw.mutex.Lock()
+	defer fw.mutex.Unlock()
+
 	n := fw.graph.GetVertices()
 
 	// Floyd-Warshall algorithm
@@ -71,11 +82,16 @@ func (fw *FloydWarshall) ComputeShortestPaths() {
 
 // GetDistance returns the shortest distance between two vertices
 func (fw *FloydWarshall) GetDistance(from, to int) float64 {
+	fw.mutex.RLock()
+	defer fw.mutex.RUnlock()
 	return fw.dist[from][to]
 }
 
 // GetPath returns the shortest path between two vertices
 func (fw *FloydWarshall) GetPath(from, to int) []int {
+	fw.mutex.RLock()
+	defer fw.mutex.RUnlock()
+
 	if fw.next[from][to] == -1 {
 		return nil
 	}
@@ -91,6 +107,9 @@ func (fw *FloydWarshall) GetPath(from, to int) []int {
 
 // HasNegativeCycle checks if the graph contains a negative cycle
 func (fw *FloydWarshall) HasNegativeCycle() bool {
+	fw.mutex.RLock()
+	defer fw.mutex.RUnlock()
+
 	n := fw.graph.GetVertices()
 	for i := 0; i < n; i++ {
 		if fw.dist[i][i] < 0 {
@@ -102,10 +121,14 @@ func (fw *FloydWarshall) HasNegativeCycle() bool {
 
 // GetAllPairsDistances returns the distance matrix
 func (fw *FloydWarshall) GetAllPairsDistances() [][]float64 {
+	fw.mutex.RLock()
+	defer fw.mutex.RUnlock()
 	return fw.dist
 }
 
 // GetAllPairsNextHops returns the next hop matrix
 func (fw *FloydWarshall) GetAllPairsNextHops() [][]int {
+	fw.mutex.RLock()
+	defer fw.mutex.RUnlock()
 	return fw.next
 }
