@@ -1,4 +1,4 @@
-package Graph
+package graph
 
 // TopologicalSort performs topological sorting on a directed graph
 type TopologicalSort struct {

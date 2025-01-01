@@ -1,4 +1,4 @@
-package Graph
+package graph
 
 // StronglyConnectedComponents implements Kosaraju's algorithm for finding SCCs
 type StronglyConnectedComponents struct {

@@ -1,4 +1,4 @@
-package Graph
+package graph
 
 // HamiltonianPath implements algorithms for finding Hamiltonian paths and circuits
 type HamiltonianPath struct {

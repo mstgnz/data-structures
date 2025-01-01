@@ -1,4 +1,4 @@
-package Graph
+package graph
 
 // TarjanSCC implements Tarjan's algorithm for finding Strongly Connected Components
 type TarjanSCC struct {
