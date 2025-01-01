@@ -1,6 +1,9 @@
 package heap
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // BinomialNode represents a node in the binomial heap
 type BinomialNode struct {
@@ -13,20 +16,25 @@ type BinomialNode struct {
 
 // BinomialHeap represents a binomial heap data structure
 type BinomialHeap struct {
-	head *BinomialNode
-	size int
+	head  *BinomialNode
+	size  int
+	mutex sync.RWMutex
 }
 
 // NewBinomialHeap creates and returns a new instance of BinomialHeap
 func NewBinomialHeap() *BinomialHeap {
 	return &BinomialHeap{
-		head: nil,
-		size: 0,
+		head:  nil,
+		size:  0,
+		mutex: sync.RWMutex{},
 	}
 }
 
 // Insert adds a new value to the binomial heap
 func (bh *BinomialHeap) Insert(value int) {
+	bh.mutex.Lock()
+	defer bh.mutex.Unlock()
+
 	node := &BinomialNode{key: value}
 	if bh.head == nil {
 		bh.head = node
@@ -44,6 +52,9 @@ func (bh *BinomialHeap) withNode(node *BinomialNode) *BinomialHeap {
 
 // Extract removes and returns the minimum element from the heap
 func (bh *BinomialHeap) Extract() (int, error) {
+	bh.mutex.Lock()
+	defer bh.mutex.Unlock()
+
 	if bh.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -166,6 +177,9 @@ func (bh *BinomialHeap) link(y, x *BinomialNode) {
 
 // Peek returns the minimum element without removing it
 func (bh *BinomialHeap) Peek() (int, error) {
+	bh.mutex.RLock()
+	defer bh.mutex.RUnlock()
+
 	if bh.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -185,6 +199,8 @@ func (bh *BinomialHeap) Peek() (int, error) {
 
 // Size returns the number of elements in the heap
 func (bh *BinomialHeap) Size() int {
+	bh.mutex.RLock()
+	defer bh.mutex.RUnlock()
 	return bh.size
 }
 

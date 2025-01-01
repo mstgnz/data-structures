@@ -1,27 +1,38 @@
 package heap
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // MinHeapImpl represents a binary heap data structure that maintains the min-heap property
 type MinHeapImpl struct {
 	items []int
+	mutex sync.RWMutex
 }
 
 // NewMinHeap creates and returns a new instance of MinHeapImpl
 func NewMinHeap() *MinHeapImpl {
 	return &MinHeapImpl{
 		items: make([]int, 0),
+		mutex: sync.RWMutex{},
 	}
 }
 
 // Insert adds a new value to the heap while maintaining the min-heap property
 func (h *MinHeapImpl) Insert(value int) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	h.items = append(h.items, value)
 	h.heapifyUp(len(h.items) - 1)
 }
 
 // Extract removes and returns the minimum element from the heap
 func (h *MinHeapImpl) Extract() (int, error) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	if h.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -40,6 +51,9 @@ func (h *MinHeapImpl) Extract() (int, error) {
 
 // Peek returns the minimum element without removing it
 func (h *MinHeapImpl) Peek() (int, error) {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
+
 	if h.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -48,6 +62,8 @@ func (h *MinHeapImpl) Peek() (int, error) {
 
 // Size returns the number of elements in the heap
 func (h *MinHeapImpl) Size() int {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
 	return len(h.items)
 }
 

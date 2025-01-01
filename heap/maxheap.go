@@ -1,27 +1,38 @@
 package heap
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // MaxHeapImpl represents a binary heap data structure that maintains the max-heap property
 type MaxHeapImpl struct {
 	items []int
+	mutex sync.RWMutex
 }
 
 // NewMaxHeap creates and returns a new instance of MaxHeapImpl
 func NewMaxHeap() *MaxHeapImpl {
 	return &MaxHeapImpl{
 		items: make([]int, 0),
+		mutex: sync.RWMutex{},
 	}
 }
 
 // Insert adds a new value to the heap while maintaining the max-heap property
 func (h *MaxHeapImpl) Insert(value int) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	h.items = append(h.items, value)
 	h.heapifyUp(len(h.items) - 1)
 }
 
 // Extract removes and returns the maximum element from the heap
 func (h *MaxHeapImpl) Extract() (int, error) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	if h.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -40,6 +51,9 @@ func (h *MaxHeapImpl) Extract() (int, error) {
 
 // Peek returns the maximum element without removing it
 func (h *MaxHeapImpl) Peek() (int, error) {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
+
 	if h.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -48,6 +62,8 @@ func (h *MaxHeapImpl) Peek() (int, error) {
 
 // Size returns the number of elements in the heap
 func (h *MaxHeapImpl) Size() int {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
 	return len(h.items)
 }
 

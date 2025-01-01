@@ -1,6 +1,9 @@
 package heap
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // Item represents an element in the priority queue with a value and priority
 type Item struct {
@@ -13,6 +16,7 @@ type Item struct {
 type PriorityQueue struct {
 	items []*Item
 	size  int // Track size for insertion order
+	mutex sync.RWMutex
 }
 
 // NewPriorityQueue creates and returns a new instance of PriorityQueue
@@ -20,11 +24,15 @@ func NewPriorityQueue() *PriorityQueue {
 	return &PriorityQueue{
 		items: make([]*Item, 0),
 		size:  0,
+		mutex: sync.RWMutex{},
 	}
 }
 
 // Enqueue adds a new item to the priority queue
 func (pq *PriorityQueue) Enqueue(value interface{}, priority int) {
+	pq.mutex.Lock()
+	defer pq.mutex.Unlock()
+
 	item := &Item{
 		Value:    value,
 		Priority: priority,
@@ -37,6 +45,9 @@ func (pq *PriorityQueue) Enqueue(value interface{}, priority int) {
 
 // Dequeue removes and returns the highest priority item
 func (pq *PriorityQueue) Dequeue() (interface{}, error) {
+	pq.mutex.Lock()
+	defer pq.mutex.Unlock()
+
 	if pq.IsEmpty() {
 		return nil, errors.New("priority queue is empty")
 	}
@@ -55,6 +66,9 @@ func (pq *PriorityQueue) Dequeue() (interface{}, error) {
 
 // Peek returns the highest priority item without removing it
 func (pq *PriorityQueue) Peek() (interface{}, error) {
+	pq.mutex.RLock()
+	defer pq.mutex.RUnlock()
+
 	if pq.IsEmpty() {
 		return nil, errors.New("priority queue is empty")
 	}
@@ -63,6 +77,8 @@ func (pq *PriorityQueue) Peek() (interface{}, error) {
 
 // Size returns the number of elements in the priority queue
 func (pq *PriorityQueue) Size() int {
+	pq.mutex.RLock()
+	defer pq.mutex.RUnlock()
 	return len(pq.items)
 }
 

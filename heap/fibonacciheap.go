@@ -3,6 +3,7 @@ package heap
 import (
 	"errors"
 	"math"
+	"sync"
 )
 
 // FibNode represents a node in the Fibonacci heap
@@ -18,20 +19,25 @@ type FibNode struct {
 
 // FibonacciHeap represents a Fibonacci heap data structure
 type FibonacciHeap struct {
-	min  *FibNode
-	size int
+	min   *FibNode
+	size  int
+	mutex sync.RWMutex
 }
 
 // NewFibonacciHeap creates and returns a new instance of FibonacciHeap
 func NewFibonacciHeap() *FibonacciHeap {
 	return &FibonacciHeap{
-		min:  nil,
-		size: 0,
+		min:   nil,
+		size:  0,
+		mutex: sync.RWMutex{},
 	}
 }
 
 // Insert adds a new value to the Fibonacci heap
 func (fh *FibonacciHeap) Insert(value int) {
+	fh.mutex.Lock()
+	defer fh.mutex.Unlock()
+
 	node := &FibNode{
 		key:    value,
 		marked: false,
@@ -45,6 +51,9 @@ func (fh *FibonacciHeap) Insert(value int) {
 
 // Extract removes and returns the minimum element from the heap
 func (fh *FibonacciHeap) Extract() (int, error) {
+	fh.mutex.Lock()
+	defer fh.mutex.Unlock()
+
 	if fh.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -192,6 +201,9 @@ func (fh *FibonacciHeap) addToRootList(node *FibNode) {
 
 // Peek returns the minimum element without removing it
 func (fh *FibonacciHeap) Peek() (int, error) {
+	fh.mutex.RLock()
+	defer fh.mutex.RUnlock()
+
 	if fh.IsEmpty() {
 		return 0, errors.New("heap is empty")
 	}
@@ -200,6 +212,8 @@ func (fh *FibonacciHeap) Peek() (int, error) {
 
 // Size returns the number of elements in the heap
 func (fh *FibonacciHeap) Size() int {
+	fh.mutex.RLock()
+	defer fh.mutex.RUnlock()
 	return fh.size
 }
 
@@ -210,6 +224,9 @@ func (fh *FibonacciHeap) IsEmpty() bool {
 
 // DecreaseKey decreases the key of a node
 func (fh *FibonacciHeap) DecreaseKey(node *FibNode, newKey int) error {
+	fh.mutex.Lock()
+	defer fh.mutex.Unlock()
+
 	if newKey > node.key {
 		return errors.New("new key is greater than current key")
 	}
