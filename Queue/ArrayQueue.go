@@ -1,6 +1,9 @@
 package queue
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type IArrayQueue interface {
 	Enqueue(data int)
@@ -15,14 +18,24 @@ type arrayQueue struct {
 	ArrSize    int
 	FirstIndex int
 	LastIndex  int
+	mutex      sync.RWMutex
 }
 
 func ArrayQueue() IArrayQueue {
-	return &arrayQueue{[]int{0, 0}, 2, 0, 0}
+	return &arrayQueue{
+		Arr:        []int{0, 0},
+		ArrSize:    2,
+		FirstIndex: 0,
+		LastIndex:  0,
+		mutex:      sync.RWMutex{},
+	}
 }
 
-// Enqueue Add to data
+// Enqueue adds data to the queue
 func (arr *arrayQueue) Enqueue(data int) {
+	arr.mutex.Lock()
+	defer arr.mutex.Unlock()
+
 	// Removing an element from the array is just row shifting if before enlarging the array.
 	// If the first index is different from 0, the element has been removed from the array
 	// Then we will reorder the array instead of enlarging the array.
@@ -43,8 +56,11 @@ func (arr *arrayQueue) Enqueue(data int) {
 	arr.LastIndex++
 }
 
-// Dequeue Remove to data
+// Dequeue removes data from the queue
 func (arr *arrayQueue) Dequeue() {
+	arr.mutex.Lock()
+	defer arr.mutex.Unlock()
+
 	// if deque is run first
 	if arr.FirstIndex == 0 && arr.LastIndex == 0 {
 		return
@@ -65,7 +81,7 @@ func (arr *arrayQueue) Dequeue() {
 	}
 }
 
-// ReSort data
+// reSort reorders the queue data
 func (arr *arrayQueue) reSort() {
 	newArr := make([]int, arr.ArrSize)
 	sort := 0
@@ -78,8 +94,11 @@ func (arr *arrayQueue) reSort() {
 	arr.FirstIndex = 0
 }
 
-// List data - slice
+// List returns a slice of queue data
 func (arr *arrayQueue) List() []int {
+	arr.mutex.RLock()
+	defer arr.mutex.RUnlock()
+
 	if arr.FirstIndex >= arr.LastIndex {
 		return []int{}
 	}
@@ -90,8 +109,10 @@ func (arr *arrayQueue) List() []int {
 	return list
 }
 
-// Print data
+// Print displays queue data
 func (arr *arrayQueue) Print() {
+	arr.mutex.RLock()
+	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")
 	for _, val := range arr.List() {
 		fmt.Print(val, " ")
