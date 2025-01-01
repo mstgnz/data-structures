@@ -4,6 +4,7 @@ import (
 	"hash"
 	"hash/fnv"
 	"math"
+	"sync"
 )
 
 // BloomFilter represents a Bloom filter data structure
@@ -12,6 +13,7 @@ type BloomFilter struct {
 	size      uint
 	numHash   uint // number of hash functions
 	hashFuncs []hash.Hash64
+	mutex     sync.RWMutex
 }
 
 // NewBloomFilter creates a new Bloom filter with the given size and desired false positive rate
@@ -31,6 +33,7 @@ func NewBloomFilter(expectedElements int, falsePositiveRate float64) *BloomFilte
 		size:      uint(size),
 		numHash:   uint(numHash),
 		hashFuncs: hashFuncs,
+		mutex:     sync.RWMutex{},
 	}
 }
 
@@ -57,6 +60,9 @@ func (bf *BloomFilter) getHashValues(data []byte) []uint {
 
 // Add adds an element to the Bloom filter
 func (bf *BloomFilter) Add(data []byte) {
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
 	for _, hashValue := range bf.getHashValues(data) {
 		bf.bitArray[hashValue] = true
 	}
@@ -64,6 +70,9 @@ func (bf *BloomFilter) Add(data []byte) {
 
 // Contains checks if an element might be in the set
 func (bf *BloomFilter) Contains(data []byte) bool {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
+
 	for _, hashValue := range bf.getHashValues(data) {
 		if !bf.bitArray[hashValue] {
 			return false
@@ -74,11 +83,17 @@ func (bf *BloomFilter) Contains(data []byte) bool {
 
 // Clear resets the Bloom filter
 func (bf *BloomFilter) Clear() {
+	bf.mutex.Lock()
+	defer bf.mutex.Unlock()
+
 	bf.bitArray = make([]bool, bf.size)
 }
 
 // EstimateFalsePositiveRate estimates the current false positive rate
 func (bf *BloomFilter) EstimateFalsePositiveRate(numElements int) float64 {
+	bf.mutex.RLock()
+	defer bf.mutex.RUnlock()
+
 	k := float64(bf.numHash)
 	m := float64(bf.size)
 	n := float64(numElements)

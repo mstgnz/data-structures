@@ -1,5 +1,7 @@
 package hash
 
+import "sync"
+
 // HashNode represents a key-value pair in the hash table
 type HashNode struct {
 	Key   interface{}
@@ -13,6 +15,7 @@ type HashTable struct {
 	Capacity int
 	Table    []*HashNode
 	Strategy string // "linear" for linear probing, "chain" for chaining
+	mutex    sync.RWMutex
 }
 
 // NewHashTable creates a new hash table with specified capacity and collision resolution strategy
@@ -22,6 +25,7 @@ func NewHashTable(capacity int, strategy string) *HashTable {
 		Capacity: capacity,
 		Table:    make([]*HashNode, capacity),
 		Strategy: strategy,
+		mutex:    sync.RWMutex{},
 	}
 }
 
@@ -44,6 +48,9 @@ func (h *HashTable) hash(key interface{}) int {
 
 // Put inserts a key-value pair into the hash table
 func (h *HashTable) Put(key, value interface{}) bool {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	hashIndex := h.hash(key)
 
 	if h.Strategy == "linear" {
@@ -104,6 +111,9 @@ func (h *HashTable) putChaining(hashIndex int, key, value interface{}) bool {
 
 // Get retrieves a value by key from the hash table
 func (h *HashTable) Get(key interface{}) (interface{}, bool) {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
+
 	hashIndex := h.hash(key)
 
 	if h.Strategy == "linear" {
@@ -143,6 +153,9 @@ func (h *HashTable) getChaining(hashIndex int, key interface{}) (interface{}, bo
 
 // Remove removes a key-value pair from the hash table
 func (h *HashTable) Remove(key interface{}) bool {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
 	hashIndex := h.hash(key)
 
 	if h.Strategy == "linear" {
