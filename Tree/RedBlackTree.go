@@ -1,4 +1,4 @@
-package Tree
+package tree
 
 // Color represents the color of a node in Red-Black tree
 type Color bool

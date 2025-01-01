@@ -1,4 +1,4 @@
-package Tree
+package tree
 
 // Node AVL ağacı için düğüm yapısı
 type AVLNode struct {

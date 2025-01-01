@@ -1,4 +1,4 @@
-package Tree
+package tree
 
 // TrieNode represents a node in Trie
 type TrieNode struct {

@@ -1,4 +1,4 @@
-package Tree
+package tree
 
 // BTreeNode represents a node in B-tree
 type BTreeNode struct {
