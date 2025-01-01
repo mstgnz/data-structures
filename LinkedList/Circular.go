@@ -1,13 +1,15 @@
 package LinkedList
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type ICircular interface{
+type ICircular interface {
 	AddToStart(data int)
 	AddToSequentially(data int)
 	AddToAfter(data, which int)
 	AddToEnd(data int)
-	Delete(data int)
+	Delete(data int) error
 	List() []int
 	Print()
 }
@@ -17,7 +19,7 @@ type circular struct {
 	Next *circular
 }
 
-func Circular(data int) ICircular{
+func Circular(data int) ICircular {
 	init := &circular{X: data, Next: nil}
 	init.Next = init
 	return init
@@ -54,15 +56,21 @@ func (node *circular) AddToSequentially(data int) {
 
 // AddToAfter data
 func (node *circular) AddToAfter(data int, which int) {
-	for node.X != which && node != node.Next {
-		node = node.Next
-	}
-	if node.X == which{
-		temp := *node
-		node.Next = &circular{X: data, Next: nil}
-		node.Next.Next = temp.Next
-	}else{
-		fmt.Println(which,"not found!")
+	iter := node
+
+	// Check all nodes
+	for {
+		if iter.X == which {
+			newNode := &circular{X: data, Next: iter.Next}
+			iter.Next = newNode
+			return
+		}
+		iter = iter.Next
+		// Returned to start and not found
+		if iter == node {
+			fmt.Println(which, "not found!")
+			return
+		}
 	}
 }
 
@@ -76,37 +84,43 @@ func (node *circular) AddToEnd(data int) {
 }
 
 // Delete data
-func (node *circular) Delete(data int) {
+func (node *circular) Delete(data int) error {
 	// If the value to be deleted is a value in between or at the end, we move our iter object to the previous node object to be deleted.
 	iter := node
 	// If the root object is to be deleted
 	if iter.X == data {
-		for iter.Next != node {
-			iter = iter.Next
-		}
-		node.X = node.Next.X
-		node.Next = node.Next.Next
-		iter.Next = node
-		// If one of the other elements is wanted to be deleted
-	} else {
-		for iter.Next != node && iter.Next.X != data {
-			iter = iter.Next
-		}
-		if iter.Next == node {
-			fmt.Println(data,"not found")
+		if node.Next == node {
+			// If it's the only element in the list
+			node.X = 0
 		} else {
-			iter.Next = iter.Next.Next
+			for iter.Next != node {
+				iter = iter.Next
+			}
+			node.X = node.Next.X
+			node.Next = node.Next.Next
+			iter.Next = node
 		}
+		return nil
 	}
+
+	// If one of the other elements is wanted to be deleted
+	for iter.Next != node && iter.Next.X != data {
+		iter = iter.Next
+	}
+	if iter.Next == node {
+		return fmt.Errorf("%d not found", data)
+	}
+	iter.Next = iter.Next.Next
+	return nil
 }
 
 // List data - slice
-func (node *circular) List() []int{
+func (node *circular) List() []int {
 	var list []int
 	iter := node
 	list = append(list, iter.X)
 	iter = iter.Next
-	for iter != node{
+	for iter != node {
 		list = append(list, iter.X)
 		iter = iter.Next
 	}
@@ -117,7 +131,7 @@ func (node *circular) List() []int{
 func (node *circular) Print() {
 	fmt.Print("print : ")
 	for _, val := range node.List() {
-		fmt.Print(val," ")
+		fmt.Print(val, " ")
 	}
 	fmt.Println()
 }

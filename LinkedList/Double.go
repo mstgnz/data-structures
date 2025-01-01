@@ -1,13 +1,15 @@
 package LinkedList
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type IDouble interface{
+type IDouble interface {
 	AddToStart(data int)
 	AddToSequentially(data int)
 	AddToAfter(data, which int)
 	AddToEnd(data int)
-	Delete(data int)
+	Delete(data int) error
 	List(reverse bool) []int
 	Print(reverse bool)
 }
@@ -18,7 +20,7 @@ type double struct {
 	Prev *double
 }
 
-func Double(data int) IDouble{
+func Double(data int) IDouble {
 	return &double{X: data}
 }
 
@@ -46,12 +48,36 @@ func (node *double) AddToSequentially(data int) {
 
 // AddToAfter data
 func (node *double) AddToAfter(data int, which int) {
-	for node.Next != nil && node.X != which {
-		node = node.Next
+	iter := node
+	found := false
+
+	// Check the first node
+	if iter.X == which {
+		found = true
+		newNode := &double{X: data, Next: iter.Next, Prev: iter}
+		if iter.Next != nil {
+			iter.Next.Prev = newNode
+		}
+		iter.Next = newNode
+		return
 	}
-	node.Next = &double{X: data, Next: node.Next, Prev: node}
-	if node.Next.Next != nil {
-		node.Next.Next.Prev = node.Next
+
+	// Check other nodes
+	for iter.Next != nil {
+		iter = iter.Next
+		if iter.X == which {
+			found = true
+			newNode := &double{X: data, Next: iter.Next, Prev: iter}
+			if iter.Next != nil {
+				iter.Next.Prev = newNode
+			}
+			iter.Next = newNode
+			return
+		}
+	}
+
+	if !found {
+		fmt.Println(which, "not found!")
 	}
 }
 
@@ -65,30 +91,40 @@ func (node *double) AddToEnd(data int) {
 }
 
 // Delete data
-func (node *double) Delete(data int) {
-	// Set to zero if the value to be deleted is the first element
-	if node.X == data{
-		node.X = 0
-		return
-	}
-	// If the value to be deleted is a value in between or at the end, we move our iter object to the previous node object to be deleted.
-	for node.Next != nil && node.Next.X != data {
-		node = node.Next
-	}
-	if node.Next == nil {
-		fmt.Println(data,"not found!")
-	} else {
-		if node.Next.Next != nil{
+func (node *double) Delete(data int) error {
+	// If the value to be deleted is the first element
+	if node.X == data {
+		if node.Next != nil {
+			node.X = node.Next.X
 			node.Next = node.Next.Next
-			node.Next.Prev = node
-		}else{
-			node.Next = nil
+			if node.Next != nil {
+				node.Next.Prev = node
+			}
+		} else {
+			node.X = 0
 		}
+		return nil
 	}
+
+	// If the value to be deleted is a value in between or at the end
+	iter := node
+	for iter.Next != nil && iter.Next.X != data {
+		iter = iter.Next
+	}
+	if iter.Next == nil {
+		return fmt.Errorf("%d not found", data)
+	}
+
+	// Delete the node
+	iter.Next = iter.Next.Next
+	if iter.Next != nil {
+		iter.Next.Prev = iter
+	}
+	return nil
 }
 
 // List data - slice
-func (node *double) List(reverse bool) []int{
+func (node *double) List(reverse bool) []int {
 	var list []int
 	iter := node
 	if reverse { // print bottom to top
@@ -112,8 +148,7 @@ func (node *double) List(reverse bool) []int{
 func (node *double) Print(reverse bool) {
 	fmt.Print("print : ")
 	for _, val := range node.List(reverse) {
-		fmt.Print(val," ")
+		fmt.Print(val, " ")
 	}
 	fmt.Println()
 }
-
