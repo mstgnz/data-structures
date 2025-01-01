@@ -3,7 +3,7 @@ package graph
 import (
 	"fmt"
 
-	graph "github.com/mstgnz/data-structures/Graph"
+	graph "github.com/mstgnz/data-structures/graph"
 )
 
 // RunExamples demonstrates various graph algorithms
