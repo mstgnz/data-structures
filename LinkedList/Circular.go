@@ -32,9 +32,10 @@ func (node *circular) AddToStart(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	temp := *node
+	oldData := node.X
+	oldNext := node.Next
 	node.X = data
-	node.Next = &circular{X: temp.X, Next: temp.Next, mutex: sync.RWMutex{}}
+	node.Next = &circular{X: oldData, Next: oldNext}
 }
 
 // AddToSequentially adds data in sorted order
@@ -47,7 +48,7 @@ func (node *circular) AddToSequentially(data int) {
 	if node.X > data {
 		temp := node.X
 		node.X = data
-		newNode := &circular{X: temp, Next: node.Next, mutex: sync.RWMutex{}}
+		newNode := &circular{X: temp, Next: node.Next}
 		node.Next = newNode
 		for iter.Next != node {
 			iter = iter.Next
@@ -60,7 +61,7 @@ func (node *circular) AddToSequentially(data int) {
 		}
 		// Add the value to the next of the object that is smaller than the value to be added, by creating a new object.
 		// add the current next to the next of the newly added object
-		iter.Next = &circular{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+		iter.Next = &circular{X: data, Next: iter.Next}
 	}
 }
 
@@ -74,7 +75,7 @@ func (node *circular) AddToAfter(data int, which int) {
 	// Check all nodes
 	for {
 		if iter.X == which {
-			newNode := &circular{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+			newNode := &circular{X: data, Next: iter.Next}
 			iter.Next = newNode
 			return
 		}
@@ -96,7 +97,7 @@ func (node *circular) AddToEnd(data int) {
 	for iter.Next != node {
 		iter = iter.Next
 	}
-	iter.Next = &circular{X: data, Next: node, mutex: sync.RWMutex{}}
+	iter.Next = &circular{X: data, Next: node}
 }
 
 // Delete removes data from the list

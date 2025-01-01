@@ -31,9 +31,10 @@ func (node *double) AddToStart(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	temp := *node
+	oldData := node.X
+	oldNext := node.Next
 	node.X = data
-	node.Next = &double{X: temp.X, Next: temp.Next, Prev: node, mutex: sync.RWMutex{}}
+	node.Next = &double{X: oldData, Next: oldNext, Prev: node}
 	if node.Next.Next != nil {
 		node.Next.Next.Prev = node.Next
 	}

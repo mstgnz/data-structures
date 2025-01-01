@@ -31,9 +31,10 @@ func (node *linear) AddToStart(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	temp := *node
+	oldData := node.X
+	oldNext := node.Next
 	node.X = data
-	node.Next = &linear{X: temp.X, Next: temp.Next, mutex: sync.RWMutex{}}
+	node.Next = &linear{X: oldData, Next: oldNext}
 }
 
 // AddToSequentially adds data in sorted order
@@ -44,9 +45,10 @@ func (node *linear) AddToSequentially(data int) {
 	if node.X > data {
 		// If the new data is smaller than the current node's data,
 		// insert it at the beginning
-		temp := *node
+		oldData := node.X
+		oldNext := node.Next
 		node.X = data
-		node.Next = &linear{X: temp.X, Next: temp.Next, mutex: sync.RWMutex{}}
+		node.Next = &linear{X: oldData, Next: oldNext}
 		return
 	}
 
