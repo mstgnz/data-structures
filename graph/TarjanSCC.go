@@ -1,15 +1,18 @@
 package graph
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 // TarjanSCC implements Tarjan's algorithm for finding Strongly Connected Components
 type TarjanSCC struct {
 	graph      *Graph
 	index      int
 	stack      []int
-	inStack    map[int]bool
-	indices    map[int]int
-	lowLink    map[int]int
+	inStack    []bool
+	indices    []int
+	lowLink    []int
 	components [][]int
 	mutex      sync.RWMutex
 }
@@ -19,15 +22,34 @@ func NewTarjanSCC(g *Graph) *TarjanSCC {
 	if !g.IsDirected() {
 		return nil // Tarjan algorithm works for directed graphs
 	}
+	n := g.GetVertices()
 	return &TarjanSCC{
 		graph:      g,
 		index:      0,
 		stack:      make([]int, 0),
-		inStack:    make(map[int]bool),
-		indices:    make(map[int]int),
-		lowLink:    make(map[int]int),
+		inStack:    make([]bool, n),
+		indices:    make([]int, n),
+		lowLink:    make([]int, n),
 		components: make([][]int, 0),
 		mutex:      sync.RWMutex{},
+	}
+}
+
+// initialize resets the state for a new computation
+func (t *TarjanSCC) initialize() {
+	t.index = 0
+	t.stack = make([]int, 0)
+	n := t.graph.GetVertices()
+	t.inStack = make([]bool, n)
+	t.indices = make([]int, n)
+	t.lowLink = make([]int, n)
+	t.components = make([][]int, 0)
+
+	// Initialize arrays
+	for i := 0; i < n; i++ {
+		t.indices[i] = -1
+		t.lowLink[i] = -1
+		t.inStack[i] = false
 	}
 }
 
@@ -36,13 +58,43 @@ func (t *TarjanSCC) FindComponents() [][]int {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
+	t.initialize()
+
 	// Call DFS for each node
 	for v := 0; v < t.graph.GetVertices(); v++ {
-		if _, exists := t.indices[v]; !exists {
+		if t.indices[v] == -1 {
 			t.strongConnect(v)
 		}
 	}
-	return t.components
+
+	// Sort each component
+	for i := range t.components {
+		sort.Ints(t.components[i])
+	}
+
+	// Sort components by size and content
+	sort.Slice(t.components, func(i, j int) bool {
+		// First compare by size (larger components first)
+		if len(t.components[i]) != len(t.components[j]) {
+			return len(t.components[i]) > len(t.components[j])
+		}
+		// If sizes are equal, compare by content
+		for k := 0; k < len(t.components[i]); k++ {
+			if t.components[i][k] != t.components[j][k] {
+				return t.components[i][k] < t.components[j][k]
+			}
+		}
+		return false
+	})
+
+	// Create a copy of the components
+	result := make([][]int, len(t.components))
+	for i, comp := range t.components {
+		result[i] = make([]int, len(comp))
+		copy(result[i], comp)
+	}
+
+	return result
 }
 
 // strongConnect performs the recursive part of Tarjan's algorithm
@@ -57,7 +109,7 @@ func (t *TarjanSCC) strongConnect(v int) {
 	// Visit neighbors of v
 	for _, edge := range t.graph.adjList[v] {
 		w := edge.To
-		if _, exists := t.indices[w]; !exists {
+		if t.indices[w] == -1 {
 			// w has not been visited yet
 			t.strongConnect(w)
 			// Update v's lowLink value
@@ -97,7 +149,15 @@ func (t *TarjanSCC) GetComponents() [][]int {
 	if len(t.components) == 0 {
 		return t.FindComponents()
 	}
-	return t.components
+
+	// Return a copy of the components
+	result := make([][]int, len(t.components))
+	for i, comp := range t.components {
+		result[i] = make([]int, len(comp))
+		copy(result[i], comp)
+	}
+
+	return result
 }
 
 // GetComponentCount returns the number of strongly connected components
@@ -108,6 +168,7 @@ func (t *TarjanSCC) GetComponentCount() int {
 	if len(t.components) == 0 {
 		t.FindComponents()
 	}
+
 	return len(t.components)
 }
 
@@ -119,6 +180,7 @@ func (t *TarjanSCC) IsStronglyConnected() bool {
 	if len(t.components) == 0 {
 		t.FindComponents()
 	}
+
 	return len(t.components) == 1
 }
 
@@ -135,11 +197,16 @@ func (t *TarjanSCC) GetLargestComponent() []int {
 		return nil
 	}
 
+	// Find the largest component
 	largest := t.components[0]
 	for _, comp := range t.components {
 		if len(comp) > len(largest) {
 			largest = comp
 		}
 	}
-	return largest
+
+	// Return a copy of the largest component
+	result := make([]int, len(largest))
+	copy(result, largest)
+	return result
 }
