@@ -21,9 +21,10 @@ func NewKruskalMST(g *Graph) *KruskalMST {
 		return nil // Kruskal algorithm works for undirected graphs
 	}
 	return &KruskalMST{
-		graph:   g,
-		mstCost: 0,
-		mutex:   sync.RWMutex{},
+		graph:    g,
+		mstEdges: make([]Edge, 0),
+		mstCost:  0,
+		mutex:    sync.RWMutex{},
 	}
 }
 
@@ -33,6 +34,7 @@ func (k *KruskalMST) initialize() {
 	k.parent = make([]int, n)
 	k.rank = make([]int, n)
 	k.mstEdges = make([]Edge, 0)
+	k.mstCost = 0
 
 	// Initialize each node in its own set
 	for i := 0; i < n; i++ {
@@ -67,6 +69,57 @@ func (k *KruskalMST) union(x, y int) {
 	}
 }
 
+// countComponents counts the number of connected components
+func (k *KruskalMST) countComponents() int {
+	// Reset Union-Find structure
+	k.initialize()
+
+	// Mark vertices with edges
+	hasEdge := make([]bool, k.graph.GetVertices())
+	for v := 0; v < k.graph.GetVertices(); v++ {
+		if len(k.graph.adjList[v]) > 0 {
+			hasEdge[v] = true
+		}
+	}
+
+	// Create adjacency list for vertices with edges
+	verticesWithEdges := make([]int, 0)
+	for v := 0; v < k.graph.GetVertices(); v++ {
+		if hasEdge[v] {
+			verticesWithEdges = append(verticesWithEdges, v)
+		}
+	}
+
+	// Special case: no edges
+	if len(verticesWithEdges) == 0 {
+		return 1
+	}
+
+	// Run union operations on edges
+	for v := 0; v < k.graph.GetVertices(); v++ {
+		for _, edge := range k.graph.adjList[v] {
+			if edge.From < edge.To { // Process each edge once
+				k.union(edge.From, edge.To)
+			}
+		}
+	}
+
+	// Count unique components among vertices with edges
+	components := make(map[int]bool)
+	for _, v := range verticesWithEdges {
+		components[k.find(v)] = true
+	}
+
+	return len(components)
+}
+
+// GetNumComponents returns the number of connected components
+func (k *KruskalMST) GetNumComponents() int {
+	k.mutex.Lock()
+	defer k.mutex.Unlock()
+	return k.countComponents()
+}
+
 // FindMST finds the Minimum Spanning Tree
 func (k *KruskalMST) FindMST() bool {
 	k.mutex.Lock()
@@ -74,12 +127,37 @@ func (k *KruskalMST) FindMST() bool {
 
 	k.initialize()
 
-	// Collect all edges and sort by weight
+	// Special case: single vertex
+	if k.graph.GetVertices() == 1 {
+		return true
+	}
+
+	// Count vertices with edges
+	verticesWithEdges := 0
+	hasEdge := make([]bool, k.graph.GetVertices())
+	for v := 0; v < k.graph.GetVertices(); v++ {
+		if len(k.graph.adjList[v]) > 0 {
+			hasEdge[v] = true
+			verticesWithEdges++
+		}
+	}
+
+	// Special case: no edges
+	if verticesWithEdges == 0 {
+		return true
+	}
+
+	// Check if graph is connected
+	numComponents := k.countComponents()
+	if numComponents > 1 {
+		return false
+	}
+
+	// Collect all edges
 	edges := make([]Edge, 0)
 	for v := 0; v < k.graph.GetVertices(); v++ {
 		for _, edge := range k.graph.adjList[v] {
-			// Add each edge once in undirected graph
-			if edge.From < edge.To {
+			if edge.From < edge.To { // Add each edge once
 				edges = append(edges, edge)
 			}
 		}
@@ -90,8 +168,11 @@ func (k *KruskalMST) FindMST() bool {
 		return edges[i].Weight < edges[j].Weight
 	})
 
+	// Reset for MST construction
+	k.initialize()
+
+	// Run Kruskal's algorithm
 	edgeCount := 0
-	// Add edges to MST
 	for _, edge := range edges {
 		if k.find(edge.From) != k.find(edge.To) {
 			k.union(edge.From, edge.To)
@@ -101,8 +182,7 @@ func (k *KruskalMST) FindMST() bool {
 		}
 	}
 
-	// Check if MST is fully formed
-	return edgeCount == k.graph.GetVertices()-1
+	return edgeCount == verticesWithEdges-1
 }
 
 // GetMSTEdges returns the edges in the MST
@@ -124,15 +204,4 @@ func (k *KruskalMST) IsConnected(x, y int) bool {
 	k.mutex.RLock()
 	defer k.mutex.RUnlock()
 	return k.find(x) == k.find(y)
-}
-
-// GetNumComponents returns the number of connected components
-func (k *KruskalMST) GetNumComponents() int {
-	k.mutex.RLock()
-	defer k.mutex.RUnlock()
-	components := make(map[int]bool)
-	for v := 0; v < k.graph.GetVertices(); v++ {
-		components[k.find(v)] = true
-	}
-	return len(components)
 }
