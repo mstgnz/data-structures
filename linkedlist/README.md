@@ -1,155 +1,129 @@
-# Linked List Data Structures Package
+# LinkedList Package
 
-This package provides comprehensive implementations of various linked list data structures in Go. It includes different types of linked lists optimized for various use cases and requirements.
+This package provides three different linked list implementations in Go: Linear (Singly), Double (Doubly), and Circular. All implementations are designed to be thread-safe.
 
 ## Features
 
-### Linear Linked List
-- Singly linked list implementation
-- Basic operations: insert, delete, search
-- Traversal and manipulation utilities
-- Memory efficient for sequential access
+### Core Structures
+- Linear (Singly) Linked List
+- Double (Doubly) Linked List
+- Circular Linked List
 
-### Double Linked List
-- Doubly linked list implementation
-- Bidirectional traversal support
-- Enhanced deletion operations
-- Efficient for both forward and backward traversal
+### Common Operations
+- AddToStart: Add element to the beginning
+- AddToSequentially: Add element in sorted order
+- AddToAfter: Add element after a specific value
+- AddToEnd: Add element to the end
+- Delete: Remove element
+- Search: Find element
+- List: Get all elements
+- Print: Display elements
 
-### Circular Linked List
-- Circular linked list implementation
-- Continuous cyclic traversal
-- Efficient for circular buffer implementations
-- Support for both singly and doubly linked variants
+### Thread Safety
+- Safe read/write operations with RWMutex
+- Concurrent access support for all structures
+- Deadlock prevention mechanisms
 
 ## Usage Examples
 
-### Linear Linked List
+### Linear (Singly) List
 ```go
-// Create a new linear linked list
-list := NewLinear()
+// Create a new list
+list := NewLinear(1)
 
 // Add elements
-list.Append(1)
-list.Append(2)
-list.Append(3)
+list.AddToStart(0)      // Add to beginning
+list.AddToEnd(3)        // Add to end
+list.AddToAfter(2, 1)   // Add 2 after 1
+list.AddToSequentially(4) // Add in sorted order
 
-// Insert at specific position
-list.Insert(1, 4) // Insert 4 after first element
+// Delete element
+list.Delete(2)
 
-// Remove elements
-list.Remove(2) // Remove element at index 2
+// Search element
+exists := list.Search(3)
 
-// Search for elements
-found := list.Search(4)
+// List elements
+elements := list.List()
+list.Print()
 ```
 
-### Double Linked List
+### Double (Doubly) List
 ```go
-// Create a new double linked list
-list := NewDouble()
-
-// Add elements at both ends
-list.Append(1)
-list.Prepend(0)
-list.Append(2)
-
-// Traverse in both directions
-forward := list.Forward()  // [0, 1, 2]
-backward := list.Backward() // [2, 1, 0]
-
-// Remove from either end
-list.RemoveFirst()
-list.RemoveLast()
-```
-
-### Circular Linked List
-```go
-// Create a new circular linked list
-list := NewCircular()
+// Create a new list
+list := NewDouble(1)
 
 // Add elements
-list.Append(1)
-list.Append(2)
-list.Append(3)
+list.AddToStart(0)
+list.AddToEnd(2)
+list.AddToSequentially(1.5)
 
-// Rotate the list
-list.Rotate(1) // Rotates one position forward
+// Forward and backward listing
+forward := list.List(false)  // [0, 1, 1.5, 2]
+backward := list.List(true)  // [2, 1.5, 1, 0]
 
-// Traverse the entire circle
-elements := list.Traverse() // Returns to starting point
+// Print
+list.Print(false)  // Forward direction
+list.Print(true)   // Backward direction
+```
+
+### Circular List
+```go
+// Create a new list
+list := NewCircular(1)
+
+// Add elements
+list.AddToStart(0)
+list.AddToEnd(2)
+list.AddToSequentially(1.5)
+
+// List in circular structure
+elements := list.List()  // Last element connects back to first
+
+// Print
+list.Print()
 ```
 
 ## Implementation Details
 
+### Data Structures
+- Linear: Single next pointer
+- Double: Both next and prev pointers
+- Circular: Last element connected to first with next pointer
+
 ### Time Complexities
 
-#### Linear Linked List
-- Insert at beginning: O(1)
-- Insert at end: O(1) with tail pointer, O(n) without
-- Insert at position: O(n)
+#### Linear and Double List
+- AddToStart: O(1)
+- AddToEnd: O(n)
+- AddToSequentially: O(n)
+- AddToAfter: O(n)
 - Delete: O(n)
 - Search: O(n)
+- List: O(n)
 
-#### Double Linked List
-- Insert at beginning: O(1)
-- Insert at end: O(1)
-- Insert at position: O(n)
-- Delete: O(1) with node reference
-- Reverse traversal: O(n)
+#### Circular List
+- AddToStart: O(1)
+- AddToEnd: O(n)
+- AddToSequentially: O(n)
+- AddToAfter: O(n)
+- Delete: O(n)
+- List: O(n)
 
-#### Circular Linked List
-- Insert at beginning: O(1)
-- Insert at end: O(1) with tail pointer
-- Rotate: O(1)
-- Search: O(n)
-
-### Space Complexities
-- Linear Linked List: O(n)
-- Double Linked List: O(n)
-- Circular Linked List: O(n)
-
-## Use Cases
-
-### Linear Linked List
-- Simple sequential data storage
-- Stack and queue implementations
-- Memory efficient list operations
-- Dynamic size requirements
-
-### Double Linked List
-- Browser history implementation
-- Undo/Redo functionality
-- Music player playlists
-- Text editors
-
-### Circular Linked List
-- Round-robin scheduling
-- Circular buffer implementation
-- Game turn management
-- Repeating playlist implementation
-
-## Best Practices
-
-### Choosing the Right List Type
-- Use Linear List for simple sequential access
-- Use Double List when bidirectional traversal is needed
-- Use Circular List for cyclic data structures
-
-### Performance Optimization
-- Keep track of tail pointer for O(1) append operations
-- Use appropriate list type based on traversal requirements
-- Consider memory overhead of additional pointers
-- Implement proper cleanup to prevent memory leaks
+### Thread Safety Details
+- RLock for read operations
+- Lock for write operations
+- Automatic unlock with defer
+- Safe design for concurrent access
 
 ### Memory Management
-- Properly handle node deletion
-- Clear references in removed nodes
-- Implement proper cleanup methods
-- Consider garbage collection implications
+- Dynamic node creation and deletion
+- Pointer management
+- Circular reference prevention
+- Memory leak prevention mechanisms
 
 ## Testing
-Each list implementation comes with comprehensive test coverage. Run tests using:
+The package comes with comprehensive test coverage. To run tests:
 ```bash
 go test ./...
 ```
@@ -157,10 +131,10 @@ go test ./...
 ## Contributing
 Contributions are welcome! Please ensure that any new features or modifications come with:
 - Proper documentation
-- Time and space complexity analysis
+- Thread safety considerations
 - Comprehensive test cases
 - Example usage
-- Memory management considerations
+- Performance analysis
 
 ## License
 This package is distributed under the MIT license. See the LICENSE file for more details. 
