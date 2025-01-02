@@ -1,45 +1,45 @@
-# Veri Yapıları Örnekleri
+# Data Structures Examples
 
-Bu klasör, temel veri yapılarının kullanımına dair örnekler içermektedir.
+This folder contains examples of using basic data structures.
 
-## İçerik
+## Content
 
-1. **Stack (Yığın)**
-   - Array tabanlı stack implementasyonu
-   - LinkedList tabanlı stack implementasyonu
-   - LIFO (Last In First Out) prensibi
+1. **Stack
+   - Array-based stack implementation
+   - LinkedList based stack implementation
+   - LIFO (Last In First Out) principle
 
-2. **Queue (Kuyruk)**
-   - Array tabanlı queue implementasyonu
-   - LinkedList tabanlı queue implementasyonu
-   - FIFO (First In First Out) prensibi
+2. **Queue (Queue)**
+   - Array-based queue implementation
+   - LinkedList based queue implementation
+   - FIFO (First In First Out) principle
 
-3. **LinkedList (Bağlı Liste)**
-   - Tekli bağlı liste
-   - Eleman ekleme, silme ve arama işlemleri
-   - Liste başına ve sonuna eleman ekleme
+3. **LinkedList
+   - Single linked list
+   - Adding, deleting and searching elements
+   - Add elements at the beginning and end of a list
 
-4. **Tree (Ağaç)**
-   - Binary Search Tree implementasyonu
-   - Ağaç traversal metodları (Inorder, Preorder, Postorder)
-   - Eleman ekleme, silme ve arama işlemleri
+4. **Tree
+   - Binary Search Tree implementation
+   - Tree traversal methods (Inorder, Preorder, Postorder)
+   - Adding, deleting and searching elements
 
 5. **Heap**
-   - Min Heap implementasyonu
-   - Max Heap implementasyonu
-   - Öncelik kuyruğu uygulamaları
+   - Min Heap implementation
+   - Max Heap implementation
+   - Priority queuing applications
 
 6. **Hash Table**
-   - Hash fonksiyonu implementasyonu
-   - Çakışma çözümleme stratejileri
-   - Anahtar-değer çiftleri ile çalışma
+   - Hash function implementation
+   - Conflict resolution strategies
+   - Working with key-value pairs
 
-## Kullanım
+## Usage
 
-Her bir veri yapısı için örnek kodlar ilgili klasörlerde bulunmaktadır. Örnekleri çalıştırmak için:
+Each data structure has its own folder with examples. To run the examples:
 
 ```bash
-# Örnek çalıştırma
+# Run example
 go run examples/stack/stack_examples.go
 go run examples/queue/queue_examples.go
 go run examples/linkedlist/linkedlist_examples.go
@@ -48,8 +48,8 @@ go run examples/heap/heap_examples.go
 go run examples/hash/hash_examples.go
 ```
 
-## Notlar
+## Notes
 
-- Her bir örnek dosyası, ilgili veri yapısının temel operasyonlarını göstermektedir
-- Örnekler, veri yapılarının pratik kullanımlarını içermektedir
-- Her örnek, açıklayıcı yorumlar içermektedir 
+- Each example file illustrates the basic operations of the corresponding data structure
+- Examples include practical uses of data structures
+- Each example includes explanatory comments 
