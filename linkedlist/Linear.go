@@ -5,40 +5,29 @@ import (
 	"sync"
 )
 
-type ILinear interface {
-	AddToStart(data int)
-	AddToSequentially(data int)
-	AddToAfter(data, which int) error
-	AddToEnd(data int)
-	Delete(data int) error
-	Search(data int) bool
-	List() []int
-	Print()
-}
-
-type linear struct {
+type Linear struct {
 	X     int
-	Next  *linear
+	Next  *Linear
 	mutex sync.RWMutex
 }
 
-func Linear(data int) ILinear {
-	return &linear{X: data, Next: nil, mutex: sync.RWMutex{}}
+func NewLinear(data int) *Linear {
+	return &Linear{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // AddToStart adds data at the beginning of the list
-func (node *linear) AddToStart(data int) {
+func (node *Linear) AddToStart(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	oldData := node.X
 	oldNext := node.Next
 	node.X = data
-	node.Next = &linear{X: oldData, Next: oldNext}
+	node.Next = &Linear{X: oldData, Next: oldNext}
 }
 
 // AddToSequentially adds data in sorted order
-func (node *linear) AddToSequentially(data int) {
+func (node *Linear) AddToSequentially(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -48,7 +37,7 @@ func (node *linear) AddToSequentially(data int) {
 		oldData := node.X
 		oldNext := node.Next
 		node.X = data
-		node.Next = &linear{X: oldData, Next: oldNext}
+		node.Next = &Linear{X: oldData, Next: oldNext}
 		return
 	}
 
@@ -56,11 +45,11 @@ func (node *linear) AddToSequentially(data int) {
 	for iter.Next != nil && iter.Next.X < data {
 		iter = iter.Next
 	}
-	iter.Next = &linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+	iter.Next = &Linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
 }
 
 // AddToAfter adds data after the specified value
-func (node *linear) AddToAfter(data int, which int) error {
+func (node *Linear) AddToAfter(data int, which int) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -69,14 +58,14 @@ func (node *linear) AddToAfter(data int, which int) error {
 		iter = iter.Next
 	}
 	if iter.X == which {
-		iter.Next = &linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+		iter.Next = &Linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
 		return nil
 	}
 	return fmt.Errorf("%d not found", which)
 }
 
 // AddToEnd adds data at the end of the list
-func (node *linear) AddToEnd(data int) {
+func (node *Linear) AddToEnd(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -84,11 +73,11 @@ func (node *linear) AddToEnd(data int) {
 	for iter.Next != nil {
 		iter = iter.Next
 	}
-	iter.Next = &linear{X: data, Next: nil, mutex: sync.RWMutex{}}
+	iter.Next = &Linear{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Delete removes data from the list
-func (node *linear) Delete(data int) error {
+func (node *Linear) Delete(data int) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -115,7 +104,7 @@ func (node *linear) Delete(data int) error {
 }
 
 // Search looks for data in the list
-func (node *linear) Search(data int) bool {
+func (node *Linear) Search(data int) bool {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
@@ -130,7 +119,7 @@ func (node *linear) Search(data int) bool {
 }
 
 // List returns a slice of list data
-func (node *linear) List() []int {
+func (node *Linear) List() []int {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
@@ -144,7 +133,7 @@ func (node *linear) List() []int {
 }
 
 // Print displays list data
-func (node *linear) Print() {
+func (node *Linear) Print() {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 	fmt.Print("print : ")

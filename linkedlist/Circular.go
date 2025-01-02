@@ -5,41 +5,31 @@ import (
 	"sync"
 )
 
-type ICircular interface {
-	AddToStart(data int)
-	AddToSequentially(data int)
-	AddToAfter(data, which int)
-	AddToEnd(data int)
-	Delete(data int) error
-	List() []int
-	Print()
-}
-
-type circular struct {
+type Circular struct {
 	X     int
-	Next  *circular
+	Next  *Circular
 	mutex sync.RWMutex
 }
 
-func Circular(data int) ICircular {
-	init := &circular{X: data, Next: nil, mutex: sync.RWMutex{}}
+func NewCircular(data int) *Circular {
+	init := &Circular{X: data, Next: nil, mutex: sync.RWMutex{}}
 	init.Next = init
 	return init
 }
 
 // AddToStart adds data at the beginning of the list
-func (node *circular) AddToStart(data int) {
+func (node *Circular) AddToStart(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	oldData := node.X
 	oldNext := node.Next
 	node.X = data
-	node.Next = &circular{X: oldData, Next: oldNext}
+	node.Next = &Circular{X: oldData, Next: oldNext}
 }
 
 // AddToSequentially adds data in sorted order
-func (node *circular) AddToSequentially(data int) {
+func (node *Circular) AddToSequentially(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -48,7 +38,7 @@ func (node *circular) AddToSequentially(data int) {
 	if node.X > data {
 		temp := node.X
 		node.X = data
-		newNode := &circular{X: temp, Next: node.Next}
+		newNode := &Circular{X: temp, Next: node.Next}
 		node.Next = newNode
 		for iter.Next != node {
 			iter = iter.Next
@@ -61,12 +51,12 @@ func (node *circular) AddToSequentially(data int) {
 		}
 		// Add the value to the next of the object that is smaller than the value to be added, by creating a new object.
 		// add the current next to the next of the newly added object
-		iter.Next = &circular{X: data, Next: iter.Next}
+		iter.Next = &Circular{X: data, Next: iter.Next}
 	}
 }
 
 // AddToAfter adds data after the specified value
-func (node *circular) AddToAfter(data int, which int) {
+func (node *Circular) AddToAfter(data int, which int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -75,7 +65,7 @@ func (node *circular) AddToAfter(data int, which int) {
 	// Check all nodes
 	for {
 		if iter.X == which {
-			newNode := &circular{X: data, Next: iter.Next}
+			newNode := &Circular{X: data, Next: iter.Next}
 			iter.Next = newNode
 			return
 		}
@@ -89,7 +79,7 @@ func (node *circular) AddToAfter(data int, which int) {
 }
 
 // AddToEnd adds data at the end of the list
-func (node *circular) AddToEnd(data int) {
+func (node *Circular) AddToEnd(data int) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -97,11 +87,11 @@ func (node *circular) AddToEnd(data int) {
 	for iter.Next != node {
 		iter = iter.Next
 	}
-	iter.Next = &circular{X: data, Next: node}
+	iter.Next = &Circular{X: data, Next: node}
 }
 
 // Delete removes data from the list
-func (node *circular) Delete(data int) error {
+func (node *Circular) Delete(data int) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -135,7 +125,7 @@ func (node *circular) Delete(data int) error {
 }
 
 // List returns a slice of list data
-func (node *circular) List() []int {
+func (node *Circular) List() []int {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
@@ -151,7 +141,7 @@ func (node *circular) List() []int {
 }
 
 // Print displays list data
-func (node *circular) Print() {
+func (node *Circular) Print() {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 	fmt.Print("print : ")

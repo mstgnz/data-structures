@@ -10,7 +10,7 @@ import (
 func RunExamples() {
 	// Example 1: Linear (Singly) Linked List
 	fmt.Println("Linear Linked List Example:")
-	list := linkedlist.Linear(0)
+	list := linkedlist.NewLinear(0)
 
 	fmt.Println("Adding elements to start:")
 	list.AddToStart(1)
@@ -32,7 +32,7 @@ func RunExamples() {
 
 	// Example 2: Double Linked List
 	fmt.Println("Double Linked List Example:")
-	dlist := linkedlist.Double(0)
+	dlist := linkedlist.NewDouble(0)
 
 	fmt.Println("Adding elements:")
 	dlist.AddToStart(1)
@@ -46,7 +46,7 @@ func RunExamples() {
 
 	// Example 3: Circular Linked List
 	fmt.Println("\nCircular Linked List Example:")
-	clist := linkedlist.Circular(0)
+	clist := linkedlist.NewCircular(0)
 
 	fmt.Println("Adding elements:")
 	clist.AddToStart(1)

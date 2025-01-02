@@ -29,7 +29,7 @@ func TestLinear_New(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			linear := Linear(tt.data)
+			linear := NewLinear(tt.data)
 			got := linear.List()
 			for i, v := range got {
 				if v != tt.want[i] {
@@ -69,7 +69,7 @@ func TestLinear_AddToAfter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			linear := Linear(tt.init[0])
+			linear := NewLinear(tt.init[0])
 			for i := 1; i < len(tt.init); i++ {
 				linear.AddToEnd(tt.init[i])
 			}
@@ -123,7 +123,7 @@ func TestLinear_Delete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			linear := Linear(tt.init[0])
+			linear := NewLinear(tt.init[0])
 			for i := 1; i < len(tt.init); i++ {
 				linear.AddToEnd(tt.init[i])
 			}
@@ -167,7 +167,7 @@ func TestLinear_Search(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			linear := Linear(tt.init[0])
+			linear := NewLinear(tt.init[0])
 			for i := 1; i < len(tt.init); i++ {
 				linear.AddToEnd(tt.init[i])
 			}
@@ -200,14 +200,14 @@ func TestLinear_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var list ILinear
+			var list *Linear
 			if len(tt.data) > 0 {
-				list = Linear(tt.data[0])
+				list = NewLinear(tt.data[0])
 				for i := 1; i < len(tt.data); i++ {
 					list.AddToEnd(tt.data[i])
 				}
 			} else {
-				list = Linear(0)
+				list = NewLinear(0)
 			}
 			// Call Print method
 			list.Print()
@@ -216,7 +216,7 @@ func TestLinear_Print(t *testing.T) {
 }
 
 func BenchmarkLinear_AddToStart(b *testing.B) {
-	linear := Linear(1)
+	linear := NewLinear(1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		linear.AddToStart(i)
@@ -224,7 +224,7 @@ func BenchmarkLinear_AddToStart(b *testing.B) {
 }
 
 func BenchmarkLinear_AddToEnd(b *testing.B) {
-	linear := Linear(1)
+	linear := NewLinear(1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		linear.AddToEnd(i)
@@ -232,7 +232,7 @@ func BenchmarkLinear_AddToEnd(b *testing.B) {
 }
 
 func BenchmarkLinear_Delete(b *testing.B) {
-	linear := Linear(1)
+	linear := NewLinear(1)
 	for i := 0; i < 1000; i++ {
 		linear.AddToEnd(i)
 	}
@@ -243,7 +243,7 @@ func BenchmarkLinear_Delete(b *testing.B) {
 }
 
 func BenchmarkLinear_Search(b *testing.B) {
-	linear := Linear(1)
+	linear := NewLinear(1)
 	for i := 0; i < 1000; i++ {
 		linear.AddToEnd(i)
 	}
@@ -276,7 +276,7 @@ func TestLinear_AddToStart(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			list := Linear(tt.init)
+			list := NewLinear(tt.init)
 			list.AddToStart(tt.add)
 			got := list.List()
 			if len(got) != len(tt.expected) {
@@ -327,7 +327,7 @@ func TestLinear_AddToSequentially(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			list := Linear(tt.init)
+			list := NewLinear(tt.init)
 			for _, v := range tt.add {
 				list.AddToSequentially(v)
 			}
