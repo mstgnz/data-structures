@@ -21,9 +21,13 @@ examples/
 ### 1. Data Structure Examples
 
 #### Linked List Examples (`linkedlist/linkedlist_examples.go`)
+- Generic type support for all implementations
 - Singly Linked List operations
 - Doubly Linked List operations
 - Circular Linked List implementations
+- Custom comparison functions for sorting and equality
+- Examples with different data types (int, string, custom structs)
+- Thread-safe operations
 - List traversal and manipulation
 - Real-world use cases
 
@@ -97,18 +101,21 @@ go run examples/algorithms/sorting_examples.go
 Each example file follows a consistent structure:
 1. Package declaration and imports
 2. Example struct/type definitions
-3. Implementation examples
-4. Usage demonstrations
-5. Performance considerations
-6. Best practices and common pitfalls
+3. Generic type implementations where applicable
+4. Implementation examples with various data types
+5. Usage demonstrations
+6. Performance considerations
+7. Best practices and common pitfalls
 
 ## 🎓 Learning Objectives
 
 These examples are designed to help you:
 - Understand practical implementations of data structures
-- Learn common usage patterns and best practices
+- Learn how to use generic types effectively
+- Master comparison function implementations
 - Explore real-world applications
 - Understand performance implications
+- Learn concurrent programming patterns
 - Master Go programming concepts
 
 ## 📚 Additional Resources
@@ -121,6 +128,8 @@ These examples are designed to help you:
 ## ⚠️ Notes
 
 - All examples include detailed comments explaining the implementation
+- Generic type support is demonstrated with various data types
+- Thread safety is ensured in all concurrent operations
 - Each example demonstrates error handling and best practices
 - Performance considerations are documented where relevant
 - Examples are designed to be self-contained and educational

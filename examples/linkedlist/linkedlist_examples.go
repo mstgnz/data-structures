@@ -2,62 +2,99 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mstgnz/data-structures/linkedlist"
 )
 
-// RunExamples demonstrates various linked list implementations
-func RunExamples() {
-	// Example 1: Linear (Singly) Linked List
-	fmt.Println("Linear Linked List Example:")
-	list := linkedlist.NewLinear(0)
+func main() {
+	// Linear Linked List örnekleri
+	fmt.Println("Linear Linked List Örnekleri:")
 
-	fmt.Println("Adding elements to start:")
-	list.AddToStart(1)
-	list.AddToStart(2)
-	list.AddToStart(3)
-	list.Print()
+	// Integer List
+	intLinear := linkedlist.NewLinear[int](10)
+	intLinear.AddToEnd(20)
+	intLinear.AddToEnd(30)
+	intLess := func(a, b int) bool { return a < b }
+	intLinear.AddToSequentially(15, intLess)
+	fmt.Println("\nInteger Linear List:")
+	intLinear.Print()
 
-	fmt.Println("\nAdding elements to end:")
-	list.AddToEnd(4)
-	list.AddToEnd(5)
-	list.Print()
+	// String List
+	strLinear := linkedlist.NewLinear[string]("Merhaba")
+	strLinear.AddToEnd("Dünya")
+	strLess := func(a, b string) bool { return strings.Compare(a, b) < 0 }
+	strLinear.AddToSequentially("Go", strLess)
+	fmt.Println("\nString Linear List:")
+	strLinear.Print()
 
-	fmt.Println("\nAdding elements sequentially:")
-	list.AddToSequentially(2)
-	list.AddToSequentially(6)
-	list.Print()
+	// Double Linked List örnekleri
+	fmt.Println("\nDouble Linked List Örnekleri:")
 
-	fmt.Printf("\nSearch for 4: %v\n\n", list.Search(4))
+	// Integer List
+	intDouble := linkedlist.NewDouble[int](10)
+	intDouble.AddToEnd(20)
+	intDouble.AddToEnd(30)
+	intDouble.AddToSequentially(15, intLess)
+	fmt.Println("\nInteger Double List (İleri):")
+	intDouble.Print(false)
+	fmt.Println("Integer Double List (Geri):")
+	intDouble.Print(true)
 
-	// Example 2: Double Linked List
-	fmt.Println("Double Linked List Example:")
-	dlist := linkedlist.NewDouble(0)
+	// String List
+	strDouble := linkedlist.NewDouble[string]("Merhaba")
+	strDouble.AddToEnd("Dünya")
+	strDouble.AddToSequentially("Go", strLess)
+	fmt.Println("\nString Double List (İleri):")
+	strDouble.Print(false)
+	fmt.Println("String Double List (Geri):")
+	strDouble.Print(true)
 
-	fmt.Println("Adding elements:")
-	dlist.AddToStart(1)
-	dlist.AddToEnd(2)
-	dlist.AddToSequentially(3)
+	// Circular Linked List örnekleri
+	fmt.Println("\nCircular Linked List Örnekleri:")
 
-	fmt.Println("Forward traversal:")
-	dlist.Print(false)
-	fmt.Println("Reverse traversal:")
-	dlist.Print(true)
+	// Integer List
+	intCircular := linkedlist.NewCircular[int](10)
+	intCircular.AddToEnd(20)
+	intCircular.AddToEnd(30)
+	intCircular.AddToSequentially(15, intLess)
+	fmt.Println("\nInteger Circular List:")
+	intCircular.Print()
 
-	// Example 3: Circular Linked List
-	fmt.Println("\nCircular Linked List Example:")
-	clist := linkedlist.NewCircular(0)
+	// String List
+	strCircular := linkedlist.NewCircular[string]("Merhaba")
+	strCircular.AddToEnd("Dünya")
+	strCircular.AddToSequentially("Go", strLess)
+	fmt.Println("\nString Circular List:")
+	strCircular.Print()
 
-	fmt.Println("Adding elements:")
-	clist.AddToStart(1)
-	clist.AddToEnd(2)
-	clist.AddToSequentially(3)
+	// Custom struct örneği
+	type Person struct {
+		Name string
+		Age  int
+	}
 
-	fmt.Println("List elements:")
-	clist.Print()
+	// Person karşılaştırma fonksiyonları
+	personLess := func(a, b Person) bool { return a.Age < b.Age }
 
-	clist.AddToAfter(4, 2)
+	// Linear List with Person
+	personLinear := linkedlist.NewLinear[Person](Person{Name: "Ali", Age: 25})
+	personLinear.AddToEnd(Person{Name: "Ayşe", Age: 30})
+	personLinear.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
+	fmt.Println("\nPerson Linear List:")
+	personLinear.Print()
 
-	fmt.Println("After adding 4 after 2:")
-	clist.Print()
+	// Double List with Person
+	personDouble := linkedlist.NewDouble[Person](Person{Name: "Ali", Age: 25})
+	personDouble.AddToEnd(Person{Name: "Ayşe", Age: 30})
+	personDouble.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
+	fmt.Println("\nPerson Double List:")
+	personDouble.Print(false)
+
+	// Circular List with Person
+	personCircular := linkedlist.NewCircular[Person](Person{Name: "Ali", Age: 25})
+	personCircular.AddToEnd(Person{Name: "Ayşe", Age: 30})
+	personCircular.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
+	fmt.Println("\nPerson Circular List:")
+	personCircular.Print()
 }

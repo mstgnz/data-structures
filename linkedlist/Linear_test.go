@@ -74,7 +74,7 @@ func TestLinear_AddToAfter(t *testing.T) {
 				linear.AddToEnd(tt.init[i])
 			}
 
-			err := linear.AddToAfter(tt.data, tt.after)
+			err := linear.AddToAfter(tt.data, tt.after, func(a, b int) bool { return a == b })
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AddToAfter() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -128,7 +128,7 @@ func TestLinear_Delete(t *testing.T) {
 				linear.AddToEnd(tt.init[i])
 			}
 
-			err := linear.Delete(tt.delete)
+			err := linear.Delete(tt.delete, func(a, b int) bool { return a == b })
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -172,7 +172,7 @@ func TestLinear_Search(t *testing.T) {
 				linear.AddToEnd(tt.init[i])
 			}
 
-			if got := linear.Search(tt.search); got != tt.want {
+			if got := linear.Search(tt.search, func(a, b int) bool { return a == b }); got != tt.want {
 				t.Errorf("Search() = %v, want %v", got, tt.want)
 			}
 		})
@@ -200,7 +200,7 @@ func TestLinear_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var list *Linear
+			var list *Linear[int]
 			if len(tt.data) > 0 {
 				list = NewLinear(tt.data[0])
 				for i := 1; i < len(tt.data); i++ {
@@ -238,7 +238,7 @@ func BenchmarkLinear_Delete(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = linear.Delete(i % 1000)
+		_ = linear.Delete(i%1000, func(a, b int) bool { return a == b })
 	}
 }
 
@@ -249,7 +249,7 @@ func BenchmarkLinear_Search(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		linear.Search(i % 1000)
+		linear.Search(i%1000, func(a, b int) bool { return a == b })
 	}
 }
 
@@ -329,7 +329,7 @@ func TestLinear_AddToSequentially(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			list := NewLinear(tt.init)
 			for _, v := range tt.add {
-				list.AddToSequentially(v)
+				list.AddToSequentially(v, func(a, b int) bool { return a == b })
 			}
 			got := list.List()
 			if len(got) != len(tt.expected) {

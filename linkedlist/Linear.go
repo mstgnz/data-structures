@@ -5,67 +5,69 @@ import (
 	"sync"
 )
 
-type Linear struct {
-	X     int
-	Next  *Linear
+// Linear represents a generic linear linked list
+type Linear[T any] struct {
+	X     T
+	Next  *Linear[T]
 	mutex sync.RWMutex
 }
 
-func NewLinear(data int) *Linear {
-	return &Linear{X: data, Next: nil, mutex: sync.RWMutex{}}
+// NewLinear creates a new generic linear linked list node
+func NewLinear[T any](data T) *Linear[T] {
+	return &Linear[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // AddToStart adds data at the beginning of the list
-func (node *Linear) AddToStart(data int) {
+func (node *Linear[T]) AddToStart(data T) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	oldData := node.X
 	oldNext := node.Next
 	node.X = data
-	node.Next = &Linear{X: oldData, Next: oldNext}
+	node.Next = &Linear[T]{X: oldData, Next: oldNext}
 }
 
 // AddToSequentially adds data in sorted order
-func (node *Linear) AddToSequentially(data int) {
+func (node *Linear[T]) AddToSequentially(data T, less func(T, T) bool) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	if node.X > data {
+	if less(data, node.X) {
 		// If the new data is smaller than the current node's data,
 		// insert it at the beginning
 		oldData := node.X
 		oldNext := node.Next
 		node.X = data
-		node.Next = &Linear{X: oldData, Next: oldNext}
+		node.Next = &Linear[T]{X: oldData, Next: oldNext}
 		return
 	}
 
 	iter := node
-	for iter.Next != nil && iter.Next.X < data {
+	for iter.Next != nil && less(iter.Next.X, data) {
 		iter = iter.Next
 	}
-	iter.Next = &Linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+	iter.Next = &Linear[T]{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
 }
 
 // AddToAfter adds data after the specified value
-func (node *Linear) AddToAfter(data int, which int) error {
+func (node *Linear[T]) AddToAfter(data T, which T, equals func(T, T) bool) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	iter := node
-	for iter.X != which && iter.Next != nil {
+	for !equals(iter.X, which) && iter.Next != nil {
 		iter = iter.Next
 	}
-	if iter.X == which {
-		iter.Next = &Linear{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+	if equals(iter.X, which) {
+		iter.Next = &Linear[T]{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
 		return nil
 	}
-	return fmt.Errorf("%d not found", which)
+	return fmt.Errorf("value not found")
 }
 
 // AddToEnd adds data at the end of the list
-func (node *Linear) AddToEnd(data int) {
+func (node *Linear[T]) AddToEnd(data T) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -73,44 +75,45 @@ func (node *Linear) AddToEnd(data int) {
 	for iter.Next != nil {
 		iter = iter.Next
 	}
-	iter.Next = &Linear{X: data, Next: nil, mutex: sync.RWMutex{}}
+	iter.Next = &Linear[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Delete removes data from the list
-func (node *Linear) Delete(data int) error {
+func (node *Linear[T]) Delete(data T, equals func(T, T) bool) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	iter := node
-	if iter.X == data {
+	if equals(iter.X, data) {
 		if iter.Next != nil {
 			node.X = iter.Next.X
 			node.Next = iter.Next.Next
 			return nil
 		}
-		node.X = 0
+		var zero T
+		node.X = zero
 		node.Next = nil
 		return nil
 	}
 
-	for iter.Next != nil && iter.Next.X != data {
+	for iter.Next != nil && !equals(iter.Next.X, data) {
 		iter = iter.Next
 	}
 	if iter.Next == nil {
-		return fmt.Errorf("%d not found", data)
+		return fmt.Errorf("value not found")
 	}
 	iter.Next = iter.Next.Next
 	return nil
 }
 
 // Search looks for data in the list
-func (node *Linear) Search(data int) bool {
+func (node *Linear[T]) Search(data T, equals func(T, T) bool) bool {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
 	iter := node
 	for iter != nil {
-		if iter.X == data {
+		if equals(iter.X, data) {
 			return true
 		}
 		iter = iter.Next
@@ -119,11 +122,11 @@ func (node *Linear) Search(data int) bool {
 }
 
 // List returns a slice of list data
-func (node *Linear) List() []int {
+func (node *Linear[T]) List() []T {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
-	var list []int
+	var list []T
 	iter := node
 	for iter != nil {
 		list = append(list, iter.X)
@@ -133,7 +136,7 @@ func (node *Linear) List() []int {
 }
 
 // Print displays list data
-func (node *Linear) Print() {
+func (node *Linear[T]) Print() {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 	fmt.Print("print : ")

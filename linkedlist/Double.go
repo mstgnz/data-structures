@@ -5,41 +5,43 @@ import (
 	"sync"
 )
 
-type Double struct {
-	X     int
-	Next  *Double
-	Prev  *Double
+// Double represents a generic double linked list
+type Double[T any] struct {
+	X     T
+	Next  *Double[T]
+	Prev  *Double[T]
 	mutex sync.RWMutex
 }
 
-func NewDouble(data int) *Double {
-	return &Double{X: data, Next: nil, Prev: nil, mutex: sync.RWMutex{}}
+// NewDouble creates a new generic double linked list node
+func NewDouble[T any](data T) *Double[T] {
+	return &Double[T]{X: data, Next: nil, Prev: nil, mutex: sync.RWMutex{}}
 }
 
 // AddToStart adds data at the beginning of the list
-func (node *Double) AddToStart(data int) {
+func (node *Double[T]) AddToStart(data T) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	oldData := node.X
 	oldNext := node.Next
 	node.X = data
-	node.Next = &Double{X: oldData, Next: oldNext, Prev: node}
+	node.Next = &Double[T]{X: oldData, Next: oldNext, Prev: node}
 	if node.Next.Next != nil {
 		node.Next.Next.Prev = node.Next
 	}
 }
 
 // AddToSequentially adds data in sorted order
-func (node *Double) AddToSequentially(data int) {
+func (node *Double[T]) AddToSequentially(data T, less func(T, T) bool) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	iter := node
-	for iter.Next != nil && iter.Next.X < data {
+	for iter.Next != nil && less(iter.Next.X, data) {
 		iter = iter.Next
 	}
-	newNode := &Double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
+	newNode := &Double[T]{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
 	iter.Next = newNode
 	if newNode.Next != nil {
 		newNode.Next.Prev = newNode
@@ -47,7 +49,7 @@ func (node *Double) AddToSequentially(data int) {
 }
 
 // AddToAfter adds data after the specified value
-func (node *Double) AddToAfter(data int, which int) {
+func (node *Double[T]) AddToAfter(data T, which T, equals func(T, T) bool) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -55,9 +57,9 @@ func (node *Double) AddToAfter(data int, which int) {
 	found := false
 
 	// Check the first node
-	if iter.X == which {
+	if equals(iter.X, which) {
 		found = true
-		newNode := &Double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
+		newNode := &Double[T]{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
 		if iter.Next != nil {
 			iter.Next.Prev = newNode
 		}
@@ -68,9 +70,9 @@ func (node *Double) AddToAfter(data int, which int) {
 	// Check other nodes
 	for iter.Next != nil {
 		iter = iter.Next
-		if iter.X == which {
+		if equals(iter.X, which) {
 			found = true
-			newNode := &Double{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
+			newNode := &Double[T]{X: data, Next: iter.Next, Prev: iter, mutex: sync.RWMutex{}}
 			if iter.Next != nil {
 				iter.Next.Prev = newNode
 			}
@@ -80,12 +82,12 @@ func (node *Double) AddToAfter(data int, which int) {
 	}
 
 	if !found {
-		fmt.Println(which, "not found!")
+		fmt.Println("value not found!")
 	}
 }
 
 // AddToEnd adds data at the end of the list
-func (node *Double) AddToEnd(data int) {
+func (node *Double[T]) AddToEnd(data T) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -93,16 +95,16 @@ func (node *Double) AddToEnd(data int) {
 	for iter.Next != nil {
 		iter = iter.Next
 	}
-	iter.Next = &Double{X: data, Next: nil, Prev: iter, mutex: sync.RWMutex{}}
+	iter.Next = &Double[T]{X: data, Next: nil, Prev: iter, mutex: sync.RWMutex{}}
 }
 
 // Delete removes data from the list
-func (node *Double) Delete(data int) error {
+func (node *Double[T]) Delete(data T, equals func(T, T) bool) error {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	// If the value to be deleted is the first element
-	if node.X == data {
+	if equals(node.X, data) {
 		if node.Next != nil {
 			node.X = node.Next.X
 			node.Next = node.Next.Next
@@ -110,18 +112,19 @@ func (node *Double) Delete(data int) error {
 				node.Next.Prev = node
 			}
 		} else {
-			node.X = 0
+			var zero T
+			node.X = zero
 		}
 		return nil
 	}
 
 	// If the value to be deleted is a value in between or at the end
 	iter := node
-	for iter.Next != nil && iter.Next.X != data {
+	for iter.Next != nil && !equals(iter.Next.X, data) {
 		iter = iter.Next
 	}
 	if iter.Next == nil {
-		return fmt.Errorf("%d not found", data)
+		return fmt.Errorf("value not found")
 	}
 
 	// Delete the node
@@ -133,11 +136,11 @@ func (node *Double) Delete(data int) error {
 }
 
 // List returns a slice of list data
-func (node *Double) List(reverse bool) []int {
+func (node *Double[T]) List(reverse bool) []T {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 
-	var list []int
+	var list []T
 	iter := node
 	if reverse { // print bottom to top
 		for iter.Next != nil {
@@ -157,7 +160,7 @@ func (node *Double) List(reverse bool) []int {
 }
 
 // Print displays list data
-func (node *Double) Print(reverse bool) {
+func (node *Double[T]) Print(reverse bool) {
 	node.mutex.RLock()
 	defer node.mutex.RUnlock()
 	fmt.Print("print : ")

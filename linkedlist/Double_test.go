@@ -98,7 +98,7 @@ func TestDouble_Delete(t *testing.T) {
 			for _, v := range tt.setup {
 				list.AddToEnd(v)
 			}
-			err := list.Delete(tt.delete)
+			err := list.Delete(tt.delete, func(a, b int) bool { return a == b })
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -138,7 +138,7 @@ func TestDouble_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var list *Double
+			var list *Double[int]
 			if len(tt.data) > 0 {
 				list = NewDouble(tt.data[0])
 				for i := 1; i < len(tt.data); i++ {
@@ -163,7 +163,7 @@ func TestDouble(t *testing.T) {
 
 func Test_double_AddToAfter(t *testing.T) {
 	double := NewDouble(1)
-	double.AddToAfter(2, 1)
+	double.AddToAfter(2, 1, func(a, b int) bool { return a == b })
 	expect := []int{1, 2}
 	if got := double.List(false); !reflect.DeepEqual(got, expect) {
 		t.Errorf("AddToAfter() = %v, want %v", got, expect)
@@ -181,7 +181,7 @@ func Test_double_AddToEnd(t *testing.T) {
 
 func Test_double_AddToSequentially(t *testing.T) {
 	double := NewDouble(1)
-	double.AddToSequentially(2)
+	double.AddToSequentially(2, func(a, b int) bool { return a == b })
 	expect := []int{1, 2}
 	if got := double.List(false); !reflect.DeepEqual(got, expect) {
 		t.Errorf("AddToSequentially() = %v, want %v", got, expect)
@@ -200,7 +200,7 @@ func Test_double_AddToStart(t *testing.T) {
 func Test_double_Delete(t *testing.T) {
 	double := NewDouble(1)
 	double.AddToStart(2)
-	double.Delete(1)
+	double.Delete(1, func(a, b int) bool { return a == b })
 	expect := []int{2}
 	if got := double.List(false); !reflect.DeepEqual(got, expect) {
 		t.Errorf("Delete() = %v, want %v", got, expect)
@@ -210,13 +210,13 @@ func Test_double_Delete(t *testing.T) {
 func TestDouble_AddToStart(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() *Double
+		setup    func() *Double[int]
 		data     int
 		expected []int
 	}{
 		{
 			name: "add_to_start_empty_list",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				return NewDouble(0)
 			},
 			data:     1,
@@ -224,7 +224,7 @@ func TestDouble_AddToStart(t *testing.T) {
 		},
 		{
 			name: "add_to_start_single_element",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				return list
 			},
@@ -233,7 +233,7 @@ func TestDouble_AddToStart(t *testing.T) {
 		},
 		{
 			name: "add_to_start_multiple_elements",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -259,13 +259,13 @@ func TestDouble_AddToStart(t *testing.T) {
 func TestDouble_AddToSequentially(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() *Double
+		setup    func() *Double[int]
 		data     int
 		expected []int
 	}{
 		{
 			name: "add_sequentially_empty_list",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				return NewDouble(0)
 			},
 			data:     1,
@@ -273,7 +273,7 @@ func TestDouble_AddToSequentially(t *testing.T) {
 		},
 		{
 			name: "add_sequentially_single_element",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				return list
 			},
@@ -282,7 +282,7 @@ func TestDouble_AddToSequentially(t *testing.T) {
 		},
 		{
 			name: "add_sequentially_multiple_elements",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				list.AddToEnd(3)
 				list.AddToEnd(5)
@@ -293,7 +293,7 @@ func TestDouble_AddToSequentially(t *testing.T) {
 		},
 		{
 			name: "add_sequentially_duplicate_value",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -307,7 +307,7 @@ func TestDouble_AddToSequentially(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			list := tt.setup()
-			list.AddToSequentially(tt.data)
+			list.AddToSequentially(tt.data, func(a, b int) bool { return a == b })
 			result := list.List(false)
 			if !reflect.DeepEqual(result, tt.expected) {
 				t.Errorf("AddToSequentially() got %v, want %v", result, tt.expected)
@@ -319,14 +319,14 @@ func TestDouble_AddToSequentially(t *testing.T) {
 func TestDouble_AddToAfter(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() *Double
+		setup    func() *Double[int]
 		after    int
 		data     int
 		expected []int
 	}{
 		{
 			name: "add_after_empty_list",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				return NewDouble(0)
 			},
 			after:    0,
@@ -335,7 +335,7 @@ func TestDouble_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_single_element",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				return list
 			},
@@ -345,7 +345,7 @@ func TestDouble_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_multiple_elements",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -357,7 +357,7 @@ func TestDouble_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_non_existent_element",
-			setup: func() *Double {
+			setup: func() *Double[int] {
 				list := NewDouble(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -372,7 +372,7 @@ func TestDouble_AddToAfter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			list := tt.setup()
-			list.AddToAfter(tt.data, tt.after)
+			list.AddToAfter(tt.data, tt.after, func(a, b int) bool { return a == b })
 			result := list.List(false)
 			if !reflect.DeepEqual(result, tt.expected) {
 				t.Errorf("AddToAfter() got %v, want %v", result, tt.expected)

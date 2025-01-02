@@ -78,7 +78,7 @@ func TestCircular_AddToSequentially(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			list := NewCircular(tt.init)
 			for _, v := range tt.add {
-				list.AddToSequentially(v)
+				list.AddToSequentially(v, func(a, b int) bool { return a == b })
 			}
 			got := list.List()
 			if len(got) != len(tt.want) {
@@ -151,7 +151,7 @@ func TestCircular_Delete(t *testing.T) {
 			for _, v := range tt.setup {
 				list.AddToEnd(v)
 			}
-			err := list.Delete(tt.delete)
+			err := list.Delete(tt.delete, func(a, b int) bool { return a == b })
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -191,7 +191,7 @@ func TestCircular_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var list *Circular
+			var list *Circular[int]
 			if len(tt.data) > 0 {
 				list = NewCircular(tt.data[0])
 				for i := 1; i < len(tt.data); i++ {
@@ -256,7 +256,7 @@ func TestCircular(t *testing.T) {
 
 func Test_circular_AddToAfter(t *testing.T) {
 	circular := NewCircular(1)
-	circular.AddToAfter(2, 1)
+	circular.AddToAfter(2, 1, func(a, b int) bool { return a == b })
 	expect := []int{1, 2}
 	if got := circular.List(); !reflect.DeepEqual(got, expect) {
 		t.Errorf("AddToAfter() = %v, want %v", got, expect)
@@ -284,14 +284,14 @@ func Test_circular_AddToStart(t *testing.T) {
 func TestCircular_AddToAfter(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() *Circular
+		setup    func() *Circular[int]
 		data     int
 		after    int
 		expected []int
 	}{
 		{
 			name: "add_after_empty_list",
-			setup: func() *Circular {
+			setup: func() *Circular[int] {
 				return NewCircular(0)
 			},
 			data:     2,
@@ -300,7 +300,7 @@ func TestCircular_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_single_element",
-			setup: func() *Circular {
+			setup: func() *Circular[int] {
 				list := NewCircular(1)
 				return list
 			},
@@ -310,7 +310,7 @@ func TestCircular_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_multiple_elements",
-			setup: func() *Circular {
+			setup: func() *Circular[int] {
 				list := NewCircular(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -322,7 +322,7 @@ func TestCircular_AddToAfter(t *testing.T) {
 		},
 		{
 			name: "add_after_non_existent_element",
-			setup: func() *Circular {
+			setup: func() *Circular[int] {
 				list := NewCircular(1)
 				list.AddToEnd(2)
 				list.AddToEnd(3)
@@ -337,7 +337,7 @@ func TestCircular_AddToAfter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			list := tt.setup()
-			list.AddToAfter(tt.data, tt.after)
+			list.AddToAfter(tt.data, tt.after, func(a, b int) bool { return a == b })
 			result := list.List()
 			if !reflect.DeepEqual(result, tt.expected) {
 				t.Errorf("AddToAfter() got %v, want %v", result, tt.expected)

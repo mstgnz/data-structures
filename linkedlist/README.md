@@ -1,6 +1,6 @@
 # LinkedList Package
 
-This package provides three different linked list implementations in Go: Linear (Singly), Double (Doubly), and Circular. All implementations are designed to be thread-safe.
+This package provides three different linked list implementations in Go: Linear (Singly), Double (Doubly), and Circular. All implementations are designed to be thread-safe and support generic types.
 
 ## Features
 
@@ -8,6 +8,12 @@ This package provides three different linked list implementations in Go: Linear 
 - Linear (Singly) Linked List
 - Double (Doubly) Linked List
 - Circular Linked List
+
+### Generic Type Support
+- Support for all data types (`[T any]`)
+- Custom comparison functions
+  - `less` function: For sorting operations
+  - `equals` function: For equality checks
 
 ### Common Operations
 - AddToStart: Add element to the beginning
@@ -26,62 +32,61 @@ This package provides three different linked list implementations in Go: Linear 
 
 ## Usage Examples
 
-### Linear (Singly) List
+### Using with Integer Type
 ```go
-// Create a new list
-list := NewLinear(1)
+// Linear List example
+intList := linkedlist.NewLinear[int](10)
+intList.AddToEnd(20)
+intList.AddToEnd(30)
 
-// Add elements
-list.AddToStart(0)      // Add to beginning
-list.AddToEnd(3)        // Add to end
-list.AddToAfter(2, 1)   // Add 2 after 1
-list.AddToSequentially(4) // Add in sorted order
+// Comparison functions
+intLess := func(a, b int) bool { return a < b }
+intEquals := func(a, b int) bool { return a == b }
 
-// Delete element
-list.Delete(2)
-
-// Search element
-exists := list.Search(3)
-
-// List elements
-elements := list.List()
-list.Print()
+// Sequential adding and searching
+intList.AddToSequentially(15, intLess)
+exists := intList.Search(20, intEquals)
 ```
 
-### Double (Doubly) List
+### Using with String Type
 ```go
-// Create a new list
-list := NewDouble(1)
+// Double List example
+strList := linkedlist.NewDouble[string]("Hello")
+strList.AddToEnd("World")
 
-// Add elements
-list.AddToStart(0)
-list.AddToEnd(2)
-list.AddToSequentially(1.5)
+// Comparison functions
+strLess := func(a, b string) bool { return strings.Compare(a, b) < 0 }
+strEquals := func(a, b string) bool { return a == b }
+
+// Sequential adding
+strList.AddToSequentially("Go", strLess)
 
 // Forward and backward listing
-forward := list.List(false)  // [0, 1, 1.5, 2]
-backward := list.List(true)  // [2, 1.5, 1, 0]
-
-// Print
-list.Print(false)  // Forward direction
-list.Print(true)   // Backward direction
+strList.Print(false)  // Forward direction
+strList.Print(true)   // Backward direction
 ```
 
-### Circular List
+### Using with Custom Struct
 ```go
-// Create a new list
-list := NewCircular(1)
+// Custom struct definition
+type Person struct {
+    Name string
+    Age  int
+}
 
-// Add elements
-list.AddToStart(0)
-list.AddToEnd(2)
-list.AddToSequentially(1.5)
+// Circular List example
+personList := linkedlist.NewCircular[Person](Person{Name: "John", Age: 25})
 
-// List in circular structure
-elements := list.List()  // Last element connects back to first
+// Comparison functions
+personLess := func(a, b Person) bool { return a.Age < b.Age }
+personEquals := func(a, b Person) bool { 
+    return a.Name == b.Name && a.Age == b.Age 
+}
 
-// Print
-list.Print()
+// Adding and removing elements
+personList.AddToEnd(Person{Name: "Jane", Age: 30})
+personList.AddToSequentially(Person{Name: "Bob", Age: 28}, personLess)
+personList.Delete(Person{Name: "John", Age: 25}, personEquals)
 ```
 
 ## Implementation Details
