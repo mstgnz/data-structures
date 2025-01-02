@@ -1,196 +1,134 @@
-# Stack Data Structures Package
+# Stack Package
 
-This package provides implementations of stack data structures in Go. It includes both array-based and linked list-based stack implementations, each optimized for different use cases.
+This package provides two different stack implementations in Go: Array-based and LinkedList-based. All implementations are designed to be thread-safe.
 
 ## Features
 
-### Array Stack
-- Fixed-size array implementation
-- Efficient memory usage
-- Fast random access
-- LIFO (Last-In-First-Out) operations
-- Automatic resizing capability
+### Core Structures
+- Array Stack (Dynamic array-based implementation)
+- LinkedList Stack (Linked list-based implementation)
 
-### Linked List Stack
-- Dynamic size implementation
-- No size limitations
-- Memory efficient for variable size
-- LIFO operations
-- Optimal for frequent push/pop operations
+### Common Operations
+- Push: Add element to the stack
+- Pop: Remove element from the stack
+- IsEmpty: Check if stack is empty
+- List: Get all elements
+- Print: Display elements
 
-### Common Features
-- Thread-safe operations (optional)
-- Generic type support
-- Clear operation
-- Size tracking
-- Empty/Full state checking
+### Thread Safety
+- Safe read/write operations with RWMutex
+- Concurrent access support for all structures
+- Deadlock prevention mechanisms
 
 ## Usage Examples
 
 ### Array Stack
 ```go
-// Create a new array stack with initial capacity
-stack := NewArrayStack(5)
+// Create a new stack
+stack := NewArrayStack()
 
-// Push elements
+// Add elements
 stack.Push(1)
 stack.Push(2)
 stack.Push(3)
 
-// Pop elements
-top, err := stack.Pop() // Returns 3
-if err == nil {
-    fmt.Println(top)
-}
+// Remove element from top
+stack.Pop()
 
-// Check size
-size := stack.Size() // Returns 2
+// Check if empty
+isEmpty := stack.IsEmpty()
 
-// Peek at top element
-topElement, err := stack.Peek()
-if err == nil {
-    fmt.Println(topElement) // Shows 2
-}
+// List elements
+elements := stack.List()
+stack.Print()
 ```
 
-### Linked List Stack
+### LinkedList Stack
 ```go
-// Create a new linked list stack
-stack := NewLinkedListStack()
+// Create a new stack
+stack := NewLinkedListStack(0)
 
 // Add elements
-stack.Push("first")
-stack.Push("second")
-stack.Push("third")
+stack.Push(1)
+stack.Push(2)
+stack.Push(3)
 
-// Remove and process elements
-for !stack.IsEmpty() {
-    element, _ := stack.Pop()
-    fmt.Println(element)
-}
+// Remove element from top
+stack.Pop()
 
-// Check if stack is empty
-isEmpty := stack.IsEmpty() // Returns true
-```
+// Check if empty
+isEmpty := stack.IsEmpty()
 
-### Generic Type Usage
-```go
-type CustomType struct {
-    ID   int
-    Name string
-}
-
-// Create stack with custom type
-stack := NewArrayStack(10)
-stack.Push(CustomType{1, "Item 1"})
-stack.Push(CustomType{2, "Item 2"})
-
-// Process custom type elements
-item, err := stack.Pop()
-if err == nil {
-    customItem := item.(CustomType)
-    fmt.Printf("ID: %d, Name: %s\n", customItem.ID, customItem.Name)
-}
+// List elements
+elements := stack.List()
+stack.Print()
 ```
 
 ## Implementation Details
 
+### Data Structures
+
+#### Array Stack
+- Dynamic array-based implementation
+- Auto-resizing capability (grows and shrinks)
+- Efficient memory management
+- Index tracking for top element
+
+#### LinkedList Stack
+- Node-based implementation
+- Dynamic memory allocation
+- LIFO (Last-In-First-Out) structure
+- No size limitations
+
 ### Time Complexities
 
 #### Array Stack
-- Push: O(1) amortized
-- Pop: O(1)
-- Peek: O(1)
-- Clear: O(1)
-- Size: O(1)
+- Push: O(1) amortized, O(n) worst case when resizing
+- Pop: O(1) amortized, O(n) worst case when shrinking
+- IsEmpty: O(1)
+- List: O(n)
+- Space: O(n)
 
-#### Linked List Stack
+#### LinkedList Stack
 - Push: O(1)
 - Pop: O(1)
-- Peek: O(1)
-- Clear: O(1)
-- Size: O(1)
+- IsEmpty: O(1)
+- List: O(n)
+- Space: O(n)
 
-### Space Complexities
-- Array Stack: O(n) where n is the capacity
-- Linked List Stack: O(n) where n is the number of elements
-
-### Performance Characteristics
+### Memory Management
 
 #### Array Stack
-- Fixed memory allocation
-- Cache-friendly
-- Predictable performance
-- Efficient for fixed-size scenarios
+- Dynamic array resizing (doubles when full)
+- Array shrinking (halves when 1/4 full)
+- Efficient memory utilization
+- Automatic capacity management
 
-#### Linked List Stack
-- Dynamic memory allocation
-- Better for unpredictable sizes
-- No reallocation needed
-- Memory efficient for varying sizes
+#### LinkedList Stack
+- Dynamic node allocation
+- No pre-allocated memory
+- Memory freed on pop
+- No explicit size limitations
 
-## Use Cases
-
-### Array Stack
-- Expression evaluation
-- Syntax parsing
-- Memory management
-- Function call management
-- Undo/Redo operations
-
-### Linked List Stack
-- Browser history
-- Text editor operations
-- Dynamic function calls
-- Recursive algorithms
-- Memory management with unknown depth
-
-## Best Practices
-
-### Choosing Stack Type
-- Use Array Stack when:
-  - Maximum size is known
-  - Memory efficiency is critical
-  - Frequent access to elements needed
-  
-- Use Linked List Stack when:
-  - Size is unpredictable
-  - Dynamic growth is required
-  - Memory overhead is acceptable
-
-### Performance Optimization
-- Initialize Array Stack with appropriate capacity
-- Monitor stack size for potential resizing
-- Consider memory fragmentation
-- Use appropriate stack type for access pattern
-
-### Thread Safety
-- Implement synchronization when needed
-- Consider concurrent access patterns
-- Use atomic operations where appropriate
-- Handle race conditions properly
+### Thread Safety Details
+- RLock for read operations (IsEmpty, List, Print)
+- Lock for write operations (Push, Pop)
+- Automatic unlock with defer
+- Safe design for concurrent access
 
 ## Testing
-The package comes with comprehensive test coverage. Run tests using:
+The package comes with comprehensive test coverage. To run tests:
 ```bash
 go test ./...
 ```
 
-## Benchmarks
-Key performance metrics:
-- Array Stack Push: ~15ns
-- Array Stack Pop: ~10ns
-- Linked List Stack Push: ~35ns
-- Linked List Stack Pop: ~25ns
-
 ## Contributing
 Contributions are welcome! Please ensure that any new features or modifications come with:
 - Proper documentation
-- Time and space complexity analysis
+- Thread safety considerations
 - Comprehensive test cases
 - Example usage
-- Performance benchmarks
-- Thread safety considerations
+- Performance analysis
 
 ## License
 This package is distributed under the MIT license. See the LICENSE file for more details. 
