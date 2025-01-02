@@ -39,9 +39,12 @@ examples/
 - Practical stack applications
 
 #### Queue Examples (`queue/queue_examples.go`)
-- Array-based queue implementation
-- Linked List-based queue implementation
+- Array-based queue implementation with generic type support
+- Linked List-based queue implementation with generic type support
 - FIFO (First In First Out) operations
+- Support for any comparable type
+- Examples with different data types (int, string, custom structs)
+- Thread-safe operations
 - Priority queue examples
 - Real-world queue scenarios
 

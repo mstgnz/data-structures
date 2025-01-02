@@ -5,64 +5,64 @@ import (
 	"sync"
 )
 
-type LinkedListQueue struct {
-	X     int
-	Next  *LinkedListQueue
+// LinkedListQueue represents a generic linked list-based queue
+type LinkedListQueue[T comparable] struct {
+	X     T
+	Next  *LinkedListQueue[T]
 	mutex sync.RWMutex
 }
 
-func NewLinkedListQueue(data int) *LinkedListQueue {
-	return &LinkedListQueue{X: data, Next: nil, mutex: sync.RWMutex{}}
+// NewLinkedListQueue creates a new generic linked list-based queue
+func NewLinkedListQueue[T comparable](data T) *LinkedListQueue[T] {
+	return &LinkedListQueue[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Enqueue adds data to the queue
-func (arr *LinkedListQueue) Enqueue(data int) {
+func (arr *LinkedListQueue[T]) Enqueue(data T) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
 	iter := arr
-	if iter.X == -1 {
-		iter.X = data
-	} else {
-		for iter.Next != nil {
-			iter = iter.Next
-		}
-		iter.Next = &LinkedListQueue{X: data, Next: nil, mutex: sync.RWMutex{}}
+	for iter.Next != nil {
+		iter = iter.Next
 	}
+	iter.Next = &LinkedListQueue[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Dequeue removes data from the queue
-func (arr *LinkedListQueue) Dequeue() {
+func (arr *LinkedListQueue[T]) Dequeue() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
-	if arr.X == -1 && arr.Next == nil {
+	var zero T
+	if arr.X == zero && arr.Next == nil {
 		return
 	}
 	if arr.Next != nil {
 		arr.X = arr.Next.X
 		arr.Next = arr.Next.Next
 	} else {
-		arr.X = -1
+		arr.X = zero
 	}
 }
 
 // List returns a slice of queue data
-func (arr *LinkedListQueue) List() []int {
+func (arr *LinkedListQueue[T]) List() []T {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 
-	var list []int
+	var list []T
 	iter := arr
-	for iter != nil {
-		list = append(list, iter.X)
+	list = append(list, iter.X)
+	for iter.Next != nil {
 		iter = iter.Next
+		list = append(list, iter.X)
 	}
 	return list
 }
 
 // Print displays queue data
-func (arr *LinkedListQueue) Print() {
+func (arr *LinkedListQueue[T]) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

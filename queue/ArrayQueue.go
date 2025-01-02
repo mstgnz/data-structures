@@ -5,17 +5,19 @@ import (
 	"sync"
 )
 
-type ArrayQueue struct {
-	Arr        []int
+// ArrayQueue represents a generic array-based queue
+type ArrayQueue[T any] struct {
+	Arr        []T
 	ArrSize    int
 	FirstIndex int
 	LastIndex  int
 	mutex      sync.RWMutex
 }
 
-func NewArrayQueue() *ArrayQueue {
-	return &ArrayQueue{
-		Arr:        []int{0, 0},
+// NewArrayQueue creates a new generic array-based queue
+func NewArrayQueue[T any]() *ArrayQueue[T] {
+	return &ArrayQueue[T]{
+		Arr:        make([]T, 2),
 		ArrSize:    2,
 		FirstIndex: 0,
 		LastIndex:  0,
@@ -24,7 +26,7 @@ func NewArrayQueue() *ArrayQueue {
 }
 
 // Enqueue adds data to the queue
-func (arr *ArrayQueue) Enqueue(data int) {
+func (arr *ArrayQueue[T]) Enqueue(data T) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -34,10 +36,8 @@ func (arr *ArrayQueue) Enqueue(data int) {
 	// If first index is 0 and last index is bigger than array size we will increase array size
 	if arr.LastIndex >= arr.ArrSize {
 		if arr.FirstIndex == 0 {
-			newArr := make([]int, arr.ArrSize*2)
-			for i := 0; i < arr.ArrSize; i++ {
-				newArr[i] = arr.Arr[i]
-			}
+			newArr := make([]T, arr.ArrSize*2)
+			copy(newArr, arr.Arr)
 			arr.Arr = newArr
 			arr.ArrSize *= 2
 		} else {
@@ -49,7 +49,7 @@ func (arr *ArrayQueue) Enqueue(data int) {
 }
 
 // Dequeue removes data from the queue
-func (arr *ArrayQueue) Dequeue() {
+func (arr *ArrayQueue[T]) Dequeue() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -57,15 +57,17 @@ func (arr *ArrayQueue) Dequeue() {
 	if arr.FirstIndex == 0 && arr.LastIndex == 0 {
 		return
 	}
-	arr.Arr[arr.FirstIndex] = 0
+	var zero T
+	arr.Arr[arr.FirstIndex] = zero
 	arr.FirstIndex++
 	if arr.LastIndex-arr.FirstIndex <= arr.ArrSize/4 {
-		newArr := make([]int, arr.ArrSize/2)
+		newArr := make([]T, arr.ArrSize/2)
 		sort := 0
 		for i := arr.FirstIndex; i < arr.LastIndex; i++ {
 			newArr[sort] = arr.Arr[i]
 			sort++
 		}
+
 		arr.Arr = newArr
 		arr.ArrSize /= 2
 		arr.LastIndex = arr.LastIndex - arr.FirstIndex
@@ -74,8 +76,8 @@ func (arr *ArrayQueue) Dequeue() {
 }
 
 // reSort reorders the queue data
-func (arr *ArrayQueue) reSort() {
-	newArr := make([]int, arr.ArrSize)
+func (arr *ArrayQueue[T]) reSort() {
+	newArr := make([]T, arr.ArrSize)
 	sort := 0
 	for i := arr.FirstIndex; i < arr.LastIndex; i++ {
 		newArr[sort] = arr.Arr[i]
@@ -87,14 +89,14 @@ func (arr *ArrayQueue) reSort() {
 }
 
 // List returns a slice of queue data
-func (arr *ArrayQueue) List() []int {
+func (arr *ArrayQueue[T]) List() []T {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 
 	if arr.FirstIndex >= arr.LastIndex {
-		return []int{}
+		return []T{}
 	}
-	var list []int
+	var list []T
 	for i := arr.FirstIndex; i < arr.LastIndex; i++ {
 		list = append(list, arr.Arr[i])
 	}
@@ -102,7 +104,7 @@ func (arr *ArrayQueue) List() []int {
 }
 
 // Print displays queue data
-func (arr *ArrayQueue) Print() {
+func (arr *ArrayQueue[T]) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")
