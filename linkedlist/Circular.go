@@ -35,26 +35,36 @@ func (node *Circular[T]) AddToSequentially(data T, less func(T, T) bool) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	iter := node
-	// If the value to be added is less than the value of the root object
-	if less(data, node.X) {
-		temp := node.X
-		node.X = data
-		newNode := &Circular[T]{X: temp, Next: node.Next}
-		node.Next = newNode
+	// Handle the first node
+	if node.Next == node || less(data, node.X) {
+		if less(data, node.X) {
+			temp := node.X
+			node.X = data
+			newNode := &Circular[T]{X: temp, Next: node.Next, mutex: sync.RWMutex{}}
+			node.Next = newNode
+		} else {
+			newNode := &Circular[T]{X: data, Next: node, mutex: sync.RWMutex{}}
+			node.Next = newNode
+		}
+
+		// Update the last node to point to the head
+		iter := node
 		for iter.Next != node {
 			iter = iter.Next
 		}
 		iter.Next = node
-	} else {
-		// Advance up to the value that is less than the value you want to add.
-		for iter.Next != node && less(iter.Next.X, data) {
-			iter = iter.Next
-		}
-		// Add the value to the next of the object that is smaller than the value to be added, by creating a new object.
-		// add the current next to the next of the newly added object
-		iter.Next = &Circular[T]{X: data, Next: iter.Next}
+		return
 	}
+
+	// Find the correct position to insert
+	iter := node
+	for iter.Next != node && !less(data, iter.Next.X) {
+		iter = iter.Next
+	}
+
+	// Insert the new node
+	newNode := &Circular[T]{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+	iter.Next = newNode
 }
 
 // AddToAfter adds data after the specified value

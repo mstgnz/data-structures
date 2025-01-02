@@ -329,7 +329,7 @@ func TestLinear_AddToSequentially(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			list := NewLinear(tt.init)
 			for _, v := range tt.add {
-				list.AddToSequentially(v, func(a, b int) bool { return a == b })
+				list.AddToSequentially(v, func(a, b int) bool { return a < b })
 			}
 			got := list.List()
 			if len(got) != len(tt.expected) {

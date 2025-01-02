@@ -33,21 +33,28 @@ func (node *Linear[T]) AddToSequentially(data T, less func(T, T) bool) {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
-	if less(data, node.X) {
-		// If the new data is smaller than the current node's data,
-		// insert it at the beginning
-		oldData := node.X
-		oldNext := node.Next
-		node.X = data
-		node.Next = &Linear[T]{X: oldData, Next: oldNext}
+	// Handle the first node
+	if node.Next == nil || less(data, node.X) {
+		if less(data, node.X) {
+			oldData := node.X
+			oldNext := node.Next
+			node.X = data
+			node.Next = &Linear[T]{X: oldData, Next: oldNext, mutex: sync.RWMutex{}}
+		} else {
+			node.Next = &Linear[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
+		}
 		return
 	}
 
+	// Find the correct position to insert
 	iter := node
-	for iter.Next != nil && less(iter.Next.X, data) {
+	for iter.Next != nil && !less(data, iter.Next.X) {
 		iter = iter.Next
 	}
-	iter.Next = &Linear[T]{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+
+	// Insert the new node
+	newNode := &Linear[T]{X: data, Next: iter.Next, mutex: sync.RWMutex{}}
+	iter.Next = newNode
 }
 
 // AddToAfter adds data after the specified value

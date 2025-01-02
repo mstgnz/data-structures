@@ -43,34 +43,34 @@ func TestCircular_New(t *testing.T) {
 
 func TestCircular_AddToSequentially(t *testing.T) {
 	tests := []struct {
-		name string
-		init int
-		add  []int
-		want []int
+		name     string
+		init     int
+		add      []int
+		expected []int
 	}{
 		{
-			name: "add sequentially to empty list",
-			init: 0,
-			add:  []int{1},
-			want: []int{0, 1},
+			name:     "add sequentially to empty list",
+			init:     0,
+			add:      []int{1},
+			expected: []int{0, 1},
 		},
 		{
-			name: "add sequentially multiple items",
-			init: 1,
-			add:  []int{2, 3, 4},
-			want: []int{1, 2, 3, 4},
+			name:     "add sequentially multiple items",
+			init:     1,
+			add:      []int{2, 3, 4},
+			expected: []int{1, 2, 3, 4},
 		},
 		{
-			name: "add sequentially with duplicates",
-			init: 1,
-			add:  []int{2, 2, 3},
-			want: []int{1, 2, 2, 3},
+			name:     "add sequentially with duplicates",
+			init:     1,
+			add:      []int{2, 2, 3},
+			expected: []int{1, 2, 2, 3},
 		},
 		{
-			name: "add sequentially with negative numbers",
-			init: 0,
-			add:  []int{-2, -1, 1},
-			want: []int{-2, -1, 0, 1},
+			name:     "add sequentially with negative numbers",
+			init:     0,
+			add:      []int{-2, -1, 1},
+			expected: []int{-2, -1, 0, 1},
 		},
 	}
 
@@ -78,16 +78,16 @@ func TestCircular_AddToSequentially(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			list := NewCircular(tt.init)
 			for _, v := range tt.add {
-				list.AddToSequentially(v, func(a, b int) bool { return a == b })
+				list.AddToSequentially(v, func(a, b int) bool { return a < b })
 			}
 			got := list.List()
-			if len(got) != len(tt.want) {
-				t.Errorf("After AddToSequentially() = %v, want %v", got, tt.want)
+			if len(got) != len(tt.expected) {
+				t.Errorf("After AddToSequentially() = %v, want %v", got, tt.expected)
 				return
 			}
 			for i, v := range got {
-				if v != tt.want[i] {
-					t.Errorf("After AddToSequentially() = %v, want %v", got, tt.want)
+				if v != tt.expected[i] {
+					t.Errorf("After AddToSequentially() = %v, want %v", got, tt.expected)
 				}
 			}
 		})

@@ -8,93 +8,164 @@ import (
 )
 
 func main() {
-	// Linear Linked List örnekleri
-	fmt.Println("Linear Linked List Örnekleri:")
+	fmt.Println("=== Linear Linked List Examples ===")
+	linearListExamples()
 
-	// Integer List
-	intLinear := linkedlist.NewLinear[int](10)
-	intLinear.AddToEnd(20)
-	intLinear.AddToEnd(30)
+	fmt.Println("\n=== Double Linked List Examples ===")
+	doubleListExamples()
+
+	fmt.Println("\n=== Circular Linked List Examples ===")
+	circularListExamples()
+
+	fmt.Println("\n=== Custom Type Examples ===")
+	customTypeExamples()
+}
+
+func linearListExamples() {
+	// Create a new Linear List with integers
+	intList := linkedlist.NewLinear[int](10)
+
+	// Define comparison functions
 	intLess := func(a, b int) bool { return a < b }
-	intLinear.AddToSequentially(15, intLess)
-	fmt.Println("\nInteger Linear List:")
-	intLinear.Print()
+	intEquals := func(a, b int) bool { return a == b }
 
-	// String List
-	strLinear := linkedlist.NewLinear[string]("Merhaba")
-	strLinear.AddToEnd("Dünya")
+	// Add elements sequentially
+	fmt.Println("\nAdding elements sequentially:")
+	intList.AddToSequentially(5, intLess)
+	intList.AddToSequentially(15, intLess)
+	intList.AddToSequentially(12, intLess)
+	intList.Print() // Expected: 5 10 12 15
+
+	// Add element after a specific value
+	fmt.Println("\nAdding 13 after 12:")
+	intList.AddToAfter(13, 12, intEquals)
+	intList.Print() // Expected: 5 10 12 13 15
+
+	// Search for elements
+	fmt.Printf("\nSearch for 12: %v\n", intList.Search(12, intEquals))
+	fmt.Printf("Search for 99: %v\n", intList.Search(99, intEquals))
+
+	// Delete elements
+	fmt.Println("\nDeleting 12:")
+	intList.Delete(12, intEquals)
+	intList.Print()
+
+	// Create a Linear List with strings
+	strList := linkedlist.NewLinear[string]("Hello")
+
+	// Define string comparison functions
 	strLess := func(a, b string) bool { return strings.Compare(a, b) < 0 }
-	strLinear.AddToSequentially("Go", strLess)
-	fmt.Println("\nString Linear List:")
-	strLinear.Print()
+	strEquals := func(a, b string) bool { return a == b }
 
-	// Double Linked List örnekleri
-	fmt.Println("\nDouble Linked List Örnekleri:")
+	fmt.Println("\nString List Operations:")
+	strList.AddToSequentially("World", strLess)
+	strList.AddToSequentially("Go", strLess)
+	strList.Print() // Expected: Go Hello World
 
-	// Integer List
-	intDouble := linkedlist.NewDouble[int](10)
-	intDouble.AddToEnd(20)
-	intDouble.AddToEnd(30)
-	intDouble.AddToSequentially(15, intLess)
-	fmt.Println("\nInteger Double List (İleri):")
-	intDouble.Print(false)
-	fmt.Println("Integer Double List (Geri):")
-	intDouble.Print(true)
+	// Search and delete operations with strings
+	fmt.Printf("Search for 'Hello': %v\n", strList.Search("Hello", strEquals))
+	strList.Delete("Hello", strEquals)
+	strList.Print()
+}
 
-	// String List
-	strDouble := linkedlist.NewDouble[string]("Merhaba")
-	strDouble.AddToEnd("Dünya")
-	strDouble.AddToSequentially("Go", strLess)
-	fmt.Println("\nString Double List (İleri):")
-	strDouble.Print(false)
-	fmt.Println("String Double List (Geri):")
-	strDouble.Print(true)
+func doubleListExamples() {
+	// Create a new Double List with integers
+	intList := linkedlist.NewDouble[int](10)
 
-	// Circular Linked List örnekleri
-	fmt.Println("\nCircular Linked List Örnekleri:")
+	// Define comparison functions
+	intLess := func(a, b int) bool { return a < b }
+	intEquals := func(a, b int) bool { return a == b }
 
-	// Integer List
-	intCircular := linkedlist.NewCircular[int](10)
-	intCircular.AddToEnd(20)
-	intCircular.AddToEnd(30)
-	intCircular.AddToSequentially(15, intLess)
-	fmt.Println("\nInteger Circular List:")
-	intCircular.Print()
+	// Add elements sequentially
+	fmt.Println("\nAdding elements sequentially:")
+	intList.AddToSequentially(5, intLess)
+	intList.AddToSequentially(15, intLess)
+	intList.AddToSequentially(12, intLess)
 
-	// String List
-	strCircular := linkedlist.NewCircular[string]("Merhaba")
-	strCircular.AddToEnd("Dünya")
-	strCircular.AddToSequentially("Go", strLess)
-	fmt.Println("\nString Circular List:")
-	strCircular.Print()
+	// Print forward and backward
+	fmt.Println("Forward traversal:")
+	intList.Print(false)
+	fmt.Println("Backward traversal:")
+	intList.Print(true)
 
-	// Custom struct örneği
+	// Add element after a specific value
+	fmt.Println("\nAdding 13 after 12:")
+	intList.AddToAfter(13, 12, intEquals)
+	intList.Print(false)
+
+	// Delete elements
+	fmt.Println("\nDeleting 12:")
+	intList.Delete(12, intEquals)
+	intList.Print(false)
+}
+
+func circularListExamples() {
+	// Create a new Circular List with integers
+	intList := linkedlist.NewCircular[int](10)
+
+	// Define comparison functions
+	intLess := func(a, b int) bool { return a < b }
+	intEquals := func(a, b int) bool { return a == b }
+
+	// Add elements sequentially
+	fmt.Println("\nAdding elements sequentially:")
+	intList.AddToSequentially(5, intLess)
+	intList.AddToSequentially(15, intLess)
+	intList.AddToSequentially(12, intLess)
+	intList.Print()
+
+	// Add element after a specific value
+	fmt.Println("\nAdding 13 after 12:")
+	intList.AddToAfter(13, 12, intEquals)
+	intList.Print()
+
+	// Delete elements
+	fmt.Println("\nDeleting 12:")
+	intList.Delete(12, intEquals)
+	intList.Print()
+}
+
+func customTypeExamples() {
+	// Define a custom type
 	type Person struct {
 		Name string
 		Age  int
 	}
 
-	// Person karşılaştırma fonksiyonları
+	// Create comparison functions for Person type
 	personLess := func(a, b Person) bool { return a.Age < b.Age }
+	personEquals := func(a, b Person) bool {
+		return a.Name == b.Name && a.Age == b.Age
+	}
 
-	// Linear List with Person
-	personLinear := linkedlist.NewLinear[Person](Person{Name: "Ali", Age: 25})
-	personLinear.AddToEnd(Person{Name: "Ayşe", Age: 30})
-	personLinear.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
-	fmt.Println("\nPerson Linear List:")
-	personLinear.Print()
+	// Create lists of different types with Person
+	linearList := linkedlist.NewLinear[Person](Person{Name: "Alice", Age: 25})
+	doubleList := linkedlist.NewDouble[Person](Person{Name: "Bob", Age: 30})
+	circularList := linkedlist.NewCircular[Person](Person{Name: "Charlie", Age: 35})
 
-	// Double List with Person
-	personDouble := linkedlist.NewDouble[Person](Person{Name: "Ali", Age: 25})
-	personDouble.AddToEnd(Person{Name: "Ayşe", Age: 30})
-	personDouble.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
-	fmt.Println("\nPerson Double List:")
-	personDouble.Print(false)
+	// Add elements to Linear List
+	fmt.Println("\nLinear List with Person type:")
+	linearList.AddToSequentially(Person{Name: "David", Age: 20}, personLess)
+	linearList.AddToSequentially(Person{Name: "Eve", Age: 28}, personLess)
+	linearList.Print()
 
-	// Circular List with Person
-	personCircular := linkedlist.NewCircular[Person](Person{Name: "Ali", Age: 25})
-	personCircular.AddToEnd(Person{Name: "Ayşe", Age: 30})
-	personCircular.AddToSequentially(Person{Name: "Mehmet", Age: 28}, personLess)
-	fmt.Println("\nPerson Circular List:")
-	personCircular.Print()
+	// Search and delete operations with Person type
+	searchPerson := Person{Name: "David", Age: 20}
+	fmt.Printf("Search for %v: %v\n", searchPerson, linearList.Search(searchPerson, personEquals))
+	linearList.Delete(searchPerson, personEquals)
+	linearList.Print()
+
+	// Add elements to Double List
+	fmt.Println("\nDouble List with Person type:")
+	doubleList.AddToSequentially(Person{Name: "Frank", Age: 22}, personLess)
+	doubleList.AddToSequentially(Person{Name: "Grace", Age: 33}, personLess)
+	doubleList.Print(false)
+	fmt.Println("Backward traversal:")
+	doubleList.Print(true)
+
+	// Add elements to Circular List
+	fmt.Println("\nCircular List with Person type:")
+	circularList.AddToSequentially(Person{Name: "Henry", Age: 27}, personLess)
+	circularList.AddToSequentially(Person{Name: "Ivy", Age: 40}, personLess)
+	circularList.Print()
 }
