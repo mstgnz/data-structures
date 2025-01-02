@@ -5,26 +5,24 @@ import (
 	"sync"
 )
 
-type LinkedListStack struct {
-	X     int
-	Next  *LinkedListStack
+// LinkedListStack represents a generic linked list-based stack
+type LinkedListStack[T comparable] struct {
+	X     T
+	Next  *LinkedListStack[T]
 	mutex sync.RWMutex
 }
 
-func NewLinkedListStack(data int) *LinkedListStack {
-	return &LinkedListStack{X: data, Next: nil, mutex: sync.RWMutex{}}
+// NewLinkedListStack creates a new generic linked list-based stack
+func NewLinkedListStack[T comparable](data T) *LinkedListStack[T] {
+	return &LinkedListStack[T]{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Push adds data at the beginning (LIFO)
-func (arr *LinkedListStack) Push(data int) {
+func (arr *LinkedListStack[T]) Push(data T) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
-	if arr.X == -1 {
-		arr.X = data
-		return
-	}
-	newNode := &LinkedListStack{X: data, Next: nil}
+	newNode := &LinkedListStack[T]{X: data, Next: nil}
 	newNode.Next = arr.Next
 	arr.Next = newNode
 	temp := arr.X
@@ -33,15 +31,16 @@ func (arr *LinkedListStack) Push(data int) {
 }
 
 // Pop removes data from the beginning
-func (arr *LinkedListStack) Pop() {
+func (arr *LinkedListStack[T]) Pop() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
-	if arr.X == -1 && arr.Next == nil {
+	var zero T
+	if arr.X == zero && arr.Next == nil {
 		return
 	}
 	if arr.Next == nil {
-		arr.X = -1
+		arr.X = zero
 		return
 	}
 	arr.X = arr.Next.X
@@ -49,29 +48,29 @@ func (arr *LinkedListStack) Pop() {
 }
 
 // IsEmpty returns true if stack is empty
-func (arr *LinkedListStack) IsEmpty() bool {
+func (arr *LinkedListStack[T]) IsEmpty() bool {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
-	return arr.X == -1 && arr.Next == nil
+	var zero T
+	return arr.X == zero && arr.Next == nil
 }
 
 // List returns a slice of stack data
-func (arr *LinkedListStack) List() []int {
+func (arr *LinkedListStack[T]) List() []T {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
-	var list []int
+	var list []T
 	iter := arr
-	for iter != nil {
-		if iter.X != -1 {
-			list = append(list, iter.X)
-		}
+	list = append(list, iter.X)
+	for iter.Next != nil {
 		iter = iter.Next
+		list = append(list, iter.X)
 	}
 	return list
 }
 
 // Print displays stack data
-func (arr *LinkedListStack) Print() {
+func (arr *LinkedListStack[T]) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

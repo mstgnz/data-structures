@@ -32,9 +32,12 @@ examples/
 - Real-world use cases
 
 #### Stack Examples (`stack/stack_examples.go`)
-- Array-based stack implementation
-- Linked List-based stack implementation
+- Array-based stack implementation with generic type support
+- Linked List-based stack implementation with generic type support
 - LIFO (Last In First Out) operations
+- Support for any comparable type
+- Examples with different data types (int, string, custom structs)
+- Thread-safe operations
 - Expression evaluation examples
 - Practical stack applications
 

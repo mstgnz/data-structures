@@ -5,16 +5,18 @@ import (
 	"sync"
 )
 
-type ArrayStack struct {
-	Arr     []int
+// ArrayStack represents a generic array-based stack
+type ArrayStack[T any] struct {
+	Arr     []T
 	ArrSize int
 	Index   int
 	mutex   sync.RWMutex
 }
 
-func NewArrayStack() *ArrayStack {
-	return &ArrayStack{
-		Arr:     []int{0, 0},
+// NewArrayStack creates a new generic array-based stack
+func NewArrayStack[T any]() *ArrayStack[T] {
+	return &ArrayStack[T]{
+		Arr:     make([]T, 2),
 		ArrSize: 2,
 		Index:   0,
 		mutex:   sync.RWMutex{},
@@ -22,15 +24,13 @@ func NewArrayStack() *ArrayStack {
 }
 
 // Push adds data to the stack
-func (arr *ArrayStack) Push(data int) {
+func (arr *ArrayStack[T]) Push(data T) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
 	if arr.Index >= arr.ArrSize {
-		newArr := make([]int, arr.ArrSize*2)
-		for i := 0; i < arr.ArrSize; i++ {
-			newArr[i] = arr.Arr[i]
-		}
+		newArr := make([]T, arr.ArrSize*2)
+		copy(newArr, arr.Arr)
 		arr.Arr = newArr
 		arr.ArrSize *= 2
 	}
@@ -39,7 +39,7 @@ func (arr *ArrayStack) Push(data int) {
 }
 
 // Pop removes data from the stack
-func (arr *ArrayStack) Pop() {
+func (arr *ArrayStack[T]) Pop() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -47,29 +47,28 @@ func (arr *ArrayStack) Pop() {
 		return
 	}
 	arr.Index--
-	arr.Arr[arr.Index] = 0
+	var zero T
+	arr.Arr[arr.Index] = zero
 	if arr.Index <= arr.ArrSize/4 && arr.ArrSize > 2 {
-		newArr := make([]int, arr.ArrSize/2)
-		for i := 0; i < arr.Index; i++ {
-			newArr[i] = arr.Arr[i]
-		}
+		newArr := make([]T, arr.ArrSize/2)
+		copy(newArr, arr.Arr[:arr.Index])
 		arr.Arr = newArr
 		arr.ArrSize /= 2
 	}
 }
 
 // IsEmpty returns true if stack is empty
-func (arr *ArrayStack) IsEmpty() bool {
+func (arr *ArrayStack[T]) IsEmpty() bool {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	return arr.Index == 0
 }
 
 // List returns a slice of stack data
-func (arr *ArrayStack) List() []int {
+func (arr *ArrayStack[T]) List() []T {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
-	var list []int
+	var list []T
 	for i := 0; i < arr.Index; i++ {
 		list = append(list, arr.Arr[i])
 	}
@@ -77,7 +76,7 @@ func (arr *ArrayStack) List() []int {
 }
 
 // Print displays stack data
-func (arr *ArrayStack) Print() {
+func (arr *ArrayStack[T]) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

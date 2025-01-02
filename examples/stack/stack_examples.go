@@ -10,7 +10,7 @@ import (
 func RunExamples() {
 	// Example 1: Array-based Stack
 	fmt.Println("Array Stack Example:")
-	arrayStack := stack.NewArrayStack()
+	arrayStack := stack.NewArrayStack[int]()
 
 	fmt.Println("Pushing elements:")
 	arrayStack.Push(1)
