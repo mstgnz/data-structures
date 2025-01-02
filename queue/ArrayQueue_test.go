@@ -18,10 +18,10 @@ func TestArrayQueue_New(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := ArrayQueue()
+			queue := NewArrayQueue()
 			got := queue.List()
 			if len(got) != len(tt.want) {
-				t.Errorf("ArrayQueue() = %v, want %v", got, tt.want)
+				t.Errorf("NewArrayQueue() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -47,7 +47,7 @@ func TestArrayQueue_Enqueue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := ArrayQueue()
+			queue := NewArrayQueue()
 			for _, v := range tt.data {
 				queue.Enqueue(v)
 			}
@@ -90,7 +90,7 @@ func TestArrayQueue_Dequeue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := ArrayQueue()
+			queue := NewArrayQueue()
 			for _, v := range tt.init {
 				queue.Enqueue(v)
 			}
@@ -132,7 +132,7 @@ func TestArrayQueue_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := ArrayQueue()
+			queue := NewArrayQueue()
 			for _, v := range tt.data {
 				queue.Enqueue(v)
 			}
@@ -142,7 +142,7 @@ func TestArrayQueue_Print(t *testing.T) {
 }
 
 func TestArrayQueue_ReSort(t *testing.T) {
-	queue := ArrayQueue()
+	queue := NewArrayQueue()
 	// Fill the queue
 	for i := 0; i < 10; i++ {
 		queue.Enqueue(i)
@@ -173,21 +173,21 @@ func TestArrayQueue_ReSort(t *testing.T) {
 func TestArrayQueue_reSort(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() IArrayQueue
+		setup    func() *ArrayQueue
 		expected []int
 	}{
 		{
 			name: "resort_empty_queue",
-			setup: func() IArrayQueue {
-				queue := ArrayQueue()
+			setup: func() *ArrayQueue {
+				queue := NewArrayQueue()
 				return queue
 			},
 			expected: []int{},
 		},
 		{
 			name: "resort_single_element",
-			setup: func() IArrayQueue {
-				queue := ArrayQueue()
+			setup: func() *ArrayQueue {
+				queue := NewArrayQueue()
 				queue.Enqueue(1)
 				queue.Dequeue()
 				return queue
@@ -196,8 +196,8 @@ func TestArrayQueue_reSort(t *testing.T) {
 		},
 		{
 			name: "resort_multiple_elements",
-			setup: func() IArrayQueue {
-				queue := ArrayQueue()
+			setup: func() *ArrayQueue {
+				queue := NewArrayQueue()
 				queue.Enqueue(1)
 				queue.Enqueue(2)
 				queue.Enqueue(3)
@@ -210,8 +210,8 @@ func TestArrayQueue_reSort(t *testing.T) {
 		},
 		{
 			name: "resort_full_queue",
-			setup: func() IArrayQueue {
-				queue := ArrayQueue()
+			setup: func() *ArrayQueue {
+				queue := NewArrayQueue()
 				for i := 0; i < 10; i++ {
 					queue.Enqueue(i)
 				}
@@ -237,7 +237,7 @@ func TestArrayQueue_reSort(t *testing.T) {
 }
 
 func BenchmarkArrayQueue_Enqueue(b *testing.B) {
-	queue := ArrayQueue()
+	queue := NewArrayQueue()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		queue.Enqueue(i)
@@ -245,7 +245,7 @@ func BenchmarkArrayQueue_Enqueue(b *testing.B) {
 }
 
 func BenchmarkArrayQueue_Dequeue(b *testing.B) {
-	queue := ArrayQueue()
+	queue := NewArrayQueue()
 	for i := 0; i < 1000; i++ {
 		queue.Enqueue(i)
 	}

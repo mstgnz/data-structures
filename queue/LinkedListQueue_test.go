@@ -24,7 +24,7 @@ func TestLinkedListQueue_New(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := LinkedListQueue(tt.data)
+			queue := NewLinkedListQueue(tt.data)
 			got := queue.List()
 			for i, v := range got {
 				if v != tt.want[i] {
@@ -64,7 +64,7 @@ func TestLinkedListQueue_Enqueue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := LinkedListQueue(tt.init)
+			queue := NewLinkedListQueue(tt.init)
 			for _, v := range tt.data {
 				queue.Enqueue(v)
 			}
@@ -111,7 +111,7 @@ func TestLinkedListQueue_Dequeue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := LinkedListQueue(tt.init)
+			queue := NewLinkedListQueue(tt.init)
 			for _, v := range tt.enqueue {
 				queue.Enqueue(v)
 			}
@@ -153,7 +153,7 @@ func TestLinkedListQueue_Print(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			queue := LinkedListQueue(0)
+			queue := NewLinkedListQueue(0)
 			for _, v := range tt.data {
 				queue.Enqueue(v)
 			}
@@ -163,7 +163,7 @@ func TestLinkedListQueue_Print(t *testing.T) {
 }
 
 func BenchmarkLinkedListQueue_Enqueue(b *testing.B) {
-	queue := LinkedListQueue(-1)
+	queue := NewLinkedListQueue(-1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		queue.Enqueue(i)
@@ -171,7 +171,7 @@ func BenchmarkLinkedListQueue_Enqueue(b *testing.B) {
 }
 
 func BenchmarkLinkedListQueue_Dequeue(b *testing.B) {
-	queue := LinkedListQueue(-1)
+	queue := NewLinkedListQueue(-1)
 	for i := 0; i < 1000; i++ {
 		queue.Enqueue(i)
 	}

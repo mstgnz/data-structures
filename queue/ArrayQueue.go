@@ -5,15 +5,7 @@ import (
 	"sync"
 )
 
-type IArrayQueue interface {
-	Enqueue(data int)
-	Dequeue()
-	List() []int
-	Print()
-	reSort()
-}
-
-type arrayQueue struct {
+type ArrayQueue struct {
 	Arr        []int
 	ArrSize    int
 	FirstIndex int
@@ -21,8 +13,8 @@ type arrayQueue struct {
 	mutex      sync.RWMutex
 }
 
-func ArrayQueue() IArrayQueue {
-	return &arrayQueue{
+func NewArrayQueue() *ArrayQueue {
+	return &ArrayQueue{
 		Arr:        []int{0, 0},
 		ArrSize:    2,
 		FirstIndex: 0,
@@ -32,7 +24,7 @@ func ArrayQueue() IArrayQueue {
 }
 
 // Enqueue adds data to the queue
-func (arr *arrayQueue) Enqueue(data int) {
+func (arr *ArrayQueue) Enqueue(data int) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -57,7 +49,7 @@ func (arr *arrayQueue) Enqueue(data int) {
 }
 
 // Dequeue removes data from the queue
-func (arr *arrayQueue) Dequeue() {
+func (arr *ArrayQueue) Dequeue() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -82,7 +74,7 @@ func (arr *arrayQueue) Dequeue() {
 }
 
 // reSort reorders the queue data
-func (arr *arrayQueue) reSort() {
+func (arr *ArrayQueue) reSort() {
 	newArr := make([]int, arr.ArrSize)
 	sort := 0
 	for i := arr.FirstIndex; i < arr.LastIndex; i++ {
@@ -95,7 +87,7 @@ func (arr *arrayQueue) reSort() {
 }
 
 // List returns a slice of queue data
-func (arr *arrayQueue) List() []int {
+func (arr *ArrayQueue) List() []int {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 
@@ -110,7 +102,7 @@ func (arr *arrayQueue) List() []int {
 }
 
 // Print displays queue data
-func (arr *arrayQueue) Print() {
+func (arr *ArrayQueue) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

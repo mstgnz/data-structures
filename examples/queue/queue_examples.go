@@ -10,7 +10,7 @@ import (
 func RunExamples() {
 	// Example 1: Array-based Queue
 	fmt.Println("Array Queue Example:")
-	arrayQueue := queue.ArrayQueue()
+	arrayQueue := queue.NewArrayQueue()
 
 	fmt.Println("Enqueuing elements:")
 	arrayQueue.Enqueue(1)
@@ -26,7 +26,7 @@ func RunExamples() {
 
 	// Example 2: LinkedList-based Queue
 	fmt.Println("LinkedList Queue Example:")
-	linkedQueue := queue.LinkedListQueue(0)
+	linkedQueue := queue.NewLinkedListQueue(0)
 
 	fmt.Println("Enqueuing elements:")
 	linkedQueue.Enqueue(10)
