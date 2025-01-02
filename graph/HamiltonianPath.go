@@ -167,11 +167,7 @@ func (hp *HamiltonianPath) HasHamiltonianCircuit() bool {
 	hp.path = []int{0}
 	hp.visited[0] = true
 
-	if hp.hamiltonianCircuitUtil(1) {
-		return true
-	}
-
-	return false
+	return hp.hamiltonianCircuitUtil(1)
 }
 
 // GetPath returns the last found path
