@@ -5,44 +5,80 @@ This repository contains implementations of various data structures and algorith
 ## 📚 Data Structures
 
 ### Basic Data Structures
-- **Linked List**
+- **Linked List** - [Documentation](linkedlist/README.md)
   - Singly Linked List
   - Doubly Linked List
   - Circular Linked List
-- **Stack**
-  - Array-based implementation
-  - Linked List-based implementation
-- **Queue**
-  - Simple Queue
+  - Iterator Pattern Implementation
+  - Thread-safe Operations
+- **Stack** - [Documentation](stack/README.md)
+  - Array-based Implementation
+  - Linked List-based Implementation
+  - Thread-safe Operations
+  - Generic Type Support
+- **Queue** - [Documentation](queue/README.md)
+  - Array Queue Implementation
+  - Linked List Queue Implementation
   - Priority Queue
   - Circular Queue
-- **Tree**
+  - Thread-safe Operations
+  - Generic Type Support
+- **Tree** - [Documentation](tree/README.md)
   - Binary Tree
   - Binary Search Tree (BST)
-  - AVL Tree
-- **Heap**
+  - AVL Tree (Self-balancing)
+  - Red-Black Tree
+  - B-Tree
+  - Trie (Prefix Tree)
+  - N-ary Tree
+  - Expression Tree
+  - Thread-safe Operations
+- **Heap** - [Documentation](heap/README.md)
+  - Binary Heap
   - Min Heap
   - Max Heap
-- **Hash**
+  - Fibonacci Heap
+  - Binomial Heap
+  - Priority Queue Implementation
+  - Thread-safe Operations
+- **Hash** - [Documentation](hash/README.md)
   - Hash Table
-  - Hash Map implementations
-- **OrderedMap**
-  - Thread-safe implementation
-  - Order preservation
-  - Concurrent operations support
-  - Advanced features (Copy, Clear, Range iteration)
+  - Hash Map
+  - Hash Set
+  - Consistent Hashing
+  - Linear Probing
+  - Quadratic Probing
+  - Double Hashing
+  - Separate Chaining
+  - Thread-safe Operations
+- **OrderedMap** - [Documentation](orderedmap/README.md)
+  - Thread-safe Implementation
+  - Order Preservation
+  - Concurrent Operations Support
+  - Skip List Implementation
+  - Advanced Features (Copy, Clear, Range iteration)
+  - Generic Type Support
 
 ### Advanced Data Structures
-- **Graph**
+- **Graph** - [Documentation](graph/README.md)
   - Adjacency Matrix
   - Adjacency List
+  - Weighted Graph
+  - Directed Graph
+  - Undirected Graph
   - Graph Algorithms
     - Depth First Search (DFS)
     - Breadth First Search (BFS)
+    - Dijkstra's Algorithm
+    - Bellman-Ford Algorithm
+    - Floyd-Warshall Algorithm
+    - Kruskal's Algorithm
+    - Prim's Algorithm
     - Topological Sort
-    - Shortest Path Algorithms
+    - Strongly Connected Components
+    - Cycle Detection
 
-## 🔧 Algorithms
+## 🔧 Algorithms - [Documentation](algorithms/README.md)
 
 ### Sorting Algorithms
 - Bubble Sort
@@ -78,42 +114,37 @@ go test ./...
 
 You can find example implementations in the `examples` directory. Each data structure and algorithm includes its own test files demonstrating usage patterns.
 
+### Example: Using a Linked List
 ```go
-// Example: Creating and using a Binary Search Tree
-import "github.com/mstgnz/data-structures/tree"
+import "github.com/mstgnz/data-structures/linkedlist"
 
-bst := tree.NewBST()
-bst.Insert(5)
-bst.Insert(3)
-bst.Insert(7)
+// Create a new doubly linked list
+list := linkedlist.NewDouble()
+list.Add(1)
+list.Add(2)
+list.Add(3)
 ```
 
+### Example: Using a Stack
 ```go
-// Example: Using OrderedMap with thread-safety and order preservation
-import "github.com/mstgnz/data-structures/orderedmap"
+import "github.com/mstgnz/data-structures/stack"
 
-om := orderedmap.New()
+// Create a new array-based stack
+stack := stack.NewArrayStack()
+stack.Push(1)
+stack.Push(2)
+value, _ := stack.Pop()
+```
 
-// Adding elements (order is preserved)
-om.Set("first", 1)
-om.Set("second", 2)
-om.Set("third", 3)
+### Example: Using a Queue
+```go
+import "github.com/mstgnz/data-structures/queue"
 
-// Reading values
-if val, exists := om.Get("second"); exists {
-    fmt.Printf("Value: %v\n", val)
-}
-
-// Iterating in order
-om.Range(func(key, value any) bool {
-    fmt.Printf("%v: %v\n", key, value)
-    return true
-})
-
-// Thread-safe operations
-go func() {
-    om.Set("concurrent", 42)
-}()
+// Create a new array-based queue
+queue := queue.NewArrayQueue()
+queue.Enqueue(1)
+queue.Enqueue(2)
+value, _ := queue.Dequeue()
 ```
 
 ## 🤝 Contributing
@@ -131,13 +162,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ├── advanced/      # Advanced data structures
 ├── examples/      # Usage examples
 ├── graph/         # Graph implementations
-├── hash/          # Hash table implementations
-├── heap/          # Heap implementations
-├── linkedlist/    # Linked list implementations
-├── queue/         # Queue implementations
-├── stack/         # Stack implementations
-├── tree/          # Tree implementations
-└── utils/         # Utility functions
+├── hash/         # Hash table implementations
+├── heap/         # Heap implementations
+├── linkedlist/   # Linked list implementations
+├── orderedmap/   # Ordered map implementations
+├── queue/        # Queue implementations
+├── stack/        # Stack implementations
+├── tree/         # Tree implementations
+└── utils/        # Utility functions
 ```
 
 ## ✨ Features
