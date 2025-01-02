@@ -114,3 +114,46 @@ func (om *OrderedMap) String() string {
 	result += "}"
 	return result
 }
+
+// Range iterates over the map in order and calls the given function for each key-value pair
+// If the function returns false, the iteration stops
+func (om *OrderedMap) Range(f func(key, value any) bool) {
+	om.mu.RLock()
+	defer om.mu.RUnlock()
+
+	for _, pair := range om.pairs {
+		if !f(pair.Key, pair.Value) {
+			break
+		}
+	}
+}
+
+// Clear removes all elements from the map
+func (om *OrderedMap) Clear() {
+	om.mu.Lock()
+	defer om.mu.Unlock()
+
+	om.pairs = make([]Pair, 0)
+	om.keyIndex = make(map[any]int)
+}
+
+// Copy returns a new OrderedMap with the same elements
+func (om *OrderedMap) Copy() *OrderedMap {
+	om.mu.RLock()
+	defer om.mu.RUnlock()
+
+	newMap := New()
+	for _, pair := range om.pairs {
+		newMap.Set(pair.Key, pair.Value)
+	}
+	return newMap
+}
+
+// Has returns true if the key exists in the map
+func (om *OrderedMap) Has(key any) bool {
+	om.mu.RLock()
+	defer om.mu.RUnlock()
+
+	_, exists := om.keyIndex[key]
+	return exists
+}
