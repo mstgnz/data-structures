@@ -136,8 +136,22 @@ func (hp *HamiltonianPath) HasHamiltonianPath() bool {
 	hp.mutex.Lock()
 	defer hp.mutex.Unlock()
 
-	path := hp.FindHamiltonianPath()
-	return path != nil
+	n := hp.graph.GetVertices()
+	hp.path = make([]int, 0)
+	hp.visited = make([]bool, n)
+
+	// Try starting from each node
+	for start := 0; start < n; start++ {
+		hp.path = []int{start}
+		hp.visited = make([]bool, n)
+		hp.visited[start] = true
+
+		if hp.hamiltonianPathUtil(1) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // HasHamiltonianCircuit checks if the graph has a Hamiltonian circuit
@@ -145,8 +159,19 @@ func (hp *HamiltonianPath) HasHamiltonianCircuit() bool {
 	hp.mutex.Lock()
 	defer hp.mutex.Unlock()
 
-	circuit := hp.FindHamiltonianCircuit()
-	return circuit != nil
+	n := hp.graph.GetVertices()
+	hp.path = make([]int, 0)
+	hp.visited = make([]bool, n)
+
+	// Start from 0
+	hp.path = []int{0}
+	hp.visited[0] = true
+
+	if hp.hamiltonianCircuitUtil(1) {
+		return true
+	}
+
+	return false
 }
 
 // GetPath returns the last found path
@@ -200,10 +225,33 @@ func (hp *HamiltonianPath) IsHamiltonianCircuit(circuit []int) bool {
 		return false
 	}
 
+	// Check if first and last vertices are the same
 	if circuit[0] != circuit[len(circuit)-1] {
 		return false
 	}
 
-	// Check if the path is a valid Hamiltonian path without the last node
-	return hp.IsHamiltonianPath(circuit[:len(circuit)-1])
+	// Check if each node (except last) is used once
+	visited := make([]bool, hp.graph.GetVertices())
+	for i := 0; i < len(circuit)-1; i++ {
+		if visited[circuit[i]] {
+			return false
+		}
+		visited[circuit[i]] = true
+	}
+
+	// Check if there's an edge between consecutive nodes
+	for i := 0; i < len(circuit)-1; i++ {
+		hasEdge := false
+		for _, edge := range hp.graph.adjList[circuit[i]] {
+			if edge.To == circuit[i+1] {
+				hasEdge = true
+				break
+			}
+		}
+		if !hasEdge {
+			return false
+		}
+	}
+
+	return true
 }
