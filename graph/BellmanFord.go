@@ -53,7 +53,6 @@ func (bf *BellmanFord) initialize() {
 }
 
 // ComputeShortestPaths computes single-source shortest paths
-// Returns true if no negative cycle is reachable from the source
 func (bf *BellmanFord) ComputeShortestPaths() bool {
 	bf.mutex.Lock()
 	defer bf.mutex.Unlock()
@@ -66,10 +65,9 @@ func (bf *BellmanFord) ComputeShortestPaths() bool {
 		for _, edge := range edges {
 			if bf.dist[edge.From] != bf.infinity {
 				newDist := bf.dist[edge.From] + float64(edge.Weight)
-				if newDist < bf.dist[edge.To] {
+				if bf.dist[edge.To] == bf.infinity || newDist < bf.dist[edge.To] {
 					bf.dist[edge.To] = newDist
 					bf.prev[edge.To] = edge.From
-					bf.reachable[edge.To] = true
 				}
 			}
 		}
@@ -86,29 +84,38 @@ func (bf *BellmanFord) ComputeShortestPaths() bool {
 		}
 	}
 
-	// Update reachability using DFS
+	// Update reachability
 	bf.updateReachability()
-
 	return true
 }
 
-// updateReachability performs DFS to mark reachable vertices
+// updateReachability performs BFS to mark reachable vertices
 func (bf *BellmanFord) updateReachability() {
-	visited := make([]bool, bf.graph.GetVertices())
-	bf.dfs(bf.source, visited)
+	n := bf.graph.GetVertices()
+	visited := make([]bool, n)
+	queue := []int{bf.source}
+	visited[bf.source] = true
+	bf.reachable[bf.source] = true
 
-	// Update reachability based on DFS results
-	for i := range bf.reachable {
-		bf.reachable[i] = visited[i]
+	for len(queue) > 0 {
+		v := queue[0]
+		queue = queue[1:]
+
+		for _, edge := range bf.graph.adjList[v] {
+			if !visited[edge.To] {
+				visited[edge.To] = true
+				bf.reachable[edge.To] = true
+				queue = append(queue, edge.To)
+			}
+		}
 	}
-}
 
-// dfs performs depth-first search for reachability
-func (bf *BellmanFord) dfs(v int, visited []bool) {
-	visited[v] = true
-	for _, edge := range bf.graph.adjList[v] {
-		if !visited[edge.To] {
-			bf.dfs(edge.To, visited)
+	// Reset distances for unreachable vertices
+	for i := 0; i < n; i++ {
+		if !visited[i] {
+			bf.dist[i] = bf.infinity
+			bf.prev[i] = -1
+			bf.reachable[i] = false
 		}
 	}
 }
@@ -144,14 +151,13 @@ func (bf *BellmanFord) GetPath(to int) []int {
 	bf.mutex.RLock()
 	defer bf.mutex.RUnlock()
 
-	if bf.hasNegativeCycle || !bf.reachable[to] {
+	if bf.hasNegativeCycle || !bf.reachable[to] || bf.dist[to] == bf.infinity {
 		return nil
 	}
 
-	// Check for cycles in the path
-	visited := make(map[int]bool)
 	path := make([]int, 0)
 	curr := to
+	visited := make(map[int]bool)
 
 	for curr != -1 {
 		if visited[curr] {
@@ -162,8 +168,7 @@ func (bf *BellmanFord) GetPath(to int) []int {
 		curr = bf.prev[curr]
 	}
 
-	// Verify path starts from source
-	if len(path) > 0 && path[0] != bf.source {
+	if path[0] != bf.source {
 		return nil
 	}
 
