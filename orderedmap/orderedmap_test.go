@@ -1,6 +1,7 @@
 package orderedmap
 
 import (
+	"encoding/json"
 	"sync"
 	"testing"
 )
@@ -333,4 +334,135 @@ func TestOrderedMap_ConcurrentRangeAndModify(t *testing.T) {
 	}()
 
 	wg.Wait()
+}
+
+func TestOrderedMap_JSONMarshaling(t *testing.T) {
+	om := New()
+
+	// Test data structure
+	type Person struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	// Test data
+	testData := map[string]interface{}{
+		"user1": Person{Name: "John", Age: 30},
+		"user2": Person{Name: "Mike", Age: 25},
+		"settings": map[string]string{
+			"theme": "dark",
+			"lang":  "en",
+		},
+	}
+
+	// Add data to OrderedMap
+	for k, v := range testData {
+		om.Set(k, v)
+	}
+
+	t.Run("Marshal to JSON", func(t *testing.T) {
+		// Convert OrderedMap to standard map
+		data := make(map[string]interface{})
+		om.Range(func(key, value interface{}) bool {
+			// Convert Person struct to JSON then to map
+			if _, ok := value.(Person); ok {
+				jsonBytes, err := json.Marshal(value)
+				if err != nil {
+					t.Errorf("Person marshal error: %v", err)
+					return false
+				}
+				var personMap map[string]interface{}
+				if err := json.Unmarshal(jsonBytes, &personMap); err != nil {
+					t.Errorf("Person unmarshal error: %v", err)
+					return false
+				}
+				data[key.(string)] = personMap
+			} else {
+				data[key.(string)] = value
+			}
+			return true
+		})
+
+		// Convert to JSON
+		jsonData, err := json.Marshal(data)
+		if err != nil {
+			t.Errorf("JSON marshal error: %v", err)
+			return
+		}
+
+		// Convert JSON back to map
+		var unmarshaledData map[string]interface{}
+		if err := json.Unmarshal(jsonData, &unmarshaledData); err != nil {
+			t.Errorf("JSON unmarshal error: %v", err)
+			return
+		}
+
+		// Compare settings data
+		settingsData, ok := unmarshaledData["settings"].(map[string]interface{})
+		if !ok {
+			t.Error("settings data is not of type map[string]interface{}")
+			return
+		}
+
+		expectedSettings := testData["settings"].(map[string]string)
+		if settingsData["theme"] != expectedSettings["theme"] ||
+			settingsData["lang"] != expectedSettings["lang"] {
+			t.Errorf("Settings data does not match.\nExpected: %v\nGot: %v",
+				expectedSettings, settingsData)
+		}
+
+		// Compare User1 data
+		user1Data, ok := unmarshaledData["user1"].(map[string]interface{})
+		if !ok {
+			t.Error("user1 data is not of type map[string]interface{}")
+			return
+		}
+
+		expectedUser1 := testData["user1"].(Person)
+		if user1Data["name"] != expectedUser1.Name ||
+			int(user1Data["age"].(float64)) != expectedUser1.Age {
+			t.Errorf("User1 data does not match.\nExpected: %v\nGot: %v",
+				expectedUser1, user1Data)
+		}
+	})
+
+	t.Run("Unmarshal from JSON", func(t *testing.T) {
+		jsonStr := `{
+			"user1": {"name": "Bob", "age": 35},
+			"user2": {"name": "Alice", "age": 28},
+			"settings": {"theme": "light", "lang": "en"}
+		}`
+
+		// Parse JSON
+		var parsedData map[string]interface{}
+		if err := json.Unmarshal([]byte(jsonStr), &parsedData); err != nil {
+			t.Errorf("JSON parse error: %v", err)
+			return
+		}
+
+		// Create new OrderedMap and add parsed data
+		newOm := New()
+		for k, v := range parsedData {
+			newOm.Set(k, v)
+		}
+
+		// Check data
+		if val, exists := newOm.Get("user1"); !exists {
+			t.Error("user1 data not found")
+		} else {
+			userData := val.(map[string]interface{})
+			if userData["name"] != "Bob" || userData["age"].(float64) != 35 {
+				t.Errorf("user1 data is invalid: %v", userData)
+			}
+		}
+
+		if val, exists := newOm.Get("settings"); !exists {
+			t.Error("settings data not found")
+		} else {
+			settings := val.(map[string]interface{})
+			if settings["theme"] != "light" || settings["lang"] != "en" {
+				t.Errorf("settings data is invalid: %v", settings)
+			}
+		}
+	})
 }

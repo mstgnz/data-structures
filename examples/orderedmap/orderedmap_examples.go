@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -21,6 +22,9 @@ func main() {
 
 	fmt.Println("\n=== Advanced Features Example ===")
 	advancedFeaturesExample()
+
+	fmt.Println("\n=== JSON Examples ===")
+	jsonExamples()
 }
 
 func basicOperationsExample() {
@@ -148,4 +152,68 @@ func advancedFeaturesExample() {
 	om.Clear()
 	fmt.Println("\nAfter clearing the map:", om)
 	fmt.Printf("Map size after clear: %d\n", om.Len())
+}
+
+// Person represents a sample struct
+type JsonPerson struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
+func jsonExamples() {
+	om := orderedmap.New()
+
+	// Let's add some data
+	om.Set("user1", JsonPerson{Name: "Jhon", Age: 35})
+	om.Set("user2", JsonPerson{Name: "Jane", Age: 28})
+	om.Set("settings", map[string]string{
+		"theme": "dark",
+		"lang":  "en",
+	})
+
+	// Marshal example
+	fmt.Println("=== Marshal Example ===")
+	data := make(map[string]interface{})
+
+	// Convert data from OrderedMap to standard map
+	om.Range(func(key, value interface{}) bool {
+		data[fmt.Sprint(key)] = value
+		return true
+	})
+
+	// Convert to JSON
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		fmt.Printf("Marshal error: %v\n", err)
+		return
+	}
+	fmt.Printf("JSON output:\n%s\n\n", string(jsonData))
+
+	// Unmarshal example
+	fmt.Println("=== Unmarshal Example ===")
+	jsonStr := `{
+		"user1": {"name": "Jhon", "age": 35},
+		"user2": {"name": "Jane", "age": 28},
+		"settings": {"theme": "light", "lang": "en"}
+	}`
+
+	// Parse JSON string
+	var parsedData map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &parsedData); err != nil {
+		fmt.Printf("Unmarshal error: %v\n", err)
+		return
+	}
+
+	// Create a new OrderedMap and add the parse data
+	newOm := orderedmap.New()
+	for k, v := range parsedData {
+		newOm.Set(k, v)
+	}
+
+	// Show results
+	fmt.Println("After Unmarshal, OrderedMap content:")
+	newOm.Range(func(key, value interface{}) bool {
+		fmt.Printf("%v: %v\n", key, value)
+		return true
+	})
 }
