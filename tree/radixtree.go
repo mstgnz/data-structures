@@ -37,7 +37,29 @@ func longestCommonPrefix(a, b string) string {
 
 // Insert adds a key-value pair to the tree
 func (rt *RadixTree) Insert(key string, value interface{}) {
+	if len(key) == 0 {
+		if rt.root == nil {
+			rt.root = &RadixNode{
+				prefix:   "",
+				children: make(map[byte]*RadixNode),
+			}
+		}
+		if !rt.root.isEnd {
+			rt.size++
+		}
+		rt.root.isEnd = true
+		rt.root.value = value
+		return
+	}
 	current := rt.root
+
+	if current == nil {
+		current = &RadixNode{
+			prefix:   "",
+			children: make(map[byte]*RadixNode),
+		}
+		rt.root = current
+	}
 
 	for len(key) > 0 {
 		// Find matching child
@@ -65,6 +87,9 @@ func (rt *RadixTree) Insert(key string, value interface{}) {
 			current = child
 			key = key[len(commonPrefix):]
 			if len(key) == 0 {
+				if !child.isEnd {
+					rt.size++
+				}
 				child.isEnd = true
 				child.value = value
 				return
@@ -105,7 +130,17 @@ func (rt *RadixTree) Insert(key string, value interface{}) {
 
 // Search finds a key in the tree and returns its value
 func (rt *RadixTree) Search(key string) (interface{}, bool) {
+	if len(key) == 0 {
+		if rt.root != nil && rt.root.isEnd {
+			return rt.root.value, true
+		}
+		return nil, false
+	}
+
 	current := rt.root
+	if current == nil {
+		return nil, false
+	}
 
 	for len(key) > 0 {
 		firstChar := key[0]
@@ -131,6 +166,16 @@ func (rt *RadixTree) Search(key string) (interface{}, bool) {
 
 // Delete removes a key from the tree
 func (rt *RadixTree) Delete(key string) bool {
+	if len(key) == 0 {
+		if rt.root != nil && rt.root.isEnd {
+			rt.root.isEnd = false
+			rt.root.value = nil
+			rt.size--
+			return true
+		}
+		return false
+	}
+
 	return rt.delete(rt.root, key)
 }
 

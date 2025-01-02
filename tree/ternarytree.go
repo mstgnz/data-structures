@@ -142,7 +142,7 @@ func (tst *TernarySearchTree) StartsWith(prefix string) []string {
 	// Find the node corresponding to the last character of prefix
 	node := tst.search(tst.root, prefix, 0)
 	if node == nil {
-		return nil
+		return make([]string, 0)
 	}
 
 	// Collect all strings with this prefix
@@ -150,7 +150,11 @@ func (tst *TernarySearchTree) StartsWith(prefix string) []string {
 	if node.isEnd {
 		result = append(result, prefix)
 	}
-	tst.collectStrings(node.middle, prefix, &result)
+
+	// Only collect strings if we found the exact prefix
+	if node.char == prefix[len(prefix)-1] {
+		tst.collectStrings(node.middle, prefix, &result)
+	}
 	return result
 }
 
