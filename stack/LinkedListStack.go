@@ -5,26 +5,18 @@ import (
 	"sync"
 )
 
-type ILinkedListStack interface {
-	Push(data int)
-	Pop()
-	IsEmpty() bool
-	Print()
-	List() []int
-}
-
-type linkedListStack struct {
+type LinkedListStack struct {
 	X     int
-	Next  *linkedListStack
+	Next  *LinkedListStack
 	mutex sync.RWMutex
 }
 
-func LinkedListStack(data int) ILinkedListStack {
-	return &linkedListStack{X: data, Next: nil, mutex: sync.RWMutex{}}
+func NewLinkedListStack(data int) *LinkedListStack {
+	return &LinkedListStack{X: data, Next: nil, mutex: sync.RWMutex{}}
 }
 
 // Push adds data at the beginning (LIFO)
-func (arr *linkedListStack) Push(data int) {
+func (arr *LinkedListStack) Push(data int) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -32,7 +24,7 @@ func (arr *linkedListStack) Push(data int) {
 		arr.X = data
 		return
 	}
-	newNode := &linkedListStack{X: data, Next: nil}
+	newNode := &LinkedListStack{X: data, Next: nil}
 	newNode.Next = arr.Next
 	arr.Next = newNode
 	temp := arr.X
@@ -41,7 +33,7 @@ func (arr *linkedListStack) Push(data int) {
 }
 
 // Pop removes data from the beginning
-func (arr *linkedListStack) Pop() {
+func (arr *LinkedListStack) Pop() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -57,14 +49,14 @@ func (arr *linkedListStack) Pop() {
 }
 
 // IsEmpty returns true if stack is empty
-func (arr *linkedListStack) IsEmpty() bool {
+func (arr *LinkedListStack) IsEmpty() bool {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	return arr.X == -1 && arr.Next == nil
 }
 
 // List returns a slice of stack data
-func (arr *linkedListStack) List() []int {
+func (arr *LinkedListStack) List() []int {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	var list []int
@@ -79,7 +71,7 @@ func (arr *linkedListStack) List() []int {
 }
 
 // Print displays stack data
-func (arr *linkedListStack) Print() {
+func (arr *LinkedListStack) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

@@ -5,23 +5,15 @@ import (
 	"sync"
 )
 
-type IArrayStack interface {
-	Push(data int)
-	Pop()
-	IsEmpty() bool
-	Print()
-	List() []int
-}
-
-type arrayStack struct {
+type ArrayStack struct {
 	Arr     []int
 	ArrSize int
 	Index   int
 	mutex   sync.RWMutex
 }
 
-func ArrayStack() IArrayStack {
-	return &arrayStack{
+func NewArrayStack() *ArrayStack {
+	return &ArrayStack{
 		Arr:     []int{0, 0},
 		ArrSize: 2,
 		Index:   0,
@@ -30,7 +22,7 @@ func ArrayStack() IArrayStack {
 }
 
 // Push adds data to the stack
-func (arr *arrayStack) Push(data int) {
+func (arr *ArrayStack) Push(data int) {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -47,7 +39,7 @@ func (arr *arrayStack) Push(data int) {
 }
 
 // Pop removes data from the stack
-func (arr *arrayStack) Pop() {
+func (arr *ArrayStack) Pop() {
 	arr.mutex.Lock()
 	defer arr.mutex.Unlock()
 
@@ -67,14 +59,14 @@ func (arr *arrayStack) Pop() {
 }
 
 // IsEmpty returns true if stack is empty
-func (arr *arrayStack) IsEmpty() bool {
+func (arr *ArrayStack) IsEmpty() bool {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	return arr.Index == 0
 }
 
 // List returns a slice of stack data
-func (arr *arrayStack) List() []int {
+func (arr *ArrayStack) List() []int {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	var list []int
@@ -85,7 +77,7 @@ func (arr *arrayStack) List() []int {
 }
 
 // Print displays stack data
-func (arr *arrayStack) Print() {
+func (arr *ArrayStack) Print() {
 	arr.mutex.RLock()
 	defer arr.mutex.RUnlock()
 	fmt.Print("print : ")

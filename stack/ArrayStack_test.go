@@ -20,10 +20,10 @@ func TestArrayStack_New(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := ArrayStack()
+			stack := NewArrayStack()
 			got := stack.List()
 			if len(got) != len(tt.want) {
-				t.Errorf("ArrayStack() = %v, want %v", got, tt.want)
+				t.Errorf("NewArrayStack() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -49,7 +49,7 @@ func TestArrayStack_Push(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := ArrayStack()
+			stack := NewArrayStack()
 			for _, v := range tt.data {
 				stack.Push(v)
 			}
@@ -92,7 +92,7 @@ func TestArrayStack_Pop(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := ArrayStack()
+			stack := NewArrayStack()
 			for _, v := range tt.init {
 				stack.Push(v)
 			}
@@ -116,20 +116,20 @@ func TestArrayStack_Pop(t *testing.T) {
 func TestArrayStack_Print(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func() IArrayStack
+		setup    func() *ArrayStack
 		expected string
 	}{
 		{
 			name: "print_empty_stack",
-			setup: func() IArrayStack {
-				return ArrayStack()
+			setup: func() *ArrayStack {
+				return NewArrayStack()
 			},
 			expected: "print : \n",
 		},
 		{
 			name: "print_single_element",
-			setup: func() IArrayStack {
-				stack := ArrayStack()
+			setup: func() *ArrayStack {
+				stack := NewArrayStack()
 				stack.Push(1)
 				return stack
 			},
@@ -137,8 +137,8 @@ func TestArrayStack_Print(t *testing.T) {
 		},
 		{
 			name: "print_multiple_elements",
-			setup: func() IArrayStack {
-				stack := ArrayStack()
+			setup: func() *ArrayStack {
+				stack := NewArrayStack()
 				stack.Push(1)
 				stack.Push(2)
 				stack.Push(3)
@@ -173,7 +173,7 @@ func TestArrayStack_Print(t *testing.T) {
 }
 
 func BenchmarkArrayStack_Push(b *testing.B) {
-	stack := ArrayStack()
+	stack := NewArrayStack()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		stack.Push(i)
@@ -181,7 +181,7 @@ func BenchmarkArrayStack_Push(b *testing.B) {
 }
 
 func BenchmarkArrayStack_Pop(b *testing.B) {
-	stack := ArrayStack()
+	stack := NewArrayStack()
 	for i := 0; i < 1000; i++ {
 		stack.Push(i)
 	}

@@ -10,7 +10,7 @@ import (
 func RunExamples() {
 	// Example 1: Array-based Stack
 	fmt.Println("Array Stack Example:")
-	arrayStack := stack.ArrayStack()
+	arrayStack := stack.NewArrayStack()
 
 	fmt.Println("Pushing elements:")
 	arrayStack.Push(1)
@@ -27,7 +27,7 @@ func RunExamples() {
 
 	// Example 2: LinkedList-based Stack
 	fmt.Println("LinkedList Stack Example:")
-	linkedStack := stack.LinkedListStack(0)
+	linkedStack := stack.NewLinkedListStack(0)
 
 	fmt.Println("Pushing elements:")
 	linkedStack.Push(10)

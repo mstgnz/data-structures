@@ -24,7 +24,7 @@ func TestLinkedListStack_New(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := LinkedListStack(tt.data)
+			stack := NewLinkedListStack(tt.data)
 			got := stack.List()
 			if len(got) != len(tt.want) {
 				t.Errorf("LinkedListStack() = %v, want %v", got, tt.want)
@@ -68,7 +68,7 @@ func TestLinkedListStack_Push(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := LinkedListStack(tt.init)
+			stack := NewLinkedListStack(tt.init)
 			for _, v := range tt.data {
 				stack.Push(v)
 			}
@@ -119,7 +119,7 @@ func TestLinkedListStack_Pop(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stack := LinkedListStack(tt.init)
+			stack := NewLinkedListStack(tt.init)
 			for _, v := range tt.push {
 				stack.Push(v)
 			}
@@ -141,7 +141,7 @@ func TestLinkedListStack_Pop(t *testing.T) {
 }
 
 func BenchmarkLinkedListStack_Push(b *testing.B) {
-	stack := LinkedListStack(-1)
+	stack := NewLinkedListStack(-1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		stack.Push(i)
@@ -149,7 +149,7 @@ func BenchmarkLinkedListStack_Push(b *testing.B) {
 }
 
 func BenchmarkLinkedListStack_Pop(b *testing.B) {
-	stack := LinkedListStack(-1)
+	stack := NewLinkedListStack(-1)
 	for i := 0; i < 1000; i++ {
 		stack.Push(i)
 	}
