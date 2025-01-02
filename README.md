@@ -90,8 +90,11 @@ This repository contains implementations of various data structures and algorith
 
 ### Searching Algorithms
 - Linear Search
-- Binary Search
+- Binary Search (Iterative and Recursive)
+- Jump Search
 - Interpolation Search
+- Exponential Search
+- Fibonacci Search
 
 ## 🚀 Getting Started
 
