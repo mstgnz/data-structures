@@ -1,84 +1,73 @@
 package graph
 
 import (
-	"fmt"
 	"sync"
 )
 
 // EulerPath implements algorithms for finding Euler paths and circuits
 type EulerPath struct {
-	graph      *Graph
-	path       []int
-	edgeCount  map[string]int
-	edgesUsed  int
-	totalEdges int
-	mutex      sync.RWMutex
+	graph   *Graph
+	visited map[string]bool
+	path    []int
+	mutex   sync.RWMutex
 }
 
 // NewEulerPath creates a new EulerPath instance
 func NewEulerPath(g *Graph) *EulerPath {
-	totalEdges := 0
-	for v := 0; v < g.GetVertices(); v++ {
-		totalEdges += len(g.adjList[v])
-	}
-	if !g.IsDirected() {
-		totalEdges /= 2 // Each edge counted twice in undirected graph
-	}
-
 	return &EulerPath{
-		graph:      g,
-		path:       make([]int, 0),
-		edgeCount:  make(map[string]int),
-		edgesUsed:  0,
-		totalEdges: totalEdges,
-		mutex:      sync.RWMutex{},
+		graph:   g,
+		visited: make(map[string]bool),
+		path:    make([]int, 0),
+		mutex:   sync.RWMutex{},
 	}
 }
 
-// makeEdgeKey creates a unique key for an edge
-func (ep *EulerPath) makeEdgeKey(from, to int) string {
-	if ep.graph.IsDirected() {
-		return fmt.Sprintf("%d->%d", from, to)
+// hierholzer implements Hierholzer's algorithm for finding Euler paths/circuits
+func (ep *EulerPath) hierholzer(start int) []int {
+	// Create a copy of adjacency list to track remaining edges
+	remainingEdges := make([][]Edge, ep.graph.GetVertices())
+	for i := 0; i < ep.graph.GetVertices(); i++ {
+		remainingEdges[i] = make([]Edge, len(ep.graph.adjList[i]))
+		copy(remainingEdges[i], ep.graph.adjList[i])
 	}
-	if from < to {
-		return fmt.Sprintf("%d-%d", from, to)
-	}
-	return fmt.Sprintf("%d-%d", to, from)
-}
 
-// getUnusedEdge returns an unused edge from vertex v
-func (ep *EulerPath) getUnusedEdge(v int) *Edge {
-	for _, edge := range ep.graph.adjList[v] {
-		key := ep.makeEdgeKey(v, edge.To)
-		count := ep.edgeCount[key]
+	// Stack for vertices and final path
+	stack := []int{start}
+	var path []int
 
-		if ep.graph.IsDirected() {
-			if count == 0 {
-				return &edge
-			}
-		} else {
-			if count == 0 {
-				return &edge
-			}
-		}
-	}
-	return nil
-}
+	for len(stack) > 0 {
+		current := stack[len(stack)-1]
 
-// dfs performs depth first search to find Euler path
-func (ep *EulerPath) dfs(v int) {
-	for {
-		edge := ep.getUnusedEdge(v)
-		if edge == nil {
-			break
+		// If current vertex has no remaining edges
+		if len(remainingEdges[current]) == 0 {
+			path = append(path, current)
+			stack = stack[:len(stack)-1]
+			continue
 		}
 
-		key := ep.makeEdgeKey(v, edge.To)
-		ep.edgeCount[key]++
-		ep.edgesUsed++
-		ep.dfs(edge.To)
+		// Take the next available edge
+		next := remainingEdges[current][0]
+		remainingEdges[current] = remainingEdges[current][1:]
+
+		// For undirected graph, remove the reverse edge
+		if !ep.graph.IsDirected() {
+			for i, edge := range remainingEdges[next.To] {
+				if edge.To == current {
+					remainingEdges[next.To] = append(remainingEdges[next.To][:i], remainingEdges[next.To][i+1:]...)
+					break
+				}
+			}
+		}
+
+		stack = append(stack, next.To)
 	}
-	ep.path = append(ep.path, v)
+
+	// Reverse the path
+	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+		path[i], path[j] = path[j], path[i]
+	}
+
+	return path
 }
 
 // FindEulerPath finds an Euler path in the graph if it exists
@@ -90,46 +79,23 @@ func (ep *EulerPath) FindEulerPath() []int {
 		return nil
 	}
 
-	// Reset state
-	ep.path = make([]int, 0)
-	ep.edgeCount = make(map[string]int)
-	ep.edgesUsed = 0
-
-	// Find starting vertex
 	start := ep.findStartVertex()
-	ep.dfs(start)
+	path := ep.hierholzer(start)
 
-	// Check if all edges were used
-	if ep.edgesUsed != ep.totalEdges {
-		return nil
+	// For Euler circuit, add starting vertex at the end if needed
+	if ep.HasEulerCircuit() && len(path) > 0 {
+		path = append(path, path[0])
 	}
 
-	// Reverse the path
-	for i, j := 0, len(ep.path)-1; i < j; i, j = i+1, j-1 {
-		ep.path[i], ep.path[j] = ep.path[j], ep.path[i]
-	}
-
-	// Verify circuit property if needed
-	if ep.HasEulerCircuit() && ep.path[0] != ep.path[len(ep.path)-1] {
-		return nil
-	}
-
-	return ep.path
+	return path
 }
 
 // FindEulerCircuit finds an Euler circuit in the graph if it exists
 func (ep *EulerPath) FindEulerCircuit() []int {
-	ep.mutex.Lock()
-	defer ep.mutex.Unlock()
-
 	if !ep.HasEulerCircuit() {
 		return nil
 	}
-	path := ep.FindEulerPath()
-	if path == nil || path[0] != path[len(path)-1] {
-		return nil
-	}
-	return path
+	return ep.FindEulerPath()
 }
 
 // HasEulerPath checks if the graph has an Euler path
@@ -189,7 +155,6 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 	}
 
 	if ep.graph.IsDirected() {
-		// Check in-out degree for directed graph
 		inDegree := make([]int, ep.graph.GetVertices())
 		for v := 0; v < ep.graph.GetVertices(); v++ {
 			for _, edge := range ep.graph.adjList[v] {
@@ -205,7 +170,7 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 		return true
 	}
 
-	// In undirected graph all nodes should have even degree
+	// For undirected graph
 	for v := 0; v < ep.graph.GetVertices(); v++ {
 		if len(ep.graph.adjList[v])%2 != 0 {
 			return false
@@ -216,21 +181,27 @@ func (ep *EulerPath) HasEulerCircuit() bool {
 
 // isConnected checks if the graph is connected
 func (ep *EulerPath) isConnected() bool {
-	visited := make([]bool, ep.graph.GetVertices())
+	n := ep.graph.GetVertices()
+	visited := make([]bool, n)
 
-	// Start DFS from first node
-	start := 0
-	for v := 0; v < ep.graph.GetVertices(); v++ {
+	// Find first non-zero degree vertex
+	start := -1
+	for v := 0; v < n; v++ {
 		if len(ep.graph.adjList[v]) > 0 {
 			start = v
 			break
 		}
 	}
 
+	if start == -1 {
+		return true // Empty graph is considered connected
+	}
+
+	// Run DFS from start vertex
 	ep.dfsUtil(start, visited)
 
-	// Check if all nodes are visited
-	for v := 0; v < ep.graph.GetVertices(); v++ {
+	// Check if all non-zero degree vertices are visited
+	for v := 0; v < n; v++ {
 		if len(ep.graph.adjList[v]) > 0 && !visited[v] {
 			return false
 		}
@@ -238,7 +209,7 @@ func (ep *EulerPath) isConnected() bool {
 	return true
 }
 
-// dfsUtil performs DFS for connectivity check
+// dfsUtil is a utility function for DFS traversal
 func (ep *EulerPath) dfsUtil(v int, visited []bool) {
 	visited[v] = true
 	for _, edge := range ep.graph.adjList[v] {
@@ -248,9 +219,23 @@ func (ep *EulerPath) dfsUtil(v int, visited []bool) {
 	}
 }
 
-// findStartVertex finds a suitable starting vertex for Euler path
+// findStartVertex finds a valid starting vertex for Euler path
 func (ep *EulerPath) findStartVertex() int {
-	if ep.graph.IsDirected() {
+	if !ep.graph.IsDirected() {
+		// For undirected graph, start from a vertex with odd degree if exists
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v])%2 != 0 {
+				return v
+			}
+		}
+		// If no odd degree vertex, start from any vertex with non-zero degree
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v]) > 0 {
+				return v
+			}
+		}
+	} else {
+		// For directed graph, find vertex with out-degree > in-degree
 		inDegree := make([]int, ep.graph.GetVertices())
 		for v := 0; v < ep.graph.GetVertices(); v++ {
 			for _, edge := range ep.graph.adjList[v] {
@@ -258,27 +243,19 @@ func (ep *EulerPath) findStartVertex() int {
 			}
 		}
 
-		// First try to find a vertex with out degree = in degree + 1
 		for v := 0; v < ep.graph.GetVertices(); v++ {
-			if len(ep.graph.adjList[v]) > 0 && len(ep.graph.adjList[v]) == inDegree[v]+1 {
+			outDegree := len(ep.graph.adjList[v])
+			if outDegree > inDegree[v] {
+				return v
+			}
+		}
+
+		// If no such vertex exists, start from any vertex with non-zero out-degree
+		for v := 0; v < ep.graph.GetVertices(); v++ {
+			if len(ep.graph.adjList[v]) > 0 {
 				return v
 			}
 		}
 	}
-
-	// For undirected graph or if no suitable vertex found in directed graph
-	for v := 0; v < ep.graph.GetVertices(); v++ {
-		if len(ep.graph.adjList[v])%2 != 0 {
-			return v
-		}
-	}
-
-	// If no odd degree vertex found, return first vertex with edges
-	for v := 0; v < ep.graph.GetVertices(); v++ {
-		if len(ep.graph.adjList[v]) > 0 {
-			return v
-		}
-	}
-
 	return 0
 }
