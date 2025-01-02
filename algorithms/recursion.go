@@ -117,6 +117,9 @@ func recursiveCountNQueensSolutions(n, row int, board []int, count *int) {
 // RecursiveIsValidNQueensSolution verifies if a given solution is valid
 func RecursiveIsValidNQueensSolution(solution []int) bool {
 	n := len(solution)
+	if n == 0 {
+		return false
+	}
 
 	// Check if each value is within bounds
 	for i := 0; i < n; i++ {
@@ -125,17 +128,32 @@ func RecursiveIsValidNQueensSolution(solution []int) bool {
 		}
 	}
 
-	// Check for conflicts
+	// Check for conflicts between any two queens
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
-			// Check vertical and diagonal attacks
-			if solution[i] == solution[j] ||
-				solution[i]-i == solution[j]-j ||
-				solution[i]+i == solution[j]+j {
+			// Check for same column
+			if solution[i] == solution[j] {
+				return false
+			}
+
+			// Check for diagonal conflicts
+			// Two queens are on the same diagonal if:
+			// |row1 - row2| = |col1 - col2|
+			rowDiff := j - i // Always positive since j > i
+			colDiff := abs(solution[i] - solution[j])
+			if rowDiff == colDiff {
 				return false
 			}
 		}
 	}
 
 	return true
+}
+
+// abs returns the absolute value of x
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

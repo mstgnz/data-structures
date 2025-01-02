@@ -1,5 +1,9 @@
 package algorithms
 
+import (
+	"strings"
+)
+
 // CountingSort implements the Counting Sort algorithm for non-negative integers
 // Time Complexity: O(n + k) where n is the number of elements and k is the range of input
 // Space Complexity: O(k)
@@ -90,36 +94,33 @@ func CountingSortWithRange(arr []int, minVal, maxVal int) []int {
 	return arr
 }
 
-// CountingSortString implements Counting Sort for strings (ASCII characters)
-// This is useful for sorting strings based on character frequency
+// CountingSortString sorts a string using counting sort algorithm
 func CountingSortString(str string) string {
 	if len(str) == 0 {
-		return str
+		return ""
 	}
 
-	// Create count array for ASCII characters (256 possible values)
+	// Create a count array for ASCII characters (256 possible values)
 	count := make([]int, 256)
 
-	// Store count of each character
-	for i := 0; i < len(str); i++ {
-		count[str[i]]++
+	// Count occurrences of each character in the input string
+	bytes := []byte(str)
+	for _, b := range bytes {
+		count[b]++
 	}
 
-	// Modify count array to store actual position of each character
-	for i := 1; i < 256; i++ {
-		count[i] += count[i-1]
+	// Build the sorted string
+	var result strings.Builder
+	result.Grow(len(str)) // Pre-allocate space for efficiency
+
+	// Add characters in sorted order with their original frequency
+	for i := 0; i < 256; i++ {
+		for j := 0; j < count[i]; j++ {
+			result.WriteByte(byte(i))
+		}
 	}
 
-	// Create output array
-	output := make([]byte, len(str))
-
-	// Build the output array
-	for i := len(str) - 1; i >= 0; i-- {
-		output[count[str[i]]-1] = str[i]
-		count[str[i]]--
-	}
-
-	return string(output)
+	return result.String()
 }
 
 // CountingSortBytes implements Counting Sort for byte slices
