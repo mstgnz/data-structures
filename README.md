@@ -26,6 +26,11 @@ This repository contains implementations of various data structures and algorith
 - **Hash**
   - Hash Table
   - Hash Map implementations
+- **OrderedMap**
+  - Thread-safe implementation
+  - Order preservation
+  - Concurrent operations support
+  - Advanced features (Copy, Clear, Range iteration)
 
 ### Advanced Data Structures
 - **Graph**
@@ -83,6 +88,34 @@ bst.Insert(3)
 bst.Insert(7)
 ```
 
+```go
+// Example: Using OrderedMap with thread-safety and order preservation
+import "github.com/mstgnz/data-structures/orderedmap"
+
+om := orderedmap.New()
+
+// Adding elements (order is preserved)
+om.Set("first", 1)
+om.Set("second", 2)
+om.Set("third", 3)
+
+// Reading values
+if val, exists := om.Get("second"); exists {
+    fmt.Printf("Value: %v\n", val)
+}
+
+// Iterating in order
+om.Range(func(key, value any) bool {
+    fmt.Printf("%v: %v\n", key, value)
+    return true
+})
+
+// Thread-safe operations
+go func() {
+    om.Set("concurrent", 42)
+}()
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests.
@@ -115,6 +148,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Generic implementations where applicable
 - Performance optimized
 - Thread-safe implementations where necessary
+- Order preservation in map operations
+- Concurrent access support with proper synchronization
+- Advanced data structure features (Copy, Clear, Range operations)
 
 ## 📊 Performance
 
