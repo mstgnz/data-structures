@@ -110,43 +110,6 @@ go mod download
 go test ./...
 ```
 
-## 📖 Usage Examples
-
-You can find example implementations in the `examples` directory. Each data structure and algorithm includes its own test files demonstrating usage patterns.
-
-### Example: Using a Linked List
-```go
-import "github.com/mstgnz/data-structures/linkedlist"
-
-// Create a new doubly linked list
-list := linkedlist.NewDouble()
-list.Add(1)
-list.Add(2)
-list.Add(3)
-```
-
-### Example: Using a Stack
-```go
-import "github.com/mstgnz/data-structures/stack"
-
-// Create a new array-based stack
-stack := stack.NewArrayStack()
-stack.Push(1)
-stack.Push(2)
-value, _ := stack.Pop()
-```
-
-### Example: Using a Queue
-```go
-import "github.com/mstgnz/data-structures/queue"
-
-// Create a new array-based queue
-queue := queue.NewArrayQueue()
-queue.Enqueue(1)
-queue.Enqueue(2)
-value, _ := queue.Dequeue()
-```
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests.
