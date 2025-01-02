@@ -11,6 +11,7 @@ This repository contains implementations of various data structures and algorith
   - Circular Linked List
   - Iterator Pattern Implementation
   - Thread-safe Operations
+  - Generic Type Support
 - **Stack** - [Documentation](stack/README.md)
   - Array-based Implementation
   - Linked List-based Implementation
