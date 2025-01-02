@@ -7,7 +7,7 @@ import (
 )
 
 func TestOrderedMap_BasicOperations(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 
 	// Test Set and Get
 	t.Run("Set and Get", func(t *testing.T) {
@@ -42,7 +42,7 @@ func TestOrderedMap_BasicOperations(t *testing.T) {
 }
 
 func TestOrderedMap_Order(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 
 	// Add elements in specific order
 	elements := []struct {
@@ -86,7 +86,7 @@ func TestOrderedMap_Order(t *testing.T) {
 }
 
 func TestOrderedMap_ConcurrentOperations(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	var wg sync.WaitGroup
 	numGoroutines := 100
 
@@ -160,7 +160,7 @@ func TestOrderedMap_ConcurrentOperations(t *testing.T) {
 }
 
 func TestOrderedMap_String(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	om.Set("key1", 1)
 	om.Set("key2", 2)
 
@@ -172,7 +172,7 @@ func TestOrderedMap_String(t *testing.T) {
 }
 
 func TestOrderedMap_EmptyOperations(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 
 	t.Run("Empty Map Operations", func(t *testing.T) {
 		if om.Len() != 0 {
@@ -194,7 +194,7 @@ func TestOrderedMap_EmptyOperations(t *testing.T) {
 }
 
 func TestOrderedMap_Range(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	elements := []struct {
 		key   string
 		value int
@@ -240,7 +240,7 @@ func TestOrderedMap_Range(t *testing.T) {
 }
 
 func TestOrderedMap_Clear(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	om.Set("key1", 1)
 	om.Set("key2", 2)
 
@@ -259,7 +259,7 @@ func TestOrderedMap_Clear(t *testing.T) {
 }
 
 func TestOrderedMap_Copy(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	om.Set("key1", 1)
 	om.Set("key2", 2)
 
@@ -293,7 +293,7 @@ func TestOrderedMap_Copy(t *testing.T) {
 }
 
 func TestOrderedMap_Has(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	om.Set("key1", 1)
 
 	t.Run("Has Existing Key", func(t *testing.T) {
@@ -310,7 +310,7 @@ func TestOrderedMap_Has(t *testing.T) {
 }
 
 func TestOrderedMap_ConcurrentRangeAndModify(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 	for i := 0; i < 100; i++ {
 		om.Set(i, i)
 	}
@@ -337,7 +337,7 @@ func TestOrderedMap_ConcurrentRangeAndModify(t *testing.T) {
 }
 
 func TestOrderedMap_JSONMarshaling(t *testing.T) {
-	om := New()
+	om := NewOrderedMap()
 
 	// Test data structure
 	type Person struct {
@@ -441,7 +441,7 @@ func TestOrderedMap_JSONMarshaling(t *testing.T) {
 		}
 
 		// Create new OrderedMap and add parsed data
-		newOm := New()
+		newOm := NewOrderedMap()
 		for k, v := range parsedData {
 			newOm.Set(k, v)
 		}

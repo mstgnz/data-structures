@@ -18,8 +18,8 @@ type OrderedMap struct {
 	keyIndex map[any]int
 }
 
-// New creates a new instance of OrderedMap
-func New() *OrderedMap {
+// NewOrderedMap creates a new instance of OrderedMap
+func NewOrderedMap() *OrderedMap {
 	return &OrderedMap{
 		pairs:    make([]Pair, 0),
 		keyIndex: make(map[any]int),
@@ -142,7 +142,7 @@ func (om *OrderedMap) Copy() *OrderedMap {
 	om.mu.RLock()
 	defer om.mu.RUnlock()
 
-	newMap := New()
+	newMap := NewOrderedMap()
 	for _, pair := range om.pairs {
 		newMap.Set(pair.Key, pair.Value)
 	}

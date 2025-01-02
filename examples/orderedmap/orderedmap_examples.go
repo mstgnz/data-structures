@@ -28,7 +28,7 @@ func main() {
 }
 
 func basicOperationsExample() {
-	om := orderedmap.New()
+	om := orderedmap.NewOrderedMap()
 
 	// Adding elements
 	om.Set("name", "John")
@@ -54,7 +54,7 @@ func basicOperationsExample() {
 }
 
 func orderPreservationExample() {
-	om := orderedmap.New()
+	om := orderedmap.NewOrderedMap()
 
 	// Adding elements in specific order
 	data := []struct {
@@ -89,7 +89,7 @@ func orderPreservationExample() {
 }
 
 func concurrentOperationsExample() {
-	om := orderedmap.New()
+	om := orderedmap.NewOrderedMap()
 	var wg sync.WaitGroup
 
 	// Concurrent writes
@@ -121,7 +121,7 @@ func concurrentOperationsExample() {
 }
 
 func advancedFeaturesExample() {
-	om := orderedmap.New()
+	om := orderedmap.NewOrderedMap()
 
 	// Adding some initial data
 	om.Set("one", 1)
@@ -161,7 +161,7 @@ type JsonPerson struct {
 }
 
 func jsonExamples() {
-	om := orderedmap.New()
+	om := orderedmap.NewOrderedMap()
 
 	// Let's add some data
 	om.Set("user1", JsonPerson{Name: "Jhon", Age: 35})
@@ -205,7 +205,7 @@ func jsonExamples() {
 	}
 
 	// Create a new OrderedMap and add the parse data
-	newOm := orderedmap.New()
+	newOm := orderedmap.NewOrderedMap()
 	for k, v := range parsedData {
 		newOm.Set(k, v)
 	}
