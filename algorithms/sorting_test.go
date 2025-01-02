@@ -108,7 +108,7 @@ func TestBubbleSort(t *testing.T) {
 	}
 }
 
-func TestCountingSort(t *testing.T) {
+func TestSortingSort(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			input := make([]int, len(tc.input))

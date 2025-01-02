@@ -131,8 +131,8 @@ func BubbleSort(arr []int) []int {
 	return result
 }
 
-// CountingSort performs counting sort on an integer slice
-func CountingSort(arr []int) []int {
+// SortingSort performs counting sort on an integer slice
+func SortingSort(arr []int) []int {
 	if len(arr) == 0 {
 		return arr
 	}
