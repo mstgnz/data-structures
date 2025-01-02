@@ -1,196 +1,125 @@
-# Queue Data Structures Package
+# Queue Package
 
-This package provides implementations of queue data structures in Go. It includes both array-based and linked list-based queue implementations, each optimized for different use cases.
+This package provides two different queue implementations in Go: Array-based and LinkedList-based. All implementations are designed to be thread-safe.
 
 ## Features
 
-### Array Queue
-- Fixed-size circular array implementation
-- Efficient memory usage
-- Fast random access
-- FIFO (First-In-First-Out) operations
-- Automatic resizing capability
+### Core Structures
+- Array Queue (Dynamic array-based implementation)
+- LinkedList Queue (Linked list-based implementation)
 
-### Linked List Queue
-- Dynamic size implementation
-- No size limitations
-- Memory efficient for variable size
-- FIFO operations
-- Optimal for frequent enqueue/dequeue
+### Common Operations
+- Enqueue: Add element to the queue
+- Dequeue: Remove element from the queue
+- List: Get all elements
+- Print: Display elements
 
-### Common Features
-- Thread-safe operations (optional)
-- Generic type support
-- Clear operation
-- Size tracking
-- Empty/Full state checking
+### Thread Safety
+- Safe read/write operations with RWMutex
+- Concurrent access support for all structures
+- Deadlock prevention mechanisms
 
 ## Usage Examples
 
 ### Array Queue
 ```go
-// Create a new array queue with initial capacity
-queue := NewArrayQueue(5)
+// Create a new queue
+queue := NewArrayQueue()
 
-// Enqueue elements
+// Add elements
 queue.Enqueue(1)
 queue.Enqueue(2)
 queue.Enqueue(3)
 
-// Dequeue elements
-first, err := queue.Dequeue() // Returns 1
-if err == nil {
-    fmt.Println(first)
-}
+// Remove element from front
+queue.Dequeue()
 
-// Check size
-size := queue.Size() // Returns 2
-
-// Peek at front element
-front, err := queue.Peek()
-if err == nil {
-    fmt.Println(front) // Shows 2
-}
+// List elements
+elements := queue.List()
+queue.Print()
 ```
 
-### Linked List Queue
+### LinkedList Queue
 ```go
-// Create a new linked list queue
-queue := NewLinkedListQueue()
+// Create a new queue
+queue := NewLinkedListQueue(0)
 
 // Add elements
-queue.Enqueue("first")
-queue.Enqueue("second")
-queue.Enqueue("third")
+queue.Enqueue(1)
+queue.Enqueue(2)
+queue.Enqueue(3)
 
-// Remove and process elements
-for !queue.IsEmpty() {
-    element, _ := queue.Dequeue()
-    fmt.Println(element)
-}
+// Remove element from front
+queue.Dequeue()
 
-// Check if queue is empty
-isEmpty := queue.IsEmpty() // Returns true
-```
-
-### Generic Type Usage
-```go
-type CustomType struct {
-    ID   int
-    Name string
-}
-
-// Create queue with custom type
-queue := NewArrayQueue(10)
-queue.Enqueue(CustomType{1, "Item 1"})
-queue.Enqueue(CustomType{2, "Item 2"})
-
-// Process custom type elements
-item, err := queue.Dequeue()
-if err == nil {
-    customItem := item.(CustomType)
-    fmt.Printf("ID: %d, Name: %s\n", customItem.ID, customItem.Name)
-}
+// List elements
+elements := queue.List()
+queue.Print()
 ```
 
 ## Implementation Details
 
+### Data Structures
+
+#### Array Queue
+- Dynamic array-based implementation
+- Auto-resizing capability (grows and shrinks)
+- Efficient memory management with reordering
+- First and last index tracking
+
+#### LinkedList Queue
+- Node-based implementation
+- Dynamic memory allocation
+- Single direction linking
+- No size limitations
+
 ### Time Complexities
 
 #### Array Queue
-- Enqueue: O(1) amortized
+- Enqueue: O(1) amortized, O(n) worst case when resizing
+- Dequeue: O(1) amortized, O(n) worst case when reordering
+- List: O(n)
+- Space: O(n)
+
+#### LinkedList Queue
+- Enqueue: O(n) - needs to traverse to end
 - Dequeue: O(1)
-- Peek: O(1)
-- Clear: O(1)
-- Size: O(1)
+- List: O(n)
+- Space: O(n)
 
-#### Linked List Queue
-- Enqueue: O(1)
-- Dequeue: O(1)
-- Peek: O(1)
-- Clear: O(1)
-- Size: O(1)
-
-### Space Complexities
-- Array Queue: O(n) where n is the capacity
-- Linked List Queue: O(n) where n is the number of elements
-
-### Performance Characteristics
+### Memory Management
 
 #### Array Queue
-- Fixed memory allocation
-- Cache-friendly
-- Predictable performance
-- Efficient for fixed-size scenarios
+- Dynamic array resizing (doubles when full)
+- Array shrinking (halves when 1/4 full)
+- Automatic reordering to optimize space
+- Efficient memory utilization
 
-#### Linked List Queue
-- Dynamic memory allocation
-- Better for unpredictable sizes
-- No reallocation needed
-- Memory efficient for varying sizes
+#### LinkedList Queue
+- Dynamic node allocation
+- No pre-allocated memory
+- Memory freed on dequeue
+- No explicit size limitations
 
-## Use Cases
-
-### Array Queue
-- Fixed-size buffers
-- Circular buffers
-- Resource pools
-- Message queues with known bounds
-- Real-time systems
-
-### Linked List Queue
-- Task scheduling
-- Event handling
-- Message queues with unknown bounds
-- Stream processing
-- Dynamic workload management
-
-## Best Practices
-
-### Choosing Queue Type
-- Use Array Queue when:
-  - Maximum size is known
-  - Memory efficiency is critical
-  - Frequent random access needed
-  
-- Use Linked List Queue when:
-  - Size is unpredictable
-  - Dynamic growth is required
-  - Memory overhead is acceptable
-
-### Performance Optimization
-- Initialize Array Queue with appropriate capacity
-- Monitor queue size for potential resizing
-- Consider memory fragmentation
-- Use appropriate queue type for access pattern
-
-### Thread Safety
-- Implement synchronization when needed
-- Consider concurrent access patterns
-- Use atomic operations where appropriate
-- Handle race conditions properly
+### Thread Safety Details
+- RLock for read operations (List, Print)
+- Lock for write operations (Enqueue, Dequeue)
+- Automatic unlock with defer
+- Safe design for concurrent access
 
 ## Testing
-The package comes with comprehensive test coverage. Run tests using:
+The package comes with comprehensive test coverage. To run tests:
 ```bash
 go test ./...
 ```
 
-## Benchmarks
-Key performance metrics:
-- Array Queue Enqueue: ~20ns
-- Array Queue Dequeue: ~15ns
-- Linked List Queue Enqueue: ~40ns
-- Linked List Queue Dequeue: ~30ns
-
 ## Contributing
 Contributions are welcome! Please ensure that any new features or modifications come with:
 - Proper documentation
-- Time and space complexity analysis
+- Thread safety considerations
 - Comprehensive test cases
 - Example usage
-- Performance benchmarks
-- Thread safety considerations
+- Performance analysis
 
 ## License
 This package is distributed under the MIT license. See the LICENSE file for more details. 
