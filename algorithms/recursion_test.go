@@ -139,7 +139,7 @@ func TestRecursiveIsValidNQueensSolution(t *testing.T) {
 		{[]int{0, 0, 0, 0}, false}, // Invalid: queens in same column
 		{[]int{0, 1, 2, 3}, false}, // Invalid: queens in diagonal
 		{[]int{3, 2, 1, 0}, false}, // Invalid: queens in diagonal
-		{[]int{0, 2, 1, 3}, true},  // Valid 4-queens solution
+		{[]int{0, 2, 1, 3}, false}, // Invalid: queens in diagonal
 	}
 
 	for _, tt := range tests {

@@ -114,12 +114,12 @@ func TestCountingSortString(t *testing.T) {
 		{
 			name:     "Multiple characters",
 			input:    "datastructures",
-			expected: "aacderrssttu",
+			expected: "aacderrsstttuu",
 		},
 		{
 			name:     "With spaces",
 			input:    "counting sort",
-			expected: " cginnorstu",
+			expected: " cginnoorsttu",
 		},
 	}
 

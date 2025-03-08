@@ -139,7 +139,7 @@ func RecursiveIsValidNQueensSolution(solution []int) bool {
 			// Check for diagonal conflicts
 			// Two queens are on the same diagonal if:
 			// |row1 - row2| = |col1 - col2|
-			rowDiff := j - i // Always positive since j > i
+			rowDiff := abs(i - j)
 			colDiff := abs(solution[i] - solution[j])
 			if rowDiff == colDiff {
 				return false

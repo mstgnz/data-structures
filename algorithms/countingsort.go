@@ -104,9 +104,8 @@ func CountingSortString(str string) string {
 	count := make([]int, 256)
 
 	// Count occurrences of each character in the input string
-	bytes := []byte(str)
-	for _, b := range bytes {
-		count[b]++
+	for i := 0; i < len(str); i++ {
+		count[str[i]]++
 	}
 
 	// Build the sorted string
